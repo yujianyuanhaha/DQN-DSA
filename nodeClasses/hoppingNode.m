@@ -14,9 +14,9 @@ classdef hoppingNode < radioNode
         % Constructor
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function obj = hoppingNode(numChans,numSteps)
-            obj.actions = zeros(6,numChans);
-            obj.actions(1,1) = 1;
-            obj.actions(2,3) = 1;
+            obj.actions = zeros(6,numChans);        % matrix than vector, fix than random
+            obj.actions(1,1) = 1;   % hardcore stuff
+            obj.actions(2,3) = 1;   % actions(sequence, channel)
             obj.actions(3,5) = 1;
             obj.actions(4,7) = 1;
             obj.actions(5,9) = 1;
@@ -27,13 +27,13 @@ classdef hoppingNode < radioNode
             obj.actionHist = zeros(numSteps,numChans);
             obj.actionHistInd = zeros(1,numSteps);
             
-            obj.hopRate = 1;
+            obj.hopRate = 1;    % hop rate, the freq it decide to hop next channel
             obj.hopPattern = [1,2,3,4,5,6];
         end    
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Determines an action from the node's possible actions
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function action = getAction(obj,stepNum)
+        function action = getAction(obj,stepNum)    % do not mix actions and action
             if ~mod(stepNum,obj.hopRate)
                 obj.hopIndex = obj.hopIndex + 1;
                 if obj.hopIndex > length(obj.hopPattern)

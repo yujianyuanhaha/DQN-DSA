@@ -1,4 +1,5 @@
 classdef dsaNode < legacyNode
+    % one typical of 'legacy Node'
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Defines a node with the default behavior of always using the same
     % randomly chosen channel.
@@ -13,12 +14,14 @@ classdef dsaNode < legacyNode
         % Constructor
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function obj = dsaNode(numChans,numSteps,txProb)
-            obj@legacyNode(numChans,numSteps,txProb)
+            obj@legacyNode(numChans,numSteps,txProb)    % @ magic 
+            % https://www.mathworks.com/help/matlab/matlab_oop/calling-superclass-methods-on-subclass-objects.html
+            % subclass superclass
             
             obj.actions = zeros(numChans+1,numChans);
             for k = 1:numChans
                 obj.actions(k+1,k) = 1;
-            end
+            end                                % similiar to hopping as well
             obj.numActions = size(obj.actions,1); 
             obj.actionTally = zeros(1,numChans+1);
             obj.actionHist = zeros(numSteps,numChans);
@@ -46,7 +49,7 @@ classdef dsaNode < legacyNode
             end
             
             if rand <= obj.txProbability
-                action = obj.actions(ind+1,:);
+                action = obj.actions(ind+1,:);   %  obj.actions = zeros(numChans+1,numChans);
             else
                 action = zeros(1,size(obj.actions,2));
             end

@@ -1,5 +1,8 @@
-classdef scenario < handle
-
+classdef scenario < handle    % derive, not less or equal
+    
+    
+    % simulationScenario = scenario(numSteps,'fixed',3);  example
+  
     properties     
         numSteps;
         scenarioType;  % 'ncorn' or 'fixed'
@@ -17,7 +20,7 @@ classdef scenario < handle
             obj.numSteps = numSteps;
             obj.numIntervals = numIntervals;
             obj.scenarioType = scenarioType;
-            obj.intervalSize = numSteps/numIntervals;
+            obj.intervalSize = numSteps/numIntervals;   % redundency 
             
             
             
@@ -25,7 +28,7 @@ classdef scenario < handle
         
         function initializeScenario(obj,nodes,indicies)
         
-            numNodes = length(indicies);
+            numNodes = length(indicies);    % index
             for i=1:numNodes
                 nodes{indicies(i)}.txProbability = 0;
             end
@@ -48,13 +51,13 @@ classdef scenario < handle
                     
                     
                      for i=1:numNodes
-                        nodes{indicies(i)}.txProbability = currentInterval/obj.numIntervals;                        
+                        nodes{indicies(i)}.txProbability = currentInterval/obj.numIntervals;        % -j ??                       
                      end
                     
                      
                      
                      
-                case 'fixed'
+                case 'fixed'    % nothing in fixed
                     
                 otherwise 
                     error('scenario.Type is unknown');

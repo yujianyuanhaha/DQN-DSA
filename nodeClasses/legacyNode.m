@@ -1,4 +1,4 @@
-classdef legacyNode < radioNode
+classdef legacyNode < radioNode     % most basic one
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Defines a node with the default behavior of always using the same
     % randomly chosen channel.
@@ -10,9 +10,9 @@ classdef legacyNode < radioNode
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Constructor
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function obj = legacyNode(numChans,numSteps,txProb)
+        function obj = legacyNode(numChans,numSteps,txProb)   % notice probabilty, tx after choose
             obj.actions = zeros(1,numChans);
-            obj.actions(randi(numChans)) = 1;
+            obj.actions(randi(numChans)) = 1;   % X = randi(imax) returns a pseudorandom scalar integer between 1 and imax.
             obj.numActions = size(obj.actions,1); 
             obj.actionTally = zeros(1,numChans+1);
             obj.actionHist = zeros(numSteps,numChans);
@@ -25,7 +25,7 @@ classdef legacyNode < radioNode
         function action = getAction(obj,stepNum)
             
             if rand <= obj.txProbability
-                action = obj.actions;
+                action = obj.actions;   %  obj.actions = zeros(1,numChans);
             else
                 action = zeros(1,length(obj.actions));
             end

@@ -32,7 +32,7 @@ classdef mdpNode < radioNode
         policy
         policyHist        
         % [Not transmitting, Good Channel no Interference, Good Channel Interference, Bad Channel no Interference, Bad Channel Interference]
-        rewards = [-200, 100, -100, 50, -200];
+        rewards = [-200, 100, -100, 50, -200];   % -j ??
         
         rewardHist
         rewardTally        
@@ -78,10 +78,10 @@ classdef mdpNode < radioNode
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function action = getAction(obj,stepNum)
             if rand < obj.exploreProb
-                action = obj.actions(randi(obj.numActions),:);
+                action = obj.actions(randi(obj.numActions),:);              % randi
             else
                 [~,stateIndex] = ismember(obj.stateHist(stepNum-1,:),obj.states,'rows');
-                action = obj.actions(obj.policy(stateIndex),:);
+                action = obj.actions(obj.policy(stateIndex),:);                % follow 'intelligient' policy 
             end
             
             obj.actionHist(stepNum,:) = action;
@@ -103,9 +103,10 @@ classdef mdpNode < radioNode
 
             if ~sum(action)
                 reward = obj.rewards(1);
+                %  rewards = [-200, 100, -100, 50, -200]; 
                 obj.rewardTally(1) = obj.rewardTally(1) + reward;
             else
-                if isempty(find(obj.goodChans+action > 1, 1))
+                if isempty(find(obj.goodChans+action > 1, 1))    % find the 1st of ...
                     if collision == 1
                         reward = obj.rewards(5);
                     else
@@ -143,6 +144,8 @@ classdef mdpNode < radioNode
                 
                 obj.stateTrans(indA,indB,indC) = obj.stateTrans(indA,indB,indC) + 1;
                 obj.rewardTrans(indA,indB,indC) = obj.rewardHist(stepNum);
+                % why 3D stuff
+                % state_i, state_j, action
             end
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -152,13 +155,13 @@ classdef mdpNode < radioNode
             obj.avgStateTrans = obj.stateTrans;
             for k = 1:obj.numStates
                 for kk = 1:obj.numActions
-                    obj.avgStateTrans(k,:,kk) = obj.avgStateTrans(k,:,kk) / sum(obj.avgStateTrans(k,:,kk));                    
+                    obj.avgStateTrans(k,:,kk) = obj.avgStateTrans(k,:,kk) / sum(obj.avgStateTrans(k,:,kk));  % normalize                  
                 end
             end
-            obj.avgStateTrans(isnan(obj.avgStateTrans)) = 0;
+            obj.avgStateTrans(isnan(obj.avgStateTrans)) = 0;    % isnan
             
             [~,obj.policy] = mdp_policy_iteration(obj.avgStateTrans,obj.rewardTrans,obj.discountFactor);
-            obj.policy = obj.policy.';
+            obj.policy = obj.policy.';   % data type of policy 
             
             obj.policyHist = [obj.policyHist; obj.policy];
             

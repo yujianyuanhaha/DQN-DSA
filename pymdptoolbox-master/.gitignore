@@ -1,0 +1,9 @@
+build/
+dist/
+docs/_build/
+.coverage
+*.db
+*.py[co]
+*~
+*.egg-info/
+

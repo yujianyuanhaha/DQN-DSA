@@ -1,6 +1,6 @@
 %% Script Initializations
 close all; clear; clc; tic;
-warning('off', 'MATLAB:singularMatrix')
+warning('off', 'MATLAB:singularMatrix')  % -j warning()
 warning('off', 'MATLAB:illConditionedMatrix')
 addpath('mdpToolbox');
 addpath('nodeClasses');
@@ -12,37 +12,39 @@ nodeTypes = [2,2,2,3];               % The type of each node
                                        % 0 - Legacy (Dumb) Node
                                        % 1 - Hopping Node
                                        % 2 - MDP Node
-                                       % 3 - DSA node (just avoids)
+                                       % 3 - DSA node (just avoids)          %% -j mechanism of DSA tag as TODO   
                                        % 4 - Adv. MDP Node
 legacyTxProb = 1;                                   
 numNodes = length(nodeTypes);        % Number of nodes
 
 hiddenNodes = [0,0,0,0];     % should be length numNodes 
                                            % 1--> hidden, 0 --> not hidden (default)
-exposedNodes = [0,0,0,0];    % should be length numNodes 
+exposedNodes = [0,0,0,0];    % should be length numNodes                              
                                            % 1--> exposed, 0 --> not exposed (default)
+                             % -j no collision, no hidden so far, if exist, there exist choice 'no transmit' 
+                             % NEXT STEP, deal with hidden node
                                 
 if length(hiddenNodes) < numNodes
-   hiddenNodes = [hiddenNodes,zeros(1,NumNodes-length(hiddenNodes))];
+   hiddenNodes = [hiddenNodes,zeros(1,NumNodes-length(hiddenNodes))];       % padding with zero
 end 
 
 %% Initializing Nodes, Observable States, and Possible Actions
 states = stateSpaceCreate(numChans);
-numStates = size(states,1);
+numStates = size(states,1);    % -j size(,1);  % return the first dim
 
-nodes = cell(1,numNodes);
+nodes = cell(1,numNodes);   % cell array, abtrary data structure
 for k = 1:numNodes
     if nodeTypes(k) == 0
-        nodes{k} = legacyNode(numChans,numSteps,legacyTxProb);
+        nodes{k} = legacyNode(numChans,numSteps,legacyTxProb);  % function return a handle with name 'legacyNode'
     elseif nodeTypes(k) == 1
         nodes{k} = hoppingNode(numChans,numSteps);
     elseif nodeTypes(k) == 2
         nodes{k} = mdpNode(numChans,states,numSteps);
     elseif nodeTypes(k) == 3
-        nodes{k} = dsaNode(numChans,numSteps,legacyTxProb);
+        nodes{k} = dsaNode(numChans,numSteps,legacyTxProb);        %% note dsa legacyTxProb
     elseif nodeTypes(k) == 4
         nodes{k} = mdpNodeAdvanced(numChans,states,numSteps);
-    end
+    end      
     
     nodes{k}.hidden = hiddenNodes(k);
     nodes{k}.exposed = exposedNodes(k);    
@@ -61,11 +63,11 @@ actions = zeros(numNodes,numChans);
 collisions = zeros(1,numNodes);
 collisionTally = zeros(numNodes);
 collisionHist = zeros(numSteps,numNodes);
-cumulativeCollisions = zeros(numSteps,numNodes);
+cumulativeCollisions = zeros(numSteps,numNodes);    
 
 %% Main Loops
 toc
-disp('Starting Main Loop');
+disp('Starting Main Loop');             % display on terminal
 %nodes{1}.CreateMessage('RequestBand',4);
 %nodes{2}.CreateMessage('RequestBand',1);
 %nodes{3}.CreateMessage('RequestBand',3);
@@ -73,7 +75,7 @@ disp('Starting Main Loop');
 
 legacyNodeIndicies = [];
 for n = 1:numNodes
-   if (isa(nodes{n},'legacyNode'))
+   if (isa(nodes{n},'legacyNode'))          % -j isa() Determine if input is object of specified class
         legacyNodeIndicies = [legacyNodeIndicies,n];
    end
 end
@@ -83,14 +85,14 @@ if ((simulationScenario.scenarioType ~= 'fixed') & ~isempty(legacyNodeIndicies))
 end
 
 for s = 1:numSteps
-    s
+    
     % Determination of next action for each node
     for n = 1:numNodes
-            actions(n,:) = nodes{n}.getAction(s);
+            actions(n,:) = nodes{n}.getAction(s);           % -J key 1 _Node.getAction
     end
     
     if (simulationScenario.scenarioType ~= 'fixed')
-            simulationScenario.updateScenario(nodes,legacyNodeIndicies, s);
+            simulationScenario.updateScenario(nodes,legacyNodeIndicies, s);   % what is update for, next time slots?
     end
     
     
@@ -99,10 +101,12 @@ for s = 1:numSteps
     for n = 1:numNodes
         collisions(n) = 0;
 
-        for nn = 1:numNodes
+        for nn = 1:numNodes   % nest loop
             if n ~= nn
                 if ~(nodes{nn}.hidden)
-                    observedStates(n,:) = (observedStates(n,:) + actions(nn,:) > 0);
+                    observedStates(n,:) = (observedStates(n,:) + actions(nn,:) > 0);  
+                    % what is the eaxct definition - states update after other nodes actions
+                    % global full observe
                 end
                 if (sum(actions(n,:)) > 0) && (~isempty(find((actions(n,:) + actions(nn,:)) > 1, 1))) && ~nodes{nn}.exposed
                         collisions(n) = 1;
@@ -112,10 +116,10 @@ for s = 1:numSteps
         end
         
         if isa(nodes{n},'mdpNode')
-            nodes{n}.getReward(collisions(n),s);
-            nodes{n}.updateTrans(observedStates(n,:),s);
+            nodes{n}.getReward(collisions(n),s);    % should replace damn s -> t for timestamp
+            nodes{n}.updateTrans(observedStates(n,:),s);      % input for update the trans
             
-            if ~mod(s,nodes{n}.policyAdjustRate)
+            if ~mod(s,nodes{n}.policyAdjustRate)   % mod() - Remainder after division (modulo operation)
                 nodes{n}.updatePolicy(s);
             end
         end
@@ -128,7 +132,7 @@ for s = 1:numSteps
                     end
                 end
             end
-        end
+        end    % temporal leave it alone
         
         if isa(nodes{n},'dsaNode')
             nodes{n}.updateState(observedStates(n,:),s)
@@ -188,7 +192,7 @@ if exist('legendInfo','var')
 end
 clear c n legendInfo
 
-figure(3)
+figure(3)   % notice the trick plot Fig3
 split = ceil(numNodes / 2);
 for n = 1:numNodes
     if n <= split
@@ -202,7 +206,7 @@ for n = 1:numNodes
     else
         offset = 0;
     end
-    plot(max(nodes{n}.actionHistInd-1,zeros(1,numSteps)),'bo')
+    plot( max(nodes{n}.actionHistInd-1 , zeros(1,numSteps)),'bo')
     ylim([0,numChans+2]);
     xlabel('Step Number');
     ylabel('Action Number');
@@ -229,7 +233,7 @@ simulationParams.states = states;
 simulationParams.numStates = numStates;
 timeSlots = repmat([1:numSteps]',1,numNodes);
 
-results.collisionTally = collisionTally;
+results.collisionTally = collisionTally;    % first appear 'results', define 'structure' in matlab
 results.collisionHist = collisionHist;
 results.cumulativeCollisions = cumulativeCollisions;
 results.PER = results.cumulativeCollisions./txPackets;
