@@ -155,7 +155,7 @@ clear s n actions nn collisions observedStates
 fprintf('Ending Main Loop After %0.2f seconds.\n',toc);
 
 %% Outputs and Plotting
-figure(1); hold on;
+figure(1); hold on;  %  cumulativeCollisions
 for n = 1:numNodes
     plot(cumulativeCollisions(:,n));      
     if isa(nodes{n},'dsaNode')
@@ -181,7 +181,7 @@ figure(2); hold on;
 c = 1;
 for n = 1:numNodes
     if isa(nodes{n},'mdpNode')
-        plot(nodes{n}.cumulativeReward)
+        plot(nodes{n}.cumulativeReward)     % .cumulativeReward
         legendInfo{c} = sprintf('Node %d (MDP)',n);
         c = c + 1;
     end
@@ -208,7 +208,7 @@ for n = 1:numNodes
     else
         offset = 0;
     end
-    plot( max(nodes{n}.actionHistInd-1 , zeros(1,numSteps)),'bo')
+    plot( max(nodes{n}.actionHistInd-1 , zeros(1,numSteps)),'bo')       %actionHistInd
     ylim([0,numChans+2]);
     xlabel('Step Number');
     ylabel('Action Number');
@@ -246,7 +246,7 @@ figure
 c = 1;
 for i=1:numNodes
         if isa(nodes{i},'mdpNode')
-            semilogy(results.PER(:,i))
+            semilogy(results.PER(:,i))                  % (results.PER(:,i)
             legendInfo{c} = sprintf('Node %d (MDP)',i);
         elseif isa(nodes{i},'dsaNode')
             semilogy(results.PER(:,i))
@@ -267,7 +267,7 @@ figure
 c = 1;
 clear legendInfo;
 for i=1:numNodes
-        if isa(nodes{i},'mdpNode')
+        if isa(nodes{i},'mdpNode')              % results.PLR(
             semilogy(results.PLR(:,i))
             legendInfo{c} = sprintf('Node %d (MDP)',i);
        end
@@ -282,3 +282,11 @@ if exist('legendInfo','var')
 end
 
 %clear numSteps numChans numNodes nodeTypes states numStates
+
+% fully understand code is a must
+% however, prority, get the codes running first.
+
+
+
+
+

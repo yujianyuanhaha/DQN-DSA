@@ -6,13 +6,16 @@ Created on Sun Apr  1 12:54:27 2018
 @author: Jet
 """
 
-import stateSpaceCreate
+
 import numpy as np
 import math
-from radioNode import radioNode
-from legacyNode import legacyNode
+
+from stateSpaceCreate import stateSpaceCreate
+from radioNode   import radioNode
+from legacyNode  import legacyNode
+from mdpNode     import mdpNode
 from hoppingNode import hoppingNode
-from scenario import scenario
+from scenario    import scenario
 
 
 
@@ -36,7 +39,7 @@ def toc():
 # Simulation Parameters
 numSteps = 30000
 numChans = 4
-nodeTypes = np.array( [0,1,2,3])
+nodeTypes = np.array( [0,1,2,0])
 # The type of each node 
 #0 - Legacy (Dumb) Node 
 #1 - Hopping Node
@@ -54,6 +57,12 @@ if len(hiddenNodes) < numNodes:
 
 # Initializing Nodes, Observable States, and Possible Actions
 nodes =  []
+states = stateSpaceCreate(numChans)
+numStates = np.shape(states)[0]
+
+
+t = mdpNode(numChans,states,numSteps)     # breakpoint
+
 for k in range(0,numNodes):
     if nodeTypes[k] == 0:
         t = legacyNode(numChans,numSteps,legacyTxProb)
@@ -62,7 +71,7 @@ for k in range(0,numNodes):
         t = hoppingNode(numChans,numSteps)
         pass
     elif nodeTypes[k] == 2:
-#        t = mdpNode(numChans,states,numSteps)
+        t = mdpNode(numChans,states,numSteps)     
         pass
     elif nodeTypes[k] == 3:
 #        t = dsaNode(numChans,numSteps,legacyTxProb)
@@ -99,7 +108,20 @@ for n in range(0,numNodes):
         legacyNodeIndicies.append(n)
         
 if (simulationScenario.scenarioType != 'fixed') and legacyNodeIndicies:
-    simulationScenario.initializeScenario(nodes,legacyNodeIndicies)    
+    simulationScenario.initializeScenario(nodes,legacyNodeIndicies)  
+    
+    
+# before enter the loop, test session    
+action0 = nodes[0].getAction(0)   
+action1 = nodes[1].getAction(0)   
+action2 = nodes[2].getAction(0)    # mdp
+
+observedStates = np.zeros((numNodes,numChans))
+
+nodes[2].getReward(collisions[2],0)
+nodes[2].updateTrans(observedStates[2,:],0)
+nodes[2].policyAdjustRate
+nodes[2].updatePolicy(0)
 
 for s in range(0,numSteps):
     for n in range(0,numNodes):
@@ -117,7 +139,7 @@ for s in range(0,numSteps):
              if n != nn:
                  if not nodes[nn].hidden:
                      observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)
-                 if np.sum(actions[n,:]) > 0 and ( np.where(actions[n,:] + actions[nn,:] > 1) ) and ( not nodes[nn].exposed):
+                 if np.sum(actions[n,:]) > 0 and all( np.where(actions[n,:] + actions[nn,:] > 1) ) and ( not nodes[nn].exposed):
                      collisions[n] = 1
                      collisionTally[n,nn] += 1
                      
