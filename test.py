@@ -6,6 +6,21 @@ Created on Sun Apr  1 13:37:38 2018
 @author: Jet
 """
 
+
+import numpy as np
+from myFunction import ismember
+
+
+A = np.array([ [1,3,5,6],[2,4,6,8] ])
+B = np.array([ [2,4,6,8], [1,3,5,7], [2,4,6,8] ]  )    # result [0,0]
+B1 = np.array([ [2,2,2,2], [1,3,5,6], [2,4,6,8] ]  )   # result [1,2]
+t = ismember(A,B)
+print t
+t1 = ismember(A,B1)
+print t1
+
+# test pass
+
 #def tic():
 #    #Homemade version of matlab tic and toc functions
 #    import time
@@ -87,9 +102,15 @@ Created on Sun Apr  1 13:37:38 2018
 #c.setAttr(200)       # 再次调用父类的方法 - 设置属性值
 #c.getAttr()          # 再次调用父类的方法 - 获取属性值
 
+#
+#import mdptoolbox.example
+#P, R = mdptoolbox.example.forest()
+#vi = mdptoolbox.mdp.ValueIteration(P, R, 0.9)
+#vi.run()
+#vi.policy # result is (0, 0, 0)
 
-import mdptoolbox.example
-P, R = mdptoolbox.example.forest()
-vi = mdptoolbox.mdp.ValueIteration(P, R, 0.9)
-vi.run()
-vi.policy # result is (0, 0, 0)
+
+
+
+
+

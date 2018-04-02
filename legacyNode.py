@@ -7,34 +7,39 @@ Created on Sun Apr  1 16:16:16 2018
 """
 
 import numpy as np
+import random
+from radioNode import radioNode
 
 class legacyNode(radioNode):
     
     def __init__(self, numChans, numSteps, txProb):
-        self.actions                  = zeros(1,numChans)
-        self.actions(randi(numChans)) = 1
-        self.numActions               = size(self.actions,1)
-        self.actionTally              = zeros(1,numChans+1)
-        self.actionHist               = zeros(numSteps,numChans)
-        self.actionHistInd            = zeros(1,numSteps)
+        self.actions                  = np.zeros(numChans)   # missing ()
+        self.actions[ random.randint(0, numChans-1) ] = 1
+        self.numActions               = np.size(self.actions,0)   # get size; as smiliar as possible  # WARNING
+        self.actionTally              = np.zeros(numChans+1)
+        self.actionHist               = np.zeros((numSteps,numChans))
+        self.actionHistInd            = np.zeros(numSteps)
         self.txProbability            = txProb
+
     
-    def getAction(self,stepNum):
-        if rand <= self.txProbability:
-            action = self.actions;  # %  self.actions = zeros(1,numChans);
-        else
-            action = zeros(1,length(self.actions));
+    def getAction(self, stepNum):             
+        
+        if random.random()  <= self.txProbability:
+            action = self.actions  # %  self.actions = zeros(1,numChans);
+        else:
+            action = np.zeros(len(self.actions)[0])
 
             
-        self.actionHist(stepNum,:) = action;
-        if ~sum(action):
-            self.actionHistInd(stepNum) = 0;
-        else
-            self.actionHistInd(stepNum) = find(action == 1) + 1;
+        self.actionHist[stepNum,:] = action;  # same synax with matlab   # replace () []
+        if not np.sum(action):
+            self.actionHistInd[stepNum] = 0
+        else:
+            self.actionHistInd[stepNum] = np.where(action == 1)[0] + 1    #find
           
             
-        if ~sum(action)
-            self.actionTally(1) = self.actionTally(1) + 1;
-        else
-            self.actionTally(2:end) = self.actionTally(2:end) + action;
+        if not np.sum(action):
+            self.actionTally[0] = self.actionTally[0] + 1
+        else:
+            self.actionTally[1:] = self.actionTally[1:] + action
+        return action
           

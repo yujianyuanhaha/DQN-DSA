@@ -13,7 +13,7 @@ classdef legacyNode < radioNode     % most basic one
         function obj = legacyNode(numChans,numSteps,txProb)   % notice probabilty, tx after choose
             obj.actions = zeros(1,numChans);
             obj.actions(randi(numChans)) = 1;   % X = randi(imax) returns a pseudorandom scalar integer between 1 and imax.
-            obj.numActions = size(obj.actions,1); 
+            obj.numActions = size(obj.actions,1);   % get size first-dim
             obj.actionTally = zeros(1,numChans+1);
             obj.actionHist = zeros(numSteps,numChans);
             obj.actionHistInd = zeros(1,numSteps);

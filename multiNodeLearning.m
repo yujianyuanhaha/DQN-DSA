@@ -111,6 +111,8 @@ for s = 1:numSteps
                 if (sum(actions(n,:)) > 0) && (~isempty(find((actions(n,:) + actions(nn,:)) > 1, 1))) && ~nodes{nn}.exposed
                         collisions(n) = 1;
                         collisionTally(n,nn) = collisionTally(n,nn) + 1;
+                        % draft
+                        % find(    (actions(n,:) + actions(nn,:)) > 1, 1    )
                 end
             end
         end
