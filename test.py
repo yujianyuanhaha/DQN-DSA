@@ -29,13 +29,13 @@ from mdp import PolicyIteration
 
 
 
-A = np.array([1,3,5,6])
-B = np.array([ [2,4,6,8], [1,3,5,7], [2,4,6,8] ]  )    # result [0,0]
-B1 = np.array([ [2,2,2,2], [1,3,5,6], [2,4,6,8] ]  )   # result [1,2]
-t = ismember(A,B)
-print t
-t1 = ismember(A,B1)
-print t1
+#A = np.array([1,3,5,6])
+#B = np.array([ [2,4,6,8], [1,3,5,7], [2,4,6,8] ]  )    # result [0,0]
+#B1 = np.array([ [2,2,2,2], [1,3,5,6], [2,4,6,8] ]  )   # result [1,2]
+#t = ismember(A,B)
+#print t
+#t1 = ismember(A,B1)
+#print t1
 
 # test pass
 
@@ -130,5 +130,18 @@ print t1
 
 
 
+import matplotlib.pyplot as plt
+plt.figure(1)                # the first figure
+plt.subplot(211)             # the first subplot in the first figure
+plt.plot([1, 2, 3])
+plt.subplot(212)             # the second subplot in the first figure
+plt.plot([4, 5, 6])
 
+
+plt.figure(2)                # a second figure
+plt.plot([4, 5, 6])          # creates a subplot(111) by default
+
+plt.figure(1)                # figure 1 current; subplot(212) still current
+plt.subplot(211)             # make subplot(211) in figure1 current
+plt.title('Easy as 1, 2, 3') # subplot 211 title
 

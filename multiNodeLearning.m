@@ -8,7 +8,7 @@ addpath('nodeClasses');
 %% Simulation Parameters
 numSteps = 30000;                    % Simulation steps per iteration
 numChans = 4;                        % Number of frequency channels available
-nodeTypes = [2,2,2,3];               % The type of each node
+nodeTypes = [2,2,2,0];               % The type of each node
                                        % 0 - Legacy (Dumb) Node
                                        % 1 - Hopping Node
                                        % 2 - MDP Node
@@ -154,6 +154,11 @@ end
 clear s n actions nn collisions observedStates
 fprintf('Ending Main Loop After %0.2f seconds.\n',toc);
 
+
+
+
+
+%% ***************************************************************
 %% Outputs and Plotting
 figure(1); hold on;  %  cumulativeCollisions
 for n = 1:numNodes
@@ -168,7 +173,7 @@ for n = 1:numNodes
         legendInfo{n} = sprintf('Node %d (Legacy)',n);
     end
     
-    txPackets(:,n) = [cumsum(sum(nodes{n}.actionHist')')];
+    txPackets(:,n) = [cumsum(  sum(nodes{n}.actionHist' )')   ];
     
 end
 legend(legendInfo,'Location','northwest');

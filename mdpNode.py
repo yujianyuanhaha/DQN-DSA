@@ -165,8 +165,12 @@ class mdpNode(radioNode):
         # python input (self, transitions, reward, discount, policy0=None, max_iter=1000, eval_type=0, skip_check=False)
         mdp_ = PolicyIteration(self.avgStateTrans,self.rewardTrans,self.discountFactor,skip_check=True)
         mdp_.run()
-        self.policy = mdp_.policy;
-        self.policyHist = np.concatenate(self.policyHist, self.policy.T, axis=1)
+        self.policy = mdp_.policy
+        if step == 0:
+            self.policyHist = np.array(self.policy).T
+        else:                
+            self.policyHist = np.concatenate( (self.policyHist, np.array(self.policy).T), axis=1)
+        # it always happen, double check grammer first
         # T for transpose
         # np.transpose([mdp_.policy])
         #self.policy = self.policy.'   # data type of policy        
@@ -189,7 +193,10 @@ class mdpNode(radioNode):
             print 'error - exploreDecayType misdefined'
         
         #self.exploreHist = [self.exploreHist, self.exploreProb]
-        self.exploreHist = np.concatenate(self.exploreHist, self.exploreProb.T, axis=1)
+        if step == 0:
+            self.exploreHist = np.array(self.exploreProb).T
+        else:
+            self.exploreHist = np.concatenate((self.exploreHist, np.array(self.exploreProb).T), axis=1)
         
         
         

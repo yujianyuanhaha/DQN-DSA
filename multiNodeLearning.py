@@ -16,30 +16,17 @@ from legacyNode  import legacyNode
 from mdpNode     import mdpNode
 from hoppingNode import hoppingNode
 from scenario    import scenario
+import matplotlib.pyplot as plt
+from myFunction  import tic
+from myFunction  import toc
 
 
-
-# to be wrap in seperate files
-def tic():
-    #Homemade version of matlab tic and toc functions
-    import time
-    global startTime_for_tictoc
-    startTime_for_tictoc = time.time()
-
-def toc():
-    import time
-    if 'startTime_for_tictoc' in globals():
-        print "Elapsed time is " + str(time.time() - startTime_for_tictoc) + " seconds."
-    else:
-        print "Toc: start time not set"
-
-
-
+tic()
 
 # Simulation Parameters
 numSteps = 30000
 numChans = 4
-nodeTypes = np.array( [0,1,2,0])
+nodeTypes = np.array( [2,2,2,0])
 # The type of each node 
 #0 - Legacy (Dumb) Node 
 #1 - Hopping Node
@@ -112,16 +99,16 @@ if (simulationScenario.scenarioType != 'fixed') and legacyNodeIndicies:
     
     
 # before enter the loop, test session    
-action0 = nodes[0].getAction(0)   
-action1 = nodes[1].getAction(0)   
-action2 = nodes[2].getAction(0)    # mdp
+#action0 = nodes[0].getAction(0)   
+#action1 = nodes[1].getAction(0)   
+#action2 = nodes[2].getAction(0)    # mdp
 
 observedStates = np.zeros((numNodes,numChans))
 
-nodes[2].getReward(collisions[2],0)
-nodes[2].updateTrans(observedStates[2,:],0)
-nodes[2].policyAdjustRate
-nodes[2].updatePolicy(0)
+#nodes[2].getReward(collisions[2],0)
+#nodes[2].updateTrans(observedStates[2,:],0)
+#nodes[2].policyAdjustRate
+#nodes[2].updatePolicy(0)
 
 for s in range(0,numSteps):
     for n in range(0,numNodes):
@@ -156,13 +143,100 @@ for s in range(0,numSteps):
         cumulativeCollisions[s,:] +=  cumulativeCollisions[s-1,:]
           
 # end, plot next
-         
+toc()      
                   
 # solve one by one is thousand better than mindless and frustration
-# traslation is not big, be careful matters              
-                      
+# traslation is not big, be careful matters  
+
+
+# plot session
+########################################################################
+########################################################################
+#plt.figure(1)    
+#plt.plot(cumulativeCollisions[:,0])
+#plt.figure(2)
+#plt.plot(nodes[0].cumulativeReward)
+
+txPackets = [ ]
+
+############### cumulativeCollisions ##################
+plt.figure(1)
+plt.hold()
+legendInfo = [ ]
+for n in range(0,numNodes):
+    plt.plot(cumulativeCollisions[:,n])      # <<<<
+#    if isinstance(nodes[n],dsaNode):
+#        legendInfo = 'Node %d (DSA)'%{n}
+    if isinstance(nodes[n],hoppingNode):
+        legendInfo.append( 'Node %d (Hopping)'%(n) )
+    elif isinstance(nodes[n],mdpNode):
+        legendInfo.append( 'Node %d (MDP)'%(n) )
+    else:
+        legendInfo.append( 'Node %d (Legacy)'%(n) )
+    
+    txPackets.append( np.cumsum(np.sum(nodes[n].actionHist.T).T ) )
+plt.legend(legendInfo)
+plt.xlabel('Step Number')
+plt.ylabel('Cumulative Collisions')
+plt.title( 'Cumulative Collisions Per Node')                      
             
         
-            
+############### cumulativeReward ##################
+plt.figure(2)
+plt.hold()
+c = 1
+legendInfo = [ ]
+for n in range(0,numNodes):
+    if isinstance(nodes[n],mdpNode):
+        plt.plot(nodes[n].cumulativeReward)
+        legendInfo.append('Node %d (MDP)'%(n) )
+if legendInfo:
+    plt.legend(legendInfo)
+    plt.xlabel('Step Number')
+    plt.ylabel('Cumulative Reward')
+    plt.title( 'Cumulative Reward Per Node')                
         
+#np.ceil
+############### c
+plt.figure(3)
+split = np.ceil(numNodes / 2)    
+for n in range(0,numNodes):
+    if n <= split:
+        plt.subplot(split,2,n+1)
+    else:
+        plt.subplot(split,2,n+1)
+        
+    if isinstance(nodes,mdpNode):
+        offset = 1
+    else:
+        offset = 0
+    plt.plot( np.maximum(nodes[n].actionHistInd-1 , np.zeros(numSteps)),'bo' )
+    plt.ylim(0,numChans+2)
+    plt.xlabel('Step Number')
+    plt.ylabel('Action Number')
+    
+    if isinstance(nodes[n],legacyNode):
+        titleLabel = 'Action Taken by Node %d (Legacy)'%(n)
+    elif isinstance(nodes[n],hoppingNode):
+        titleLabel = 'Action Taken by Node %d (Hopping)'%(n)
+    else:
+        titleLabel = 'Action Taken by Node %d (MDP)'%(n)   # no dsa
+    plt.title(titleLabel)
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
