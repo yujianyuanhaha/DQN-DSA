@@ -66,14 +66,15 @@ class mdpNode(radioNode):
         #self.stateTrans[:,0,:] = np.ones( (self.numStates,self.numActions) )
         # self.avgStateTrans = np.zeros( (self.numStates,self.numStates,self.numActions))
         # S X S X A  - >  A X S X S sizes
-        self.stateTrans        = np.zeros((self.numStates,self.numActions, self.numStates))
-        self.stateTrans[:,0,:] = np.ones( (self.numStates,self.numActions) )
-        self.avgStateTrans     = np.zeros( (self.numActions, self.numStates, self.numStates))
+        self.stateTrans        = np.zeros((self.numActions,self.numStates,self.numStates))
+        self.stateTrans[:,0,:] = np.ones( (self.numActions,self.numStates) )
+        self.avgStateTrans     = np.zeros((self.numActions, self.numStates, self.numStates))
         
         self.rewardHist    = np.zeros(numSteps)
         self.rewardTally   = np.zeros(numChans+1)
         self.cumulativeReward = np.zeros(numSteps)
-        self.rewardTrans   = np.zeros((self.numStates,self.numStates,self.numActions) )
+        #self.rewardTrans   = np.zeros((self.numStates,self.numStates,self.numActions) )
+        self.rewardTrans   = np.zeros((self.numActions, self.numStates,self.numStates) )
         
         self.exploreProb   = self.exploreInit
         self.exploreHist   = self.exploreProb
@@ -110,7 +111,7 @@ class mdpNode(radioNode):
             #  rewards = [-200, 100, -100, 50, -200] 
             self.rewardTally[0] +=  reward
         else:
-            if not np.where(self.goodChans+action > 1)[0][0]:    # find the 1st of ...
+            if not np.where(self.goodChans+action > 1)[0]:    # find the 1st of ...
                 #I ndexError: index 0 is out of bounds for axis 0 with size 0                
                 #if isempty(find(self.goodChans+action > 1, 1)):
                 if collision == 1:
@@ -144,8 +145,8 @@ class mdpNode(radioNode):
             indA = ismember(self.stateHist[stepNum-1,:], self.states )
             indC = ismember(self.actionHist[stepNum ,:], self.actions)
             
-            self.stateTrans[ indA,indB,indC] +=  1
-            self.rewardTrans[indA,indB,indC]  = self.rewardHist[stepNum]
+            self.stateTrans[ indC, indA,indB] +=  1
+            self.rewardTrans[indC, indA,indB]  = self.rewardHist[stepNum]
             # why 3D stuff
             # state_i, state_j, action
         
@@ -154,14 +155,15 @@ class mdpNode(radioNode):
         self.avgStateTrans = self.stateTrans
         for k in range(0,self.numStates):
             for kk in range(0,self.numActions):
-                self.avgStateTrans[k,:,kk] = self.avgStateTrans[k,:,kk] / np.sum(self.avgStateTrans[k,:,kk])  # normalize                  
+                #self.avgStateTrans[k,:,kk] = self.avgStateTrans[k,:,kk] / np.sum(self.avgStateTrans[k,:,kk])  # normalize
+                self.avgStateTrans[kk,k,:] = self.avgStateTrans[kk,k,:] / np.sum(self.avgStateTrans[kk,k,:])
                     
         self.avgStateTrans[np.isnan(self.avgStateTrans)] = 0    # isnan
         
         #[~,self.policy] = mdp_policy_iteration(self.avgStateTrans,self.rewardTrans,self.discountFactor)
         # here we are
         # python input (self, transitions, reward, discount, policy0=None, max_iter=1000, eval_type=0, skip_check=False)
-        mdp_ = PolicyIteration(self.avgStateTrans,self.rewardTrans,self.discountFactor)
+        mdp_ = PolicyIteration(self.avgStateTrans,self.rewardTrans,self.discountFactor,skip_check=True)
         mdp_.run()
         self.policy = mdp_.policy;
         self.policyHist = np.concatenate(self.policyHist, self.policy.T, axis=1)

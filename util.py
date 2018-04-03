@@ -153,7 +153,7 @@ def isStochastic(matrix):
 
     """
     try:
-        absdiff = (_np.abs(matrix.sum(axis=1) - _np.ones(matrix.shape[0])))
+        absdiff = (_np.abs(  matrix.sum(axis=1) - _np.ones(matrix.shape[0]  )))
     except AttributeError:
         matrix = _np.array(matrix)
         absdiff = (_np.abs(matrix.sum(axis=1) - _np.ones(matrix.shape[0])))
