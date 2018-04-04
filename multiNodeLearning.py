@@ -23,8 +23,12 @@ from myFunction  import toc
 
 tic()
 
+# Todo hoppingNode getAction
+# coexist legacy node
+
+
 # Simulation Parameters
-numSteps = 30000
+numSteps = 30000/3   # easier one
 numChans = 4
 nodeTypes = np.array( [2,2,2,0])
 # The type of each node 
@@ -96,19 +100,8 @@ for n in range(0,numNodes):
         
 if (simulationScenario.scenarioType != 'fixed') and legacyNodeIndicies:
     simulationScenario.initializeScenario(nodes,legacyNodeIndicies)  
-    
-    
-# before enter the loop, test session    
-#action0 = nodes[0].getAction(0)   
-#action1 = nodes[1].getAction(0)   
-#action2 = nodes[2].getAction(0)    # mdp
 
 observedStates = np.zeros((numNodes,numChans))
-
-#nodes[2].getReward(collisions[2],0)
-#nodes[2].updateTrans(observedStates[2,:],0)
-#nodes[2].policyAdjustRate
-#nodes[2].updatePolicy(0)
 
 for s in range(0,numSteps):
     
@@ -132,7 +125,10 @@ for s in range(0,numSteps):
             if n != nn:
                 if not nodes[nn].hidden:
                     observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)
-                if np.sum(actions[n,:]) > 0 and any( np.where(actions[n,:] + actions[nn,:] > 1) ) and ( not nodes[nn].exposed):
+                if np.sum(actions[n,:]) > 0 \
+                  and any( np.array( actions[n,:] + actions[nn,:])> 1 ) \
+                                and not nodes[nn].exposed:
+                    # np.array( ) for robust to test np.where()
                     collisions[n]         = 1
                     collisionTally[n,nn] += 1
                      
@@ -149,23 +145,14 @@ for s in range(0,numSteps):
     if s != 0:
         cumulativeCollisions[s,:] +=  cumulativeCollisions[s-1,:]
           
-# end, plot next
 print "End Main Loop"
 toc()      
-                  
-# solve one by one is thousand better than mindless and frustration
-# traslation is not big, be careful matters  
-
-
-# plot session
+                 
 ########################################################################
-########################################################################
-#plt.figure(1)    
-#plt.plot(cumulativeCollisions[:,0])
-#plt.figure(2)
-#plt.plot(nodes[0].cumulativeReward)
+#############################plot session###############################
 
 txPackets = [ ]
+
 
 ############### cumulativeCollisions ##################
 plt.figure(1)

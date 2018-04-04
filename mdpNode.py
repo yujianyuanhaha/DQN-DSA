@@ -65,9 +65,9 @@ class mdpNode(radioNode):
         #self.stateTrans    = np.zeros((self.numStates,self.numStates,self.numActions))
         #self.stateTrans[:,0,:] = np.ones( (self.numStates,self.numActions) )
         # self.avgStateTrans = np.zeros( (self.numStates,self.numStates,self.numActions))
-        # S X S X A  - >  A X S X S sizes
+        # S X S' X A  - >  A X S X S' sizes
         self.stateTrans        = np.zeros((self.numActions,self.numStates,self.numStates))
-        self.stateTrans[:,0,:] = np.ones( (self.numActions,self.numStates) )
+        self.stateTrans[:,:,0] = np.ones( (self.numActions,self.numStates) )
         self.avgStateTrans     = np.zeros((self.numActions, self.numStates, self.numStates))
         
         self.rewardHist    = np.zeros(numSteps)
@@ -81,7 +81,6 @@ class mdpNode(radioNode):
         
         self.policy = np.zeros(numChans)
     
-
       
         
         
@@ -89,8 +88,7 @@ class mdpNode(radioNode):
         if random.random( ) < self.exploreProb:
             action = self.actions[ random.randint(0, self.numActions-1) , :]              # randi
             assert not any(np.isnan(action)), "ERROR! action is Nan at getAction() case 1"
-#            if any(np.isnan(action)):
-#                print "ERROR! action is Nan at getAction() case 1"
+
                 
         else:
             # ismember()
@@ -99,10 +97,7 @@ class mdpNode(radioNode):
             # follow 'intelligient' policy 
             assert not np.isnan(self.policy[stateIndex]), "ERROR! self.policy[stateIndex] is Nan"
             assert not any(np.isnan(action)), "ERROR! action is Nan at getAction() case 2"
-#            if any(np.isnan(action)):
-#                print "ERROR! action is Nan at getAction() case 2"
-            # notice traspose
-#        print action
+
         
         self.actionHist[stepNum,:] = action
                     
@@ -118,29 +113,24 @@ class mdpNode(radioNode):
 
         
     def getReward(self,collision,stepNum):
+        
         action = self.actionHist[stepNum,:]
         if not np.sum(action):
             reward = self.rewards[0]
             #  rewards = [-200, 100, -100, 50, -200] 
             self.rewardTally[0] +=  reward
         else:
-            if not np.where(self.goodChans+action > 1)[0]:    # find the 1st of ...
-            #if not any(self.goodChans+action > 1): 
-                #I ndexError: index 0 is out of bounds for axis 0 with size 0                
-                #if isempty(find(self.goodChans+action > 1, 1)):
+            if not any(np.array(self.goodChans+action) > 1):    # find the 1st of ...
                 if collision == 1:
                     reward = self.rewards[4]
                 else:
-                    reward = self.rewards[3]
-                
+                    reward = self.rewards[3]               
             else:
                 if collision == 1:
                     reward = self.rewards[2]
                 else:
-                    reward = self.rewards[1]
-                                                         
-            self.rewardTally[1:] += action * reward
-        
+                    reward = self.rewards[1]                                                         
+            self.rewardTally[1:] += action * reward        
         self.rewardHist[stepNum] = reward   
         
         if stepNum == 0:
@@ -171,7 +161,9 @@ class mdpNode(radioNode):
         for k in range(0,self.numStates):
             for kk in range(0,self.numActions):
                 #self.avgStateTrans[k,:,kk] = self.avgStateTrans[k,:,kk] / np.sum(self.avgStateTrans[k,:,kk])  # normalize
-                self.avgStateTrans[kk,k,:] = self.avgStateTrans[kk,k,:] / np.sum(self.avgStateTrans[kk,k,:])
+                self.avgStateTrans[kk,k,:] = self.avgStateTrans[kk,k,:] \
+                                                / np.sum(self.avgStateTrans[kk,k,:])
+                assert not any(np.isnan(self.avgStateTrans[kk,k,:] ) ),"self.avgStateTrans[kk,k,:] is Nan"
                     
         self.avgStateTrans[np.isnan(self.avgStateTrans)] = 0    # isnan
         
@@ -180,20 +172,17 @@ class mdpNode(radioNode):
         # python input (self, transitions, reward, discount, policy0=None, max_iter=1000, eval_type=0, skip_check=False)
         mdp_ = PolicyIteration(self.avgStateTrans,self.rewardTrans,self.discountFactor,skip_check=True)
         mdp_.run()
-        self.policy = mdp_.policy;
+        self.policy = mdp_.policy
         temp = np.array( mdp_.policy )[np.newaxis].T # 1D array transpose
         if step == 0:
             self.policyHist = temp 
         else:                
             self.policyHist = np.concatenate( (self.policyHist, temp), axis=1)
-        # it always happen, double check grammer first
-        # T for transpose
-        # np.transpose([mdp_.policy])
-        #self.policy = self.policy.'   # data type of policy        
-        # self.policyHist = [self.policyHist, self.policy]
+
         
         if self.exploreDecayType == 'expo':
-            self.exploreProb = self.exploreInit * np.exp(-self.exploreDecay * np.shape(self.policyHist)[0])
+            self.exploreProb = self.exploreInit * \
+            np.exp(-self.exploreDecay * np.shape(self.policyHist)[0])
         elif self.exploreDecayType == 'step':
             if step > self.exploreWindow:
                 self.exploreProb = self.exploreMin
@@ -201,21 +190,16 @@ class mdpNode(radioNode):
                 self.exploreProb = 1
                 
         elif self.exploreDecayType == 'perf':
-             self.exploreProb = self.exploreInit * np.exp(-self.exploreDecay * np.shape(self.policyHist)[0])     
-             if (np.mean(self.rewardHist[step-self.explorePerfWin+1:step]) < self.explorePerf) and (self.exploreProb < 0.05):
-                 self.exploreProb = 0.2 #self.exploreProb + self.explorePerfJump
-                 
+             self.exploreProb = self.exploreInit * np.exp(-self.exploreDecay \
+                                                          * np.shape(self.policyHist)[0])     
+             if (np.mean(self.rewardHist[step-self.explorePerfWin+1:step]) < self.explorePerf)\
+                                                                 and (self.exploreProb < 0.05):
+                 self.exploreProb = 0.2 #self.exploreProb + self.explorePerfJump                 
         else:
             print 'error - exploreDecayType misdefined'
         
         self.exploreHist.append(self.exploreProb)
-        #self.exploreHist = [self.exploreHist, self.exploreProb]
-        #temp2 = np.array(self.exploreProb)[np.newaxis].T
-#        if step == 0:
-#            self.exploreHist = temp2
-#        else:
-#            self.exploreHist = np.concatenate((self.exploreHist, temp2), axis=1)
-#        
+       
         
         
         
