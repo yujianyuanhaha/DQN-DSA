@@ -11,7 +11,7 @@ import numpy as np
 import math
 
 from stateSpaceCreate import stateSpaceCreate
-from radioNode   import radioNode
+#from radioNode   import radioNode
 from legacyNode  import legacyNode
 from mdpNode     import mdpNode
 from hoppingNode import hoppingNode
@@ -111,8 +111,14 @@ observedStates = np.zeros((numNodes,numChans))
 #nodes[2].updatePolicy(0)
 
 for s in range(0,numSteps):
+    
+    #Determination of next action for each node
     for n in range(0,numNodes):
         actions[n,:] = nodes[n].getAction(s)
+        assert not any(np.isnan(actions[n,:])), "ERROR! action is Nan"
+        # good for quick guess than step by step
+        
+        
         
     if simulationScenario.scenarioType != 'fixed':
          simulationScenario.updateScenario(nodes,legacyNodeIndicies, s)
@@ -120,29 +126,31 @@ for s in range(0,numSteps):
     # Determining observations, collisions, rewards, and policies (where applicable)
     observedStates = np.zeros((numNodes,numChans))
     for n in range(0,numNodes):
-         collisions[n] = 0
-         
-         for nn in range(0,numNodes):
-             if n != nn:
-                 if not nodes[nn].hidden:
-                     observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)
-                 if np.sum(actions[n,:]) > 0 and all( np.where(actions[n,:] + actions[nn,:] > 1) ) and ( not nodes[nn].exposed):
-                     collisions[n] = 1
-                     collisionTally[n,nn] += 1
+        collisions[n] = 0
+        
+        for nn in range(0,numNodes):
+            if n != nn:
+                if not nodes[nn].hidden:
+                    observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)
+                if np.sum(actions[n,:]) > 0 and any( np.where(actions[n,:] + actions[nn,:] > 1) ) and ( not nodes[nn].exposed):
+                    collisions[n]         = 1
+                    collisionTally[n,nn] += 1
                      
-    if isinstance(nodes[n],mdpNode):
-        nodes[n].getReward(collisions[n],s)
-        nodes[n].updateTrans(observedStates[n,:],s)
-        if not math.fmod(s,nodes[n].policyAdjustRate):
-            nodes[n].updatePolicy(s)
+        if isinstance(nodes[n],mdpNode):
+            reward = nodes[n].getReward(collisions[n],s)
+#            print "reward is %d \n"%(reward)
+            nodes[n].updateTrans(observedStates[n,:],s)
+            if not math.fmod(s,nodes[n].policyAdjustRate):
+                nodes[n].updatePolicy(s)
                   
                   
-    collisionHist[s,:] = collisions
-    cumulativeCollisions[s,:]= collisions
-    if s != 1:
+    collisionHist[s,:]        = collisions
+    cumulativeCollisions[s,:] = collisions
+    if s != 0:
         cumulativeCollisions[s,:] +=  cumulativeCollisions[s-1,:]
           
 # end, plot next
+print "End Main Loop"
 toc()      
                   
 # solve one by one is thousand better than mindless and frustration
@@ -161,7 +169,7 @@ txPackets = [ ]
 
 ############### cumulativeCollisions ##################
 plt.figure(1)
-plt.hold()
+#plt.hold()
 legendInfo = [ ]
 for n in range(0,numNodes):
     plt.plot(cumulativeCollisions[:,n])      # <<<<
@@ -179,11 +187,12 @@ plt.legend(legendInfo)
 plt.xlabel('Step Number')
 plt.ylabel('Cumulative Collisions')
 plt.title( 'Cumulative Collisions Per Node')                      
+plt.show()
             
         
 ############### cumulativeReward ##################
 plt.figure(2)
-plt.hold()
+#plt.hold()  #deprecate
 c = 1
 legendInfo = [ ]
 for n in range(0,numNodes):
@@ -194,10 +203,11 @@ if legendInfo:
     plt.legend(legendInfo)
     plt.xlabel('Step Number')
     plt.ylabel('Cumulative Reward')
-    plt.title( 'Cumulative Reward Per Node')                
+    plt.title( 'Cumulative Reward Per Node')   
+plt.show()             
         
 #np.ceil
-############### c
+############### Actions #################################
 plt.figure(3)
 split = np.ceil(numNodes / 2)    
 for n in range(0,numNodes):
