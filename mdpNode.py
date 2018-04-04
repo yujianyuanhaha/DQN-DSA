@@ -187,11 +187,10 @@ class mdpNode(radioNode):
             if step > self.exploreWindow:
                 self.exploreProb = self.exploreMin
             else:
-                self.exploreProb = 1
-                
+                self.exploreProb = 1              
         elif self.exploreDecayType == 'perf':
              self.exploreProb = self.exploreInit * np.exp(-self.exploreDecay \
-                                                          * np.shape(self.policyHist)[0])     
+                                                          * np.shape(self.policyHist)[1])  # qucik   
              if (np.mean(self.rewardHist[step-self.explorePerfWin+1:step]) < self.explorePerf)\
                                                                  and (self.exploreProb < 0.05):
                  self.exploreProb = 0.2 #self.exploreProb + self.explorePerfJump                 

@@ -6,7 +6,7 @@ addpath('mdpToolbox');
 addpath('nodeClasses');
 
 %% Simulation Parameters
-numSteps = 30000/3;                    % Simulation steps per iteration
+numSteps = 30000/;                    % Simulation steps per iteration
 numChans = 4;                        % Number of frequency channels available
 nodeTypes = [2,2,2,0];               % The type of each node
                                        % 0 - Legacy (Dumb) Node
