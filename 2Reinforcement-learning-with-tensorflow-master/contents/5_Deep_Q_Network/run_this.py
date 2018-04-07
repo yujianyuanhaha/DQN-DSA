@@ -18,9 +18,9 @@ def run_maze():
             # RL take action and get next observation and reward
             observation_, reward, done = env.step(action)
 
-            RL.store_transition(observation, action, reward, observation_)
+            RL.store_transition(observation, action, reward, observation_)   # build dict, too simple
 
-            if (step > 200) and (step % 5 == 0):
+            if (step > 200) and (step % 5 == 0):    # step size = 200
                 RL.learn()
 
             # swap observation

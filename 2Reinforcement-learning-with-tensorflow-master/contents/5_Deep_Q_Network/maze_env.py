@@ -92,6 +92,7 @@ class Maze(tk.Tk, object):
         return (np.array(self.canvas.coords(self.rect)[:2]) - np.array(self.canvas.coords(self.oval)[:2]))/(MAZE_H*UNIT)
 
     def step(self, action):
+        #  observation_, reward, done = env.step(action)
         s = self.canvas.coords(self.rect)
         base_action = np.array([0, 0])
         if action == 0:   # up
@@ -122,7 +123,7 @@ class Maze(tk.Tk, object):
             reward = 0
             done = False
         s_ = (np.array(next_coords[:2]) - np.array(self.canvas.coords(self.oval)[:2]))/(MAZE_H*UNIT)
-        return s_, reward, done
+        return s_, reward, done    # python could return several
 
     def render(self):
         # time.sleep(0.01)
