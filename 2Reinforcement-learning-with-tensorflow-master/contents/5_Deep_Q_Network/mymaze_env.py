@@ -79,7 +79,7 @@ class Maze(tk.Tk, object):
         # pack all
         self.canvas.pack()
 
-    def reset(self):       # useful in envComm ?
+    def reset(self):
         self.update()
         time.sleep(0.1)
         self.canvas.delete(self.rect)

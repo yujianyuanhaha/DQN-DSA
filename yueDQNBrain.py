@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+#
 
 
 import numpy as np;
@@ -9,7 +9,6 @@ import tensorflow as tf;
 from ToolBox import tools
 
 
-# In[8]:
 
 
 class DeepQNetwork:
@@ -62,7 +61,6 @@ class DeepQNetwork:
         self.cost_his = []  
 
 
-# In[17]:
 
 
 # Build Network
@@ -128,7 +126,6 @@ class DeepQNetwork:
             self._train_op = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss)
 
 
-# In[3]:
 
 
     def store_transition(self,s, a, r, s_, method = 0,threshold_distance = 0):
@@ -172,7 +169,6 @@ class DeepQNetwork:
         
 
 
-# In[2]:
 
 
     def choose_action(self):
@@ -191,8 +187,6 @@ class DeepQNetwork:
 
 
 
-
-# In[7]:
 
 
     def learn(self):
@@ -231,7 +225,6 @@ class DeepQNetwork:
         self.learn_step_counter += 1
 
 
-# In[5]:
 
 
     def addEstimatedSample(self):
@@ -267,7 +260,6 @@ class DeepQNetwork:
          return temp_memory
 
 
-# In[ ]:
 
 
     def measureRandO(self,power):
@@ -281,7 +273,7 @@ class DeepQNetwork:
         return observation
 
 
-# In[6]:
+
 
 
     def plot_cost(self):

@@ -32,14 +32,14 @@ tic()
 # Simulation Parameters
 numSteps = 30000/3   # easier one
 numChans = 4
-nodeTypes = np.array( [5,0,0,0])    #
+nodeTypes = np.array( [5,3,0,0])    #
 # The type of each node 
 #0 - Legacy (Dumb) Node 
 #1 - Hopping Node
 #2 - MDP Node
 #3 - DSA node (just avoids)         
 #4 - Adv. MDP Node
-#4 - Adv. MDP Node
+#5 - Adv. dqn Node
 legacyTxProb = 1
 numNodes = len(nodeTypes)
 hiddenNodes = np.array( [0,0,0,0])

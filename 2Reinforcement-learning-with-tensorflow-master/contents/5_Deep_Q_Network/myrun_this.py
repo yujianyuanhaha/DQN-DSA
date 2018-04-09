@@ -10,7 +10,7 @@ def run_maze():
 
         while True:
             # fresh env
-            env.render()   # tinerk 
+            env.render()
 
             # RL choose action based on observation
             action = RL.choose_action(observation)
@@ -37,7 +37,7 @@ def run_maze():
 
     # end of game
     print('game over')
-    env.destroy()         # tinker
+    env.destroy()
 
 
 if __name__ == "__main__":
@@ -51,10 +51,6 @@ if __name__ == "__main__":
                       memory_size=2000,
                       # output_graph=True
                       )                                     # , instead of \    # n_feature
-    env.after(100, run_maze)   
+    env.after(100, run_maze)
     env.mainloop()
     RL.plot_cost()
-    # question, why 3000 steps， not 300
-    
-    
-    
