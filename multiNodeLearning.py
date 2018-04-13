@@ -32,7 +32,7 @@ tic()
 # Simulation Parameters
 numSteps = 30000/3   # easier one
 numChans = 4
-nodeTypes = np.array( [5,0,0,0])    #
+nodeTypes = np.array( [2,2,2,0])    #
 # The type of each node 
 #0 - Legacy (Dumb) Node 
 #1 - Hopping Node
