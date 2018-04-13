@@ -1,8 +1,8 @@
-README FILE
-Author: Jianyuan (Jet) Yu
-Affiliation: Wireless, ECE, Virginia Tech 
-Email : jianyuan@vt.edu
-Date  : April, 2018
+README FILE\\
+Author: Jianyuan (Jet) Yu\\
+Affiliation: Wireless, ECE, Virginia Tech \\
+Email : jianyuan@vt.edu\\
+Date  : April, 2018\\
 
 -------------------------------------------------------------------------
 Overview
