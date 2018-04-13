@@ -8,7 +8,7 @@ addpath('nodeClasses');
 %% Simulation Parameters
 numSteps = 30000/3;                    % Simulation steps per iteration
 numChans = 4;                        % Number of frequency channels available
-nodeTypes = [2,2,2,0];               % The type of each node
+nodeTypes = [2,1,1,0];               % The type of each node
                                        % 0 - Legacy (Dumb) Node
                                        % 1 - Hopping Node
                                        % 2 - MDP Node
@@ -51,9 +51,9 @@ for k = 1:numNodes
 end
 clear k
 
-nodes{1}.goodChans = [1,1,0,0];
-nodes{2}.goodChans = [0,1,1,0];
-nodes{3}.goodChans = [0,0,1,1];
+% nodes{1}.goodChans = [1,1,0,0];
+% nodes{2}.goodChans = [0,1,1,0];
+% nodes{3}.goodChans = [0,0,1,1];   % comment out
 
 simulationScenario = scenario(numSteps,'fixed',3);  % 'fixed' or 'ncorn'
 
