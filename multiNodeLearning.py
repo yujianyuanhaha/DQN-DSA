@@ -32,7 +32,7 @@ tic()
 # Simulation Parameters
 numSteps = 30000/3   # easier one
 numChans = 4
-nodeTypes = np.array( [2,2,2,0])    #
+nodeTypes = np.array( [2,2,1,1])    #
 # The type of each node 
 #0 - Legacy (Dumb) Node 
 #1 - Hopping Node
@@ -57,23 +57,35 @@ numStates = np.shape(states)[0]
 
 t = mdpNode(numChans,states,numSteps)     # breakpoint
 
+
+# LegacyChanIndex and HoppingChanIndex
+LegacyChanIndex = [0,1,2,3]
+HoppingChanIndex = [ [1,2],[2,1],[1,3],[3,1],[2,3],[3,2]]  # due so far
+CountLegacyChanIndex = 0
+CountHoppingChanIndex = 0
+#############################################################
+
+
+#######################  Construt Node    #####################
 for k in range(0,numNodes):
     if nodeTypes[k] == 0:
-        t = legacyNode(numChans,numSteps,legacyTxProb)
-        pass
+        t = legacyNode(numChans,numSteps,legacyTxProb,LegacyChanIndex[CountLegacyChanIndex])
+        CountLegacyChanIndex += 1
+        
     elif nodeTypes[k] == 1:
-        t = hoppingNode(numChans,numSteps)
-        pass
+        t = hoppingNode(numChans,numSteps,HoppingChanIndex[CountHoppingChanIndex])
+        CountHoppingChanIndex += 1
+
     elif nodeTypes[k] == 2:
         t = mdpNode(numChans,states,numSteps)     
-        pass
-    elif nodeTypes[k] == 3:
-#        t = dsaNode(numChans,numSteps,legacyTxProb)
-        pass
-    elif nodeTypes[k] == 4:
-        pass
+
+#    elif nodeTypes[k] == 3:
+##        t = dsaNode(numChans,numSteps,legacyTxProb)
+#        pass
+#    elif nodeTypes[k] == 4:
+#        pass
     else:
-        t = dqnNode(numChans,states,numSteps)
+#        t = dqnNode(numChans,states,numSteps)
         pass
     t.hidden = hiddenNodes[k]
     t.exposed = exposedNodes[k] 
@@ -99,7 +111,7 @@ print "Starting Main Loop"
 
 
 ###############################   DEBUG SENTENCE #############################                
-nodes[0].getAction(0)
+#nodes[0].getAction(0)
 
 
 
@@ -153,11 +165,11 @@ for s in range(0,numSteps):
                 
                 
 ###############################   DQN #############################                
-        if isinstance(nodes[n],dqnNode):
-            reward = nodes[n].getReward(collisions[n],s)
-#            nodes[n].updateTrans(observedStates[n,:],s)
-            if not math.fmod(s,nodes[n].policyAdjustRate):
-                nodes[n].updatePolicy(s)
+#        if isinstance(nodes[n],dqnNode):
+#            reward = nodes[n].getReward(collisions[n],s)
+##            nodes[n].updateTrans(observedStates[n,:],s)
+#            if not math.fmod(s,nodes[n].policyAdjustRate):
+#                nodes[n].updatePolicy(s)
 ###############################   DQN #############################                
 
                   
@@ -180,7 +192,7 @@ toc()
 txPackets = [ ]
 
 
-############### cumulativeCollisions ##################
+############### 1 cumulativeCollisions ##################
 plt.figure(1)
 #plt.hold()
 legendInfo = [ ]
@@ -195,7 +207,7 @@ for n in range(0,numNodes):
     else:
         legendInfo.append( 'Node %d (Legacy)'%(n) )
     
-    txPackets.append( np.cumsum(np.sum(nodes[n].actionHist.T).T ) )
+    txPackets.append( np.cumsum(np.sum(nodes[n].actionHist.T , axis=0).T ) )
 plt.legend(legendInfo)
 plt.xlabel('Step Number')
 plt.ylabel('Cumulative Collisions')
@@ -203,10 +215,10 @@ plt.title( 'Cumulative Collisions Per Node')
 plt.show()
             
         
-############### cumulativeReward ##################
+############### 2 cumulativeReward ##################
 plt.figure(2)
 #plt.hold()  #deprecate
-c = 1
+#c = 1
 legendInfo = [ ]
 for n in range(0,numNodes):
     if isinstance(nodes[n],mdpNode):
@@ -220,7 +232,7 @@ if legendInfo:
 plt.show()             
         
 #np.ceil
-############### Actions #################################
+############### 3 Actions #################################
 plt.figure(3)
 split = np.ceil(numNodes / 2)    
 for n in range(0,numNodes):
@@ -247,18 +259,44 @@ for n in range(0,numNodes):
     plt.title(titleLabel)
 
     
+
+############### 4 Packet Error Rate  #################################
+timeSlots = np.matlib.repmat( np.arange(1,numSteps+1)[np.newaxis].T  ,1,numNodes )  
+txPackets = np.array(txPackets).T
+PER =  cumulativeCollisions / txPackets
+PLR = (cumulativeCollisions + timeSlots - txPackets) /timeSlots
     
+plt.figure(4)
+legendInfo = [ ]
+for i in range(numNodes):
+    if isinstance(nodes[i],mdpNode):
+        plt.semilogy( PER[:,i] )
+        legendInfo.append( 'Node %d (MDP)'%(i) )
+    else:
+        plt.semilogy( PER[:,i] )
+        legendInfo.append( 'Node %d (legacy)'%(i) )
+plt.legend(legendInfo)
+plt.xlabel('Step Number')
+plt.ylabel('Cumulative Packet Error Rate')
+plt.title( 'Cumulative Packet Error Rate')                      
+plt.show()        
+        
+
+############### 5 Packet Loss Rate  #################################
+plt.figure(5)
+legendInfo = [ ]
+for i in range(numNodes):
+    if isinstance(nodes[i],mdpNode):
+        plt.semilogy( PLR[:,i] )
+        legendInfo.append( 'Node %d (MDP)'%(i) )
+if not legendInfo:
+    plt.xlabel('Step Number')
+    plt.ylabel('Cumulative Packet Loss Rate')
+    plt.title( 'Cumulative Packet Loss Rate')                      
+    plt.show() 
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+############### END OF PLOT  #################################    
     
     
     

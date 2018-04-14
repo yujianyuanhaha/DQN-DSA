@@ -8,7 +8,7 @@ addpath('nodeClasses');
 %% Simulation Parameters
 numSteps = 30000/3;                    % Simulation steps per iteration
 numChans = 4;                        % Number of frequency channels available
-nodeTypes = [2,1,1,0];               % The type of each node
+nodeTypes = [2,2,3,3];               % The type of each node
                                        % 0 - Legacy (Dumb) Node
                                        % 1 - Hopping Node
                                        % 2 - MDP Node
@@ -238,7 +238,7 @@ simulationParams.numNodes = numNodes;
 simulationParams.nodeTypes = nodeTypes;
 simulationParams.states = states;
 simulationParams.numStates = numStates;
-timeSlots = repmat([1:numSteps]',1,numNodes);
+timeSlots = repmat([1:numSteps]',1,numNodes);   % repmat
 
 results.collisionTally = collisionTally;    % first appear 'results', define 'structure' in matlab
 results.collisionHist = collisionHist;

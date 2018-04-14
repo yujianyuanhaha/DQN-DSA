@@ -1,51 +1,83 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Apr  1 18:05:07 2018
-
-@author: Jet
-"""
-
 import numpy as np
 import random
 from radioNode import radioNode
 
 
-class hoppingNode(radioNode):
-    hopRate = [ ]   #must, else error
-    hopPattern = [ ]
-    hopIndex = 0  # TODO we start from zero
-    def __init__(self,numChans,numSteps):
-        self.actions       = np.zeros((2,numChans) )      # TODO # matrix than vector, fix than random
-        self.actions[0,0]  = 1   # hardcore stuff
-        self.actions[1,2]  = 1   # actions(sequence, channel)
-    #    self.actions[2,4]  = 1
-    #    self.actions[3,6]  = 1
-    #    self.actions[4,8]  = 1
-    #    self.actions[5,10] = 1  #TODO
+
+
+
+class dsaNode (legacyNode):
+    # one typical of 'legacy Node'
+    ###################################################################
+    # Defines a node with the default behavior of always using the same
+    # randomly chosen channel.
+    ###################################################################
+    
+    observedState = [ ]
+    stateHist = [ ]
+  
+
+
+    ###################################################################
+    # Constructor
+    ###################################################################
+    def __init__(self,numChans,numSteps,txProb):
+        self@legacyNode(numChans,numSteps,txProb)    # @ magic 
+        # https://www.mathworks.com/help/matlab/matlab_oop/calling-superclass-methods-on-subclass-selfects.html
+        # subclass superclass
         
-        self.numActions    = np.shape(self.actions)[0]   # damn, to
-        self.actionTally   = np.zeros(numChans+1)
+        self.actions = zeros(numChans+1,numChans)
+        for k in range(numChans):
+            self.actions[k+1,k] = 1
+                                        # similiar to hopping as well
+        self.numActions    = np.size((self.actions,1) )
+        self.actionTally   = np.zeros((1,numChans+1))
         self.actionHist    = np.zeros((numSteps,numChans))
-        self.actionHistInd = np.zeros(numSteps)
+        self.actionHistInd = np.zeros((1,numSteps))
+        self.txProbability = txProb
+        self.observedState = np.zeros((1,numChans))
+        self.stateHist     = np.zeros((numSteps+1,numChans))
         
-        self.hopRate       = 1    # hop rate, the freq it decide to hop next channel
-        self.hopPattern    = np.array( [0,1])   # we hop only two here #TODO
+    ###################################################################
+    # Determines an action from the node's possible actions
+    ###################################################################
+    def action = getAction(self,stepNum):
         
-    def  getAction(self,stepNum):
-        if not np.fmod(stepNum,self.hopRate):
-            self.hopIndex +=  1
-            if self.hopIndex >= len(self.hopPattern):
-                self.hopIndex = 0  # roll over, what if fully understand at once
-        action = self.actions[self.hopIndex,:]
+        ind = find(self.observedState == 0)
+        #ind = ind(randi(length(ind)))
+        
+        if stepNum > 1:
+            if find(self.actionHistInd[stepNum-1] == ind+1):
+                ind = self.actionHistInd[stepNum-1]-1
+            else:
+                ind = ind[randi[len(ind)]]
+            
+        else:
+            ind = ind[randi[len(ind)]]
+        
+        
+        if rand <= self.txProbability:
+            action = self.actions[ind+1,:]   #  self.actions = zeros(numChans+1,numChans)
+        else:
+            action = np.zeros((1,np.shape(self.actions,2)))
         
         self.actionHist[stepNum,:] = action
-        # how could full zeros happens ->
-        # and the related ROBUST
-        self.actionHistInd[stepNum] = np.where(action == 1)[0] + 1
+        if ~sum(action):
+            self.actionHistInd[stepNum] = 0
+        else:
+            self.actionHistInd[stepNum] = find(action == 1) + 1
         
-        if not np.sum(action):
-            self.actionTally[0] = self.actionTally[1] + 1
+        
+        if ~sum(action):
+            self.actionTally[0] = self.actionTally[0] + 1
         else:
             self.actionTally[1:] = self.actionTally[1:] + action
-               
+        
+    
+    
+    def updateState(self,observedState,s):
+        self.observedState = observedState
+        self.stateHist[s+1,:] = observedState
+        
+        
+    

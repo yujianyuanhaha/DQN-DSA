@@ -12,9 +12,9 @@ from radioNode import radioNode
 
 class legacyNode(radioNode):
     
-    def __init__(self, numChans, numSteps, txProb):
+    def __init__(self, numChans, numSteps, txProb, LegacyChanIndex):
         self.actions                  = np.zeros(numChans)   # missing ()
-        self.actions[ random.randint(0, numChans-1) ] = 1
+        self.actions[ LegacyChanIndex ] = 1
         self.numActions               = np.size(self.actions,0)   # get size; as smiliar as possible  # WARNING
         self.actionTally              = np.zeros(numChans+1)
         self.actionHist               = np.zeros((numSteps,numChans))
