@@ -15,6 +15,7 @@ from stateSpaceCreate import stateSpaceCreate
 from legacyNode  import legacyNode
 from mdpNode     import mdpNode
 from hoppingNode import hoppingNode
+from dsaNode     import dsaNode 
 from dqnNode     import dqnNode   #
 
 from scenario    import scenario
@@ -32,7 +33,11 @@ tic()
 # Simulation Parameters
 numSteps = 30000/3   # easier one
 numChans = 4
-nodeTypes = np.array( [2,2,1,1])    #
+nodeTypes = np.array( [2,0,3,2])    
+# temp error, dsa coexist with one legacy most
+# cannot coexist with hoppping as well
+
+
 # The type of each node 
 #0 - Legacy (Dumb) Node 
 #1 - Hopping Node
@@ -42,7 +47,7 @@ nodeTypes = np.array( [2,2,1,1])    #
 #4 - Adv. MDP Node
 legacyTxProb = 1
 numNodes = len(nodeTypes)
-hiddenNodes = np.array( [0,0,0,0])
+hiddenNodes = np.array( [1,0,0,0])
 exposedNodes = np.array( [0,0,0,0])
 
 if len(hiddenNodes) < numNodes:
@@ -50,7 +55,7 @@ if len(hiddenNodes) < numNodes:
                                    np.zeros(numNodes-len(hiddenNodes)) ), axis=0)
 
 # Initializing Nodes, Observable States, and Possible Actions
-nodes =  []
+nodes =  [ ]
 states = stateSpaceCreate(numChans)
 numStates = np.shape(states)[0]
 
@@ -66,6 +71,8 @@ CountHoppingChanIndex = 0
 #############################################################
 
 
+
+
 #######################  Construt Node    #####################
 for k in range(0,numNodes):
     if nodeTypes[k] == 0:
@@ -79,8 +86,8 @@ for k in range(0,numNodes):
     elif nodeTypes[k] == 2:
         t = mdpNode(numChans,states,numSteps)     
 
-#    elif nodeTypes[k] == 3:
-##        t = dsaNode(numChans,numSteps,legacyTxProb)
+    elif nodeTypes[k] == 3:
+        t = dsaNode(numChans,numSteps,legacyTxProb)
 #        pass
 #    elif nodeTypes[k] == 4:
 #        pass
@@ -90,6 +97,11 @@ for k in range(0,numNodes):
     t.hidden = hiddenNodes[k]
     t.exposed = exposedNodes[k] 
     nodes.append(t)
+
+
+#at = nodes[3].getAction(0)
+
+
         
 nodes[0].goodChans = np.array( [1,1,0,0] )        
 nodes[1].goodChans = np.array( [0,1,1,0] )          
@@ -164,6 +176,14 @@ for s in range(0,numSteps):
                 nodes[n].updatePolicy(s)
                 
                 
+        if isinstance(nodes[n],dsaNode):
+            nodes[n].updateState(observedStates[n,:],s)
+            
+                
+                
+         
+                
+                
 ###############################   DQN #############################                
 #        if isinstance(nodes[n],dqnNode):
 #            reward = nodes[n].getReward(collisions[n],s)
@@ -204,6 +224,8 @@ for n in range(0,numNodes):
         legendInfo.append( 'Node %d (Hopping)'%(n) )
     elif isinstance(nodes[n],mdpNode):
         legendInfo.append( 'Node %d (MDP)'%(n) )
+    elif isinstance(nodes[n],dsaNode):
+        legendInfo.append( 'Node %d (DSA)'%(n) )
     else:
         legendInfo.append( 'Node %d (Legacy)'%(n) )
     
@@ -250,10 +272,12 @@ for n in range(0,numNodes):
     plt.xlabel('Step Number')
     plt.ylabel('Action Number')
     
-    if isinstance(nodes[n],legacyNode):
+    if   isinstance(nodes[n],legacyNode):
         titleLabel = 'Action Taken by Node %d (Legacy)'%(n)
     elif isinstance(nodes[n],hoppingNode):
         titleLabel = 'Action Taken by Node %d (Hopping)'%(n)
+    elif isinstance(nodes[n],dsaNode):
+        titleLabel = 'Action Taken by Node %d (DSA)'%(n)
     else:
         titleLabel = 'Action Taken by Node %d (MDP)'%(n)   # no dsa
     plt.title(titleLabel)
@@ -272,6 +296,9 @@ for i in range(numNodes):
     if isinstance(nodes[i],mdpNode):
         plt.semilogy( PER[:,i] )
         legendInfo.append( 'Node %d (MDP)'%(i) )
+    elif isinstance(nodes[i],dsaNode):
+        plt.semilogy( PER[:,i] )
+        legendInfo.append( 'Node %d (DSA)'%(i) )
     else:
         plt.semilogy( PER[:,i] )
         legendInfo.append( 'Node %d (legacy)'%(i) )

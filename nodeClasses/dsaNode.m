@@ -53,6 +53,9 @@ classdef dsaNode < legacyNode
             else
                 action = zeros(1,size(obj.actions,2));
             end
+            
+            % conclusion: occupy one once see a empty one, greedy
+            
             obj.actionHist(stepNum,:) = action;
             if ~sum(action)
                 obj.actionHistInd(stepNum) = 0;

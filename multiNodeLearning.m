@@ -8,7 +8,7 @@ addpath('nodeClasses');
 %% Simulation Parameters
 numSteps = 30000/3;                    % Simulation steps per iteration
 numChans = 4;                        % Number of frequency channels available
-nodeTypes = [2,2,3,3];               % The type of each node
+nodeTypes = [2,3,3,0];               % The type of each node
                                        % 0 - Legacy (Dumb) Node
                                        % 1 - Hopping Node
                                        % 2 - MDP Node

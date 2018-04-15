@@ -1,6 +1,7 @@
 import numpy as np
 import random
 from radioNode import radioNode
+from legacyNode import legacyNode
 
 
 
@@ -21,57 +22,56 @@ class dsaNode (legacyNode):
     ###################################################################
     # Constructor
     ###################################################################
-    def __init__(self,numChans,numSteps,txProb):
-        self@legacyNode(numChans,numSteps,txProb)    # @ magic 
-        # https://www.mathworks.com/help/matlab/matlab_oop/calling-superclass-methods-on-subclass-selfects.html
-        # subclass superclass
+    def __init__(self, numChans, numSteps,txProb):
+#        self = legacyNode(numChans,numSteps,txProb)   
+        # TODO what about occupied 
+
         
-        self.actions = zeros(numChans+1,numChans)
+        self.actions = np.zeros((numChans+1,numChans))
         for k in range(numChans):
             self.actions[k+1,k] = 1
                                         # similiar to hopping as well
-        self.numActions    = np.size((self.actions,1) )
-        self.actionTally   = np.zeros((1,numChans+1))
+        self.numActions    = np.shape(self.actions)[0]
+        self.actionTally   = np.zeros(numChans+1)
         self.actionHist    = np.zeros((numSteps,numChans))
-        self.actionHistInd = np.zeros((1,numSteps))
+        self.actionHistInd = np.zeros(numSteps)
         self.txProbability = txProb
-        self.observedState = np.zeros((1,numChans))
+        self.observedState = np.zeros(numChans)
         self.stateHist     = np.zeros((numSteps+1,numChans))
         
     ###################################################################
     # Determines an action from the node's possible actions
     ###################################################################
-    def action = getAction(self,stepNum):
+    def getAction(self,stepNum):
         
-        ind = find(self.observedState == 0)
+        ind = np.where(self.observedState == 0)[0]   # numpy return two set of value, cause np.zeros is treat as matrix
         #ind = ind(randi(length(ind)))
         
-        if stepNum > 1:
-            if find(self.actionHistInd[stepNum-1] == ind+1):
-                ind = self.actionHistInd[stepNum-1]-1
-            else:
-                ind = ind[randi[len(ind)]]
-            
+        if stepNum > 0 and np.where(self.actionHistInd[stepNum-1] == ind+1):
+                # TODO ind+1 
+            ind = self.actionHistInd[stepNum-1]-1            
         else:
-            ind = ind[randi[len(ind)]]
+            ind = ind[random.randint(0,len(ind)-1)]
         
-        
-        if rand <= self.txProbability:
+        ind = ind.astype(int)  # unkown
+        if random.random() <= self.txProbability:
             action = self.actions[ind+1,:]   #  self.actions = zeros(numChans+1,numChans)
         else:
-            action = np.zeros((1,np.shape(self.actions,2)))
+            action = np.zeros(np.shape(self.actions)[1])
         
         self.actionHist[stepNum,:] = action
-        if ~sum(action):
+        if not np.sum(action):
             self.actionHistInd[stepNum] = 0
         else:
-            self.actionHistInd[stepNum] = find(action == 1) + 1
+            self.actionHistInd[stepNum] = np.where(action == 1)[0].astype(int) + 1  # convert to int  #where 
         
         
-        if ~sum(action):
-            self.actionTally[0] = self.actionTally[0] + 1
+        if not np.sum(action):
+            self.actionTally[0] += 1    # like a matrix, damn
         else:
             self.actionTally[1:] = self.actionTally[1:] + action
+            
+        return action
         
     
     
