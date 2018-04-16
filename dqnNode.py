@@ -10,8 +10,9 @@ from radioNode import radioNode
 from myFunction import ismember   #
 import random
 import numpy as np
-import myRL_brain as rl
-from myRL_brain import DeepQNetwork
+#import myRL_brain as rl
+#from myRL_brain import DeepQNetwork
+from dqn import dqn
 #from mdp import PolicyIteration  #
 
 
@@ -64,40 +65,58 @@ class dqnNode(radioNode):
         
         self.stateHist     = np.zeros((numSteps,numChans))
         self.stateTally    = np.zeros(self.numStates)
-        #self.stateTrans    = np.zeros((self.numStates,self.numStates,self.numActions))
-        #self.stateTrans[:,0,:] = np.ones( (self.numStates,self.numActions) )
-        # self.avgStateTrans = np.zeros( (self.numStates,self.numStates,self.numActions))
-        # S X S' X A  - >  A X S X S' sizes
- #       self.stateTrans        = np.zeros((self.numActions,self.numStates,self.numStates))
- #       self.stateTrans[:,:,0] = np.ones( (self.numActions,self.numStates) )
- #       self.avgStateTrans     = np.zeros((self.numActions, self.numStates, self.numStates))
-        
+      
         self.rewardHist    = np.zeros(numSteps)
         self.rewardTally   = np.zeros(numChans+1)
         self.cumulativeReward = np.zeros(numSteps)
-        #self.rewardTrans   = np.zeros((self.numStates,self.numStates,self.numActions) )
         self.rewardTrans   = np.zeros((self.numActions, self.numStates,self.numStates) )
         
         self.exploreProb   = self.exploreInit
-        self.exploreHist   = []
+        self.exploreHist   = [ ]
         
         self.policy = np.zeros(numChans)
         
-        self.n_features = 2**numChans   #
+        self.n_features = 2**numChans   # ToDo
         
-        self.rl = DeepQNetwork(self.actions, self.n_features,
+        self.dqn_ = dqn.DeepQNetwork(self.actions, self.n_features,
                       learning_rate=0.01,
                       reward_decay=0.9,
                       e_greedy=0.9,
                       replace_target_iter=200,
                       memory_size=2000,
                       # output_graph=True
-                      )      # nest class ?               
+                      )      # nest class ? - YES    
+
+          
         
         
         
     def getAction(self,stepNum):
-        return self.rl.choose_action(self.rl, self.rl.observation)
+        return self.dqn_.choose_action(self.rl, self.rl.observation)
+    
+    
+    def getUpdate(self,stepNum, action):
+        #TODO
+        
+        # encapsulted together 
+        self.dqn_.store_transition(observation, action, reward, observation_)  
+        #return observation_, reward, done
+        if (stepNum > 200) and (stepNum % 5 == 0): 
+            self.dqn_.learn()
+            
+        observation = observation_
+        if done:
+            break
+        
+        
+        return reward
+        
+        # notice, return a tuple
+        
+        
+#    def storeTransition(observation, action, reward, observation_):
+#        self.dqn_.store_transition(observation, action, reward, observation_)
+        
         
         
         

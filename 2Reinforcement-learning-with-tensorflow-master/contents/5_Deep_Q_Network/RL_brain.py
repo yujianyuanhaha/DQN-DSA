@@ -80,20 +80,20 @@ class DeepQNetwork:
                 # config of layers #tf.GraphKeys.GLOBAL_VARIABLES
 
             # first layer. collections is used later when assign to target net
-            with tf.variable_scope('l1', reuse=True):
+            with tf.variable_scope('l1', reuse=tf.AUTO_REUSE):
                 w1 = tf.get_variable('w1', [self.n_features, n_l1], initializer=w_initializer, collections=c_names)
                 b1 = tf.get_variable('b1', [1,               n_l1], initializer=b_initializer, collections=c_names)
                 l1 = tf.nn.relu(tf.matmul(self.s, w1) + b1)
 
             # second layer. collections is used later when assign to target net
-            with tf.variable_scope('l2', reuse=True):
+            with tf.variable_scope('l2', reuse=tf.AUTO_REUSE):
                 w2 = tf.get_variable('w2', [n_l1, self.n_actions], initializer=w_initializer, collections=c_names)
                 b2 = tf.get_variable('b2', [1,    self.n_actions], initializer=b_initializer, collections=c_names)
                 self.q_eval = tf.matmul(l1, w2) + b2
 
         with tf.variable_scope('loss'):
             self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval))
-        with tf.variable_scope('train', reuse=True):
+        with tf.variable_scope('train', reuse=tf.AUTO_REUSE):
             self._train_op = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss)
 
         # ------------------ build target_net ------------------
@@ -103,13 +103,13 @@ class DeepQNetwork:
             c_names = ['target_net_params', tf.GraphKeys.GLOBAL_VARIABLES]
 
             # first layer. collections is used later when assign to target net
-            with tf.variable_scope('l1', reuse=True):
+            with tf.variable_scope('l1', reuse=tf.AUTO_REUSE):
                 w1 = tf.get_variable('w1', [self.n_features, n_l1], initializer=w_initializer, collections=c_names)
                 b1 = tf.get_variable('b1', [1, n_l1], initializer=b_initializer, collections=c_names)
                 l1 = tf.nn.relu(tf.matmul(self.s_, w1) + b1)
 
             # second layer. collections is used later when assign to target net
-            with tf.variable_scope('l2', reuse=True):
+            with tf.variable_scope('l2', reuse=tf.AUTO_REUSE):
                 w2 = tf.get_variable('w2', [n_l1, self.n_actions], initializer=w_initializer, collections=c_names)
                 b2 = tf.get_variable('b2', [1, self.n_actions], initializer=b_initializer, collections=c_names)
                 self.q_next = tf.matmul(l1, w2) + b2

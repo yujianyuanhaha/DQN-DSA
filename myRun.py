@@ -8,11 +8,11 @@ def run_Comm():
     step = 0
     for episode in range(300):
         # initial observation
-        observation = env.reset()
+        observation = env.reset()   # tinker
 
         while True:
             # fresh env
-            env.render()
+            env.render()  # tinker
 
             # RL choose action based on observation
             action = RL.choose_action(observation)
