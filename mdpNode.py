@@ -158,7 +158,8 @@ class mdpNode(radioNode):
         #[~,self.policy] = mdp_policy_iteration(self.avgStateTrans,self.rewardTrans,self.discountFactor)
         # here we are
         # python input (self, transitions, reward, discount, policy0=None, max_iter=1000, eval_type=0, skip_check=False)
-        mdp_ = PolicyIteration(self.avgStateTrans, self.rewardTrans, self.discountFactor, skip_check=True)
+        mdp_ = PolicyIteration(self.avgStateTrans, self.rewardTrans, 
+                                self.discountFactor, skip_check=True)
         mdp_.run()
         self.policy = mdp_.policy
         temp = np.array( mdp_.policy )[np.newaxis].T # 1D array transpose

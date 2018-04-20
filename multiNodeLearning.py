@@ -4,6 +4,39 @@
 Created on Sun Apr  1 12:54:27 2018
 
 @author: Jet
+
+jianyuan@vt.edu
+
+April,2018
+
+The main script to run
+
+---------------------------
+Github url:
+       https://github.com/yujianyuanhaha/DQN-DSA 
+
+
+
+
+---------------------------
+File Achitecture:
+
+    multiNodeLearning.py -- myFunction.py
+                         -- legacyNode.py
+                         -- hoppingNode.py
+                         -- dsaNode.py
+                         -- mdpNode.py      -- mdp.py
+                         -- dqnNode.py      -- dqn.py
+                         -- stateSpaceCreate.py
+                         -- scenario.py
+                     
+----------------------------                     
+Main Configuration:  
+    assignment of "array nodeTypes"
+                       
+
+
+
 """
 
 
@@ -23,24 +56,26 @@ import matplotlib.pyplot as plt
 from myFunction  import tic
 from myFunction  import toc
 
+#import myPlot
+
 
 tic()
 
-# Todo hoppingNode getAction
-# coexist legacy node
-
-
-# Simulation Parameters
-numSteps = 30000   # easier one
+ 
+##################### Network Setup & Simulation Parameters #######################################
+numSteps = 30000/3   
 numChans = 4
-nodeTypes = np.array( [5,2,2,0])    #
+nodeTypes = np.array( [5,0,0,1])    #
 # The type of each node 
-#0 - Legacy (Dumb) Node 
-#1 - Hopping Node
-#2 - MDP Node
-#3 - DSA node (just avoids)         
-#4 - Adv. MDP Node
-#5 - Adv. DQN Node
+# 0 - Legacy (Dumb) Node 
+# 1 - Hopping Node
+# 2 - MDP Node
+# 3 - DSA node (just avoids)         
+# 4 - Adv. MDP Node
+# 5 - DQN Node
+
+# !!! capacity check
+
 legacyTxProb = 1
 numNodes = len(nodeTypes)
 hiddenNodes = np.array( [0,0,0,0])
@@ -56,18 +91,26 @@ states = stateSpaceCreate(numChans)
 numStates = np.shape(states)[0]
 
 
-t = mdpNode(numChans,states,numSteps)     # breakpoint
 
+# !!! ToDo Flexiable nodeType
+# LegacyChanIndex and HoppingChanIndex
+LegacyChanIndex = [0,1,2,3]
+HoppingChanIndex = [ [2,3],[3,2]]  # due so far
+CountLegacyChanIndex = 0
+CountHoppingChanIndex = 0
+
+
+
+##################### Construct diff Type of Nodes #######################################
 for k in range(0,numNodes):
     if nodeTypes[k] == 0:
-        t = legacyNode(numChans,numSteps,legacyTxProb,0)  # modify
-
+        t = legacyNode(numChans,numSteps,legacyTxProb,LegacyChanIndex[CountLegacyChanIndex])
+        CountLegacyChanIndex += 1        
     elif nodeTypes[k] == 1:
-        t = hoppingNode(numChans,numSteps)
-
+        t = hoppingNode(numChans,numSteps,HoppingChanIndex[CountHoppingChanIndex])
+        CountHoppingChanIndex += 1
     elif nodeTypes[k] == 2:
         t = mdpNode(numChans,states,numSteps)     
-
     elif nodeTypes[k] == 3:
 #        t = dsaNode(numChans,numSteps,legacyTxProb)
         pass
@@ -93,22 +136,10 @@ collisionTally       = np.zeros((numNodes,numNodes))  #TODO
 collisionHist        = np.zeros((numSteps,numNodes))
 cumulativeCollisions = np.zeros((numSteps,numNodes)) 
 
-# Main Loops
+
+##################### MAIN LOOP BEGIN ############################################
 toc
 print "Starting Main Loop"
-
-
-
-###############################   DEBUG SENTENCE #############################                
-#action = nodes[0].getAction(0,observation)
-
-#reward = nodes[0].getReward(collisions[0],0)
-
-
-
-
-###############################   DEBUG SENTENCE #############################                
-
 
 legacyNodeIndicies = []
 for n in range(0,numNodes):
@@ -121,9 +152,7 @@ if (simulationScenario.scenarioType != 'fixed') and legacyNodeIndicies:
 observedStates = np.zeros((numNodes,numChans))
 
 
-
-##################### TODO #######################################
-##### NOTICE THE MODIFY OF LEGACY/HOPPING NODE BEFROE START ######
+###  TODO LEGACY/HOPPING NODE BEFROE START #######################
 
 for s in range(0,numSteps):
     
@@ -135,7 +164,7 @@ for s in range(0,numSteps):
         else:    
             actions[n,:] = nodes[n].getAction(s)
         assert not any(np.isnan(actions[n,:])), "ERROR! action is Nan"
-        # good for quick guess than step by step
+
         
         
         
@@ -168,7 +197,8 @@ for s in range(0,numSteps):
             reward = nodes[n].getReward(collisions[n],s)
             observation_ = observedStates[n,:]  # update already
             done = True
-            nodes[n].storeTransition(observation, actionScalar, reward, observation_)
+            nodes[n].storeTransition(observation, actionScalar, 
+                 reward, observation_)
             if s > 200 and s % 5 == 0:
                 nodes[n].learn()
             # original  action -> step() -> observation_, reward, done
@@ -182,13 +212,13 @@ for s in range(0,numSteps):
           
 print "End Main Loop"
 toc()      
-
+##################### MAIN LOOP END ###############################################
 
 
 
                  
-########################################################################
-#############################plot session###############################
+################################################################################
+#############################plot session#######################################
 
 txPackets = [ ]
 
@@ -253,7 +283,8 @@ for n in range(0,numNodes):
         offset = 1
     else:
         offset = 0
-    plt.plot( np.maximum(nodes[n].actionHistInd-1 , np.zeros(numSteps)),'bo' )
+    plt.plot( np.maximum(nodes[n].actionHistInd-1 ,
+                         np.zeros(numSteps)),'bo' )
     plt.ylim(0,numChans+2)
     plt.xlabel('Step Number')
     plt.ylabel('Action Number')
@@ -273,7 +304,8 @@ for n in range(0,numNodes):
     
 
 ############### 4 Packet Error Rate  #################################
-timeSlots = np.matlib.repmat( np.arange(1,numSteps+1)[np.newaxis].T  ,1,numNodes )  
+timeSlots = np.matlib.repmat( np.arange(1,numSteps+1)[np.newaxis].T  ,
+                             1,numNodes )  
 txPackets = np.array(txPackets).T
 PER =  cumulativeCollisions / txPackets
 PLR = (cumulativeCollisions + timeSlots - txPackets) /timeSlots
@@ -318,8 +350,7 @@ if not legendInfo:
     
 
 ############### END OF PLOT  ################################# 
-    
-    
+        
     
     
     
