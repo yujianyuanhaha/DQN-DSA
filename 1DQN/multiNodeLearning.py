@@ -63,9 +63,9 @@ tic()
 
  
 ##################### Network Setup & Simulation Parameters #######################################
-numSteps = 30000/3   
+numSteps = 30000/3/5  
 numChans = 4
-nodeTypes = np.array( [5,0,0,1])    #
+nodeTypes = np.array( [5,0,0,0])    #
 # The type of each node 
 # 0 - Legacy (Dumb) Node 
 # 1 - Hopping Node
@@ -154,6 +154,10 @@ observedStates = np.zeros((numNodes,numChans))
 
 ###  TODO LEGACY/HOPPING NODE BEFROE START #######################
 
+
+
+countLearnHist = np.zeros(numSteps);
+
 for s in range(0,numSteps):
     
     #Determination of next action for each node
@@ -197,6 +201,10 @@ for s in range(0,numSteps):
             reward = nodes[n].getReward(collisions[n],s)
             observation_ = observedStates[n,:]  # update already
             done = True
+            
+            
+          #  print observation,  actionScalar, reward, observation_
+            
             nodes[n].storeTransition(observation, actionScalar, 
                  reward, observation_)
             if s > 200 and s % 5 == 0:
@@ -204,6 +212,10 @@ for s in range(0,numSteps):
             # original  action -> step() -> observation_, reward, done
             # 1. action -> collisions
             # 2. collisions -> getReward() -> observation_, reward, done
+            
+            # save the count of Learn for debug
+            
+            countLearnHist[s] = nodes[n].dqn_.countLearn*1.0 / (s+1)
 
     collisionHist[s,:]        = collisions
     cumulativeCollisions[s,:] = collisions
@@ -211,7 +223,13 @@ for s in range(0,numSteps):
         cumulativeCollisions[s,:] +=  cumulativeCollisions[s-1,:]
           
 print "End Main Loop"
-toc()      
+toc()   
+
+plt.figure(1)
+plt.plot(countLearnHist)
+plt.title( 'Learning Ratio') 
+plt.show()
+   
 ##################### MAIN LOOP END ###############################################
 
 

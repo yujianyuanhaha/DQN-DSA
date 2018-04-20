@@ -86,7 +86,9 @@ class dqnNode(radioNode):
                         reward_decay=0.9,
                         e_greedy=0.9,
                         replace_target_iter=200,
-                        memory_size=2000,)     
+                        memory_size=2000,) 
+        # for debug, see the prob of learn vs random try
+        # self.countLearn = 0
 
 
 
@@ -104,6 +106,7 @@ class dqnNode(radioNode):
         else:
             self.actionHistInd[stepNum] = np.where(action == 1)[0] + 1
             self.actionTally[1:] += action
+        
         return action, temp  # return two type
     
     
