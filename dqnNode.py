@@ -76,31 +76,28 @@ class dqnNode(radioNode):
         self.exploreHist   = [ ]
         
         self.policy = np.zeros(numChans)
-        
-        
-        
+               
         self.n_actions     = numChans   # !!! notice
         self.n_features    = numChans  # TODO  # extreme high later
-        # set real deadline, good to start early
-        # head for GLOBECOMM
-        # Let it be
-        
-        self.dqn_ = dqn(self,self.n_actions, self.n_features,   learning_rate=0.01,reward_decay=0.9,e_greedy=0.9,replace_target_iter=200,memory_size=2000,)      # nest class ? - YES    
-                     # add self - duplicate value
-                     # emit , else type error
+       
+        self.dqn_ = dqn(self,self.n_actions, 
+                        self.n_features,   
+                        learning_rate=0.01,
+                        reward_decay=0.9,
+                        e_greedy=0.9,
+                        replace_target_iter=200,
+                        memory_size=2000,)     
 
-          
-        
-        
+
+
         
     def getAction(self, stepNum ,observation):
-        temp = self.dqn_.choose_action(observation)  # damn
+        temp = self.dqn_.choose_action(observation)  
         # !!! new define, convert action from a int to a array
-        action       = np.zeros(self.numChans)  # attention, allow WAIT
+        action       = np.zeros(self.numChans)  # !!! no WAIT so fat
         action[temp] = 1 
-        # garbage code - actionHist, actionTally, actionHistInd
-        self.actionHist[stepNum,:] = action
-                    
+        
+        self.actionHist[stepNum,:] = action                   
         if not np.sum(action):
             self.actionTally[0] +=    1
             self.actionHistInd[stepNum] = 1
@@ -115,10 +112,9 @@ class dqnNode(radioNode):
         action = self.actionHist[stepNum,:]
         if not np.sum(action):
             reward = self.rewards[0]
-            #  rewards = [-200, 100, -100, 50, -200] 
             self.rewardTally[0] +=  reward
         else:
-            if not any(np.array(self.goodChans+action) > 1):    # find the 1st of ...
+            if not any(np.array(self.goodChans+action) > 1):    
                 if collision == 1:
                     reward = self.rewards[4]
                 else:
@@ -135,174 +131,15 @@ class dqnNode(radioNode):
             self.cumulativeReward[stepNum] = reward
         else:
             self.cumulativeReward[stepNum] = self.cumulativeReward[stepNum-1] + reward
-        return reward   # for debug
+        return reward  
     
     
     def storeTransition(self, s, a, r, s_):
-        self.dqn_.store_transition(s, a, r, s_)   # silly, double check after copy-paste
+        self.dqn_.store_transition(s, a, r, s_)   
         
     def learn(self):
         self.dqn_.learn()
-        
-    
-    
-    
-    
-    
-    
-#    def getUpdate(self,collision,stepNum):
-#        #TODO
-#        
-#        
-#        
-#        
-#        
-#        # encapsulted together 
-#        self.dqn_.store_transition(observation, action, reward, observation_)  
-#        #return observation_, reward, done
-#        if (stepNum > 200) and (stepNum % 5 == 0): 
-#            self.dqn_.learn()
-#            
-#        observation = observation_
-#        if done:
-#            break
-#        
-#        
-#        #TODO - update rewardTally cumulativeReward 
-#        
-#        return reward   # for plot
-        
-        # notice, return a tuple
-        
-        
-#    def storeTransition(observation, action, reward, observation_):
-#        self.dqn_.store_transition(observation, action, reward, observation_)
-        
-        
-        
-        
-        
-    
-      
-        
-#        
-#    def getAction(self,stepNum):
-#        if random.random( ) < self.exploreProb:
-#            action = self.actions[ random.randint(0, self.numActions-1) , :]              # randi
-#            assert not any(np.isnan(action)), "ERROR! action is Nan at getAction() case 1"
-#
-#                
-#        else:
-#            # ismember()
-#            stateIndex = ismember(self.stateHist[stepNum-1,:], self.states)   # a scalar value
-#            action = self.actions[self.policy[stateIndex],:]  
-#            # follow 'intelligient' policy 
-#            assert not np.isnan(self.policy[stateIndex]), "ERROR! self.policy[stateIndex] is Nan"
-#            assert not any(np.isnan(action)), "ERROR! action is Nan at getAction() case 2"
-#
-#        
-#        self.actionHist[stepNum,:] = action
-#                    
-#        if not np.sum(action):
-#            self.actionTally[0] +=    1
-#            self.actionHistInd[stepNum] = 1
-#        else:
-#            self.actionHistInd[stepNum] = np.where(action == 1)[0] + 1
-#            self.actionTally[1:] += action  
-#            
-#        return action
-#        # unlike matlab, python must return 
-#        
-#        ################ rl ############
-#        
-#
-#        
-#    def getReward(self,collision,stepNum):
-#        
-#        action = self.actionHist[stepNum,:]
-#        if not np.sum(action):
-#            reward = self.rewards[0]
-#            #  rewards = [-200, 100, -100, 50, -200] 
-#            self.rewardTally[0] +=  reward
-#        else:
-#            if not any(np.array(self.goodChans+action) > 1):    # find the 1st of ...
-#                if collision == 1:
-#                    reward = self.rewards[4]
-#                else:
-#                    reward = self.rewards[3]               
-#            else:
-#                if collision == 1:
-#                    reward = self.rewards[2]
-#                else:
-#                    reward = self.rewards[1]                                                         
-#            self.rewardTally[1:] += action * reward        
-#        self.rewardHist[stepNum] = reward   
-#        
-#        if stepNum == 0:
-#            self.cumulativeReward[stepNum] = reward
-#        else:
-#            self.cumulativeReward[stepNum] = self.cumulativeReward[stepNum-1] + reward
-#        return reward   # for debug
-#        
-        
-        
-#    def updateTrans(self,observedState,stepNum):
-#        self.stateHist[stepNum,:] = observedState           
-#        indB = ismember(self.stateHist[stepNum,:],self.states)
-#        self.stateTally[indB] += 1
-#        
-#        if stepNum > 0:
-#            indA = ismember(self.stateHist[stepNum-1,:], self.states )
-#            indC = ismember(self.actionHist[stepNum ,:], self.actions)
-#            
-#            self.stateTrans[ indC, indA,indB] +=  1
-#            self.rewardTrans[indC, indA,indB]  = self.rewardHist[stepNum]
-#            # why 3D stuff
-#            # state_i, state_j, action
-        
-        
-#    def updatePolicy(self,step):
-#        self.avgStateTrans = self.stateTrans
-#        for k in range(0,self.numStates):
-#            for kk in range(0,self.numActions):
-#                #self.avgStateTrans[k,:,kk] = self.avgStateTrans[k,:,kk] / np.sum(self.avgStateTrans[k,:,kk])  # normalize
-#                self.avgStateTrans[kk,k,:] = self.avgStateTrans[kk,k,:] \
-#                                                / np.sum(self.avgStateTrans[kk,k,:])
-#                assert not any(np.isnan(self.avgStateTrans[kk,k,:] ) ),"self.avgStateTrans[kk,k,:] is Nan"
-#                    
-#        self.avgStateTrans[np.isnan(self.avgStateTrans)] = 0    # isnan
-#        
-#        #[~,self.policy] = mdp_policy_iteration(self.avgStateTrans,self.rewardTrans,self.discountFactor)
-#        # here we are
-#        # python input (self, transitions, reward, discount, policy0=None, max_iter=1000, eval_type=0, skip_check=False)
-#        mdp_ = PolicyIteration(self.avgStateTrans,self.rewardTrans,self.discountFactor,skip_check=True)
-#        mdp_.run()
-#        self.policy = mdp_.policy
-#        temp = np.array( mdp_.policy )[np.newaxis].T # 1D array transpose
-#        if step == 0:
-#            self.policyHist = temp 
-#        else:                
-#            self.policyHist = np.concatenate( (self.policyHist, temp), axis=1)
-#
-#        
-#        if self.exploreDecayType == 'expo':
-#            self.exploreProb = self.exploreInit * \
-#            np.exp(-self.exploreDecay * np.shape(self.policyHist)[0])
-#        elif self.exploreDecayType == 'step':
-#            if step > self.exploreWindow:
-#                self.exploreProb = self.exploreMin
-#            else:
-#                self.exploreProb = 1              
-#        elif self.exploreDecayType == 'perf':
-#             self.exploreProb = self.exploreInit * np.exp(-self.exploreDecay \
-#                                                          * np.shape(self.policyHist)[1])  # qucik   
-#             if (np.mean(self.rewardHist[step-self.explorePerfWin+1:step]) < self.explorePerf)\
-#                                                                 and (self.exploreProb < 0.05):
-#                 self.exploreProb = 0.2 #self.exploreProb + self.explorePerfJump                 
-#        else:
-#            print 'error - exploreDecayType misdefined'
-#        
-#        self.exploreHist.append(self.exploreProb)
+
        
         
         

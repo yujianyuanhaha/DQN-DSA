@@ -4,10 +4,6 @@ from radioNode import radioNode
 from legacyNode import legacyNode
 
 
-
-
-
-
 class dsaNode (legacyNode):
     # one typical of 'legacy Node'
     ###################################################################

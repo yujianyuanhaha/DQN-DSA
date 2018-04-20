@@ -62,9 +62,6 @@ class mdpNode(radioNode):
         
         self.stateHist     = np.zeros((numSteps,numChans))
         self.stateTally    = np.zeros(self.numStates)
-        #self.stateTrans    = np.zeros((self.numStates,self.numStates,self.numActions))
-        #self.stateTrans[:,0,:] = np.ones( (self.numStates,self.numActions) )
-        # self.avgStateTrans = np.zeros( (self.numStates,self.numStates,self.numActions))
         # S X S' X A  - >  A X S X S' sizes
         self.stateTrans        = np.zeros((self.numActions,self.numStates,self.numStates))
         self.stateTrans[:,:,0] = np.ones( (self.numActions,self.numStates) )
@@ -73,7 +70,6 @@ class mdpNode(radioNode):
         self.rewardHist    = np.zeros(numSteps)
         self.rewardTally   = np.zeros(numChans+1)
         self.cumulativeReward = np.zeros(numSteps)
-        #self.rewardTrans   = np.zeros((self.numStates,self.numStates,self.numActions) )
         self.rewardTrans   = np.zeros((self.numActions, self.numStates,self.numStates) )
         
         self.exploreProb   = self.exploreInit
@@ -88,26 +84,20 @@ class mdpNode(radioNode):
         if random.random( ) < self.exploreProb:
             action = self.actions[ random.randint(0, self.numActions-1) , :]              # randi
             assert not any(np.isnan(action)), "ERROR! action is Nan at getAction() case 1"
-
-                
+    
         else:
-            # ismember()
             stateIndex = ismember(self.stateHist[stepNum-1,:], self.states)   # a scalar value
             action = self.actions[self.policy[stateIndex],:]  
             # follow 'intelligient' policy 
             assert not np.isnan(self.policy[stateIndex]), "ERROR! self.policy[stateIndex] is Nan"
-            assert not any(np.isnan(action)), "ERROR! action is Nan at getAction() case 2"
-
-        
-        self.actionHist[stepNum,:] = action
-                    
+            assert not any(np.isnan(action)), "ERROR! action is Nan at getAction() case 2"        
+        self.actionHist[stepNum,:] = action                    
         if not np.sum(action):
             self.actionTally[0] +=    1
             self.actionHistInd[stepNum] = 1
         else:
             self.actionHistInd[stepNum] = np.where(action == 1)[0] + 1
-            self.actionTally[1:] += action  
-            
+            self.actionTally[1:] += action             
         return action
         # unlike matlab, python must return        
 
@@ -152,9 +142,7 @@ class mdpNode(radioNode):
             
             self.stateTrans[ indC, indA,indB] +=  1
             self.rewardTrans[indC, indA,indB]  = self.rewardHist[stepNum]
-            # why 3D stuff
-            # state_i, state_j, action
-        
+
         
     def updatePolicy(self,step):
         self.avgStateTrans = self.stateTrans

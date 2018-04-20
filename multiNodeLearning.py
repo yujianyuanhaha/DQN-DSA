@@ -15,8 +15,8 @@ from stateSpaceCreate import stateSpaceCreate
 from legacyNode  import legacyNode
 from mdpNode     import mdpNode
 from hoppingNode import hoppingNode
-from dsaNode     import dsaNode 
 from dqnNode     import dqnNode   #
+from dsaNode     import dsaNode 
 
 from scenario    import scenario
 import matplotlib.pyplot as plt
@@ -31,23 +31,19 @@ tic()
 
 
 # Simulation Parameters
-numSteps = 30000/3   # easier one
+numSteps = 30000   # easier one
 numChans = 4
-nodeTypes = np.array( [2,0,3,2])    
-# temp error, dsa coexist with one legacy most
-# cannot coexist with hoppping as well
-
-
+nodeTypes = np.array( [5,2,2,0])    #
 # The type of each node 
 #0 - Legacy (Dumb) Node 
 #1 - Hopping Node
 #2 - MDP Node
 #3 - DSA node (just avoids)         
 #4 - Adv. MDP Node
-#4 - Adv. MDP Node
+#5 - Adv. DQN Node
 legacyTxProb = 1
 numNodes = len(nodeTypes)
-hiddenNodes = np.array( [1,0,0,0])
+hiddenNodes = np.array( [0,0,0,0])
 exposedNodes = np.array( [0,0,0,0])
 
 if len(hiddenNodes) < numNodes:
@@ -55,57 +51,38 @@ if len(hiddenNodes) < numNodes:
                                    np.zeros(numNodes-len(hiddenNodes)) ), axis=0)
 
 # Initializing Nodes, Observable States, and Possible Actions
-nodes =  [ ]
+nodes =  []
 states = stateSpaceCreate(numChans)
 numStates = np.shape(states)[0]
 
 
 t = mdpNode(numChans,states,numSteps)     # breakpoint
 
-
-# LegacyChanIndex and HoppingChanIndex
-LegacyChanIndex = [0,1,2,3]
-HoppingChanIndex = [ [1,2],[2,1],[1,3],[3,1],[2,3],[3,2]]  # due so far
-CountLegacyChanIndex = 0
-CountHoppingChanIndex = 0
-#############################################################
-
-
-
-
-#######################  Construt Node    #####################
 for k in range(0,numNodes):
     if nodeTypes[k] == 0:
-        t = legacyNode(numChans,numSteps,legacyTxProb,LegacyChanIndex[CountLegacyChanIndex])
-        CountLegacyChanIndex += 1
-        
+        t = legacyNode(numChans,numSteps,legacyTxProb,0)  # modify
+
     elif nodeTypes[k] == 1:
-        t = hoppingNode(numChans,numSteps,HoppingChanIndex[CountHoppingChanIndex])
-        CountHoppingChanIndex += 1
+        t = hoppingNode(numChans,numSteps)
 
     elif nodeTypes[k] == 2:
         t = mdpNode(numChans,states,numSteps)     
 
     elif nodeTypes[k] == 3:
-        t = dsaNode(numChans,numSteps,legacyTxProb)
-#        pass
-#    elif nodeTypes[k] == 4:
-#        pass
+#        t = dsaNode(numChans,numSteps,legacyTxProb)
+        pass
+    elif nodeTypes[k] == 4:
+        pass
     else:
-#        t = dqnNode(numChans,states,numSteps)
+        t = dqnNode(numChans,states,numSteps)      # dqnNode
         pass
     t.hidden = hiddenNodes[k]
     t.exposed = exposedNodes[k] 
     nodes.append(t)
-
-
-#at = nodes[3].getAction(0)
-
-
         
 nodes[0].goodChans = np.array( [1,1,0,0] )        
 nodes[1].goodChans = np.array( [0,1,1,0] )          
-nodes[2].goodChans = np.array( [0,0,1,1] )    
+#nodes[2].goodChans = np.array( [0,0,1,1] )    
 
 simulationScenario = scenario(numSteps,'fixed',3)  
 
@@ -123,7 +100,10 @@ print "Starting Main Loop"
 
 
 ###############################   DEBUG SENTENCE #############################                
-#nodes[0].getAction(0)
+#action = nodes[0].getAction(0,observation)
+
+#reward = nodes[0].getReward(collisions[0],0)
+
 
 
 
@@ -140,11 +120,20 @@ if (simulationScenario.scenarioType != 'fixed') and legacyNodeIndicies:
 
 observedStates = np.zeros((numNodes,numChans))
 
+
+
+##################### TODO #######################################
+##### NOTICE THE MODIFY OF LEGACY/HOPPING NODE BEFROE START ######
+
 for s in range(0,numSteps):
     
     #Determination of next action for each node
     for n in range(0,numNodes):
-        actions[n,:] = nodes[n].getAction(s)
+        if isinstance(nodes[n],dqnNode):
+            observation = observedStates[n,:]
+            actions[n,:], actionScalar = nodes[n].getAction(s, observation)  ###########
+        else:    
+            actions[n,:] = nodes[n].getAction(s)
         assert not any(np.isnan(actions[n,:])), "ERROR! action is Nan"
         # good for quick guess than step by step
         
@@ -174,26 +163,18 @@ for s in range(0,numSteps):
             nodes[n].updateTrans(observedStates[n,:],s)
             if not math.fmod(s,nodes[n].policyAdjustRate):
                 nodes[n].updatePolicy(s)
-                
-                
-        if isinstance(nodes[n],dsaNode):
-            nodes[n].updateState(observedStates[n,:],s)
-            
-                
-                
-         
-                
-                
-###############################   DQN #############################                
-#        if isinstance(nodes[n],dqnNode):
-#            reward = nodes[n].getReward(collisions[n],s)
-##            nodes[n].updateTrans(observedStates[n,:],s)
-#            if not math.fmod(s,nodes[n].policyAdjustRate):
-#                nodes[n].updatePolicy(s)
-###############################   DQN #############################                
+                                
+        if isinstance(nodes[n],dqnNode):
+            reward = nodes[n].getReward(collisions[n],s)
+            observation_ = observedStates[n,:]  # update already
+            done = True
+            nodes[n].storeTransition(observation, actionScalar, reward, observation_)
+            if s > 200 and s % 5 == 0:
+                nodes[n].learn()
+            # original  action -> step() -> observation_, reward, done
+            # 1. action -> collisions
+            # 2. collisions -> getReward() -> observation_, reward, done
 
-                  
-                  
     collisionHist[s,:]        = collisions
     cumulativeCollisions[s,:] = collisions
     if s != 0:
@@ -226,6 +207,8 @@ for n in range(0,numNodes):
         legendInfo.append( 'Node %d (MDP)'%(n) )
     elif isinstance(nodes[n],dsaNode):
         legendInfo.append( 'Node %d (DSA)'%(n) )
+    elif isinstance(nodes[n],dqnNode):
+        legendInfo.append( 'Node %d (DQN)'%(n) )
     else:
         legendInfo.append( 'Node %d (Legacy)'%(n) )
     
@@ -246,6 +229,9 @@ for n in range(0,numNodes):
     if isinstance(nodes[n],mdpNode):
         plt.plot(nodes[n].cumulativeReward)
         legendInfo.append('Node %d (MDP)'%(n) )
+    elif isinstance(nodes[n],dqnNode):
+        plt.plot(nodes[n].cumulativeReward)
+        legendInfo.append('Node %d (DQN)'%(n) )
 if legendInfo:
     plt.legend(legendInfo)
     plt.xlabel('Step Number')
@@ -278,8 +264,10 @@ for n in range(0,numNodes):
         titleLabel = 'Action Taken by Node %d (Hopping)'%(n)
     elif isinstance(nodes[n],dsaNode):
         titleLabel = 'Action Taken by Node %d (DSA)'%(n)
+    elif isinstance(nodes[n],mdpNode):
+        titleLabel = 'Action Taken by Node %d (MDP)'%(n)
     else:
-        titleLabel = 'Action Taken by Node %d (MDP)'%(n)   # no dsa
+        titleLabel = 'Action Taken by Node %d (DQN)'%(n)   # no dsa
     plt.title(titleLabel)
 
     
@@ -299,6 +287,9 @@ for i in range(numNodes):
     elif isinstance(nodes[i],dsaNode):
         plt.semilogy( PER[:,i] )
         legendInfo.append( 'Node %d (DSA)'%(i) )
+    elif isinstance(nodes[i],dqnNode):
+        plt.semilogy( PER[:,i] )
+        legendInfo.append( 'Node %d (DQN)'%(i) )
     else:
         plt.semilogy( PER[:,i] )
         legendInfo.append( 'Node %d (legacy)'%(i) )
@@ -316,6 +307,9 @@ for i in range(numNodes):
     if isinstance(nodes[i],mdpNode):
         plt.semilogy( PLR[:,i] )
         legendInfo.append( 'Node %d (MDP)'%(i) )
+    elif isinstance(nodes[i],dqnNode):
+        plt.semilogy( PLR[:,i] )
+        legendInfo.append( 'Node %d (DQN)'%(i) )
 if not legendInfo:
     plt.xlabel('Step Number')
     plt.ylabel('Cumulative Packet Loss Rate')
@@ -323,7 +317,20 @@ if not legendInfo:
     plt.show() 
     
 
-############### END OF PLOT  #################################    
+############### END OF PLOT  ################################# 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     

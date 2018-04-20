@@ -44,8 +44,7 @@ class hoppingNode(radioNode):
         action = self.actions[self.hopIndex,:]
         
         self.actionHist[stepNum,:] = action
-        # how could full zeros happens ->
-        # and the related ROBUST
+
         self.actionHistInd[stepNum] = np.where(action == 1)[0] + 1
         
         if not np.sum(action):
