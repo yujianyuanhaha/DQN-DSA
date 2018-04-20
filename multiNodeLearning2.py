@@ -16,6 +16,7 @@ from legacyNode  import legacyNode
 from mdpNode     import mdpNode
 from hoppingNode import hoppingNode
 from dqnNode     import dqnNode   #
+from dsaNode     import dsaNode 
 
 from scenario    import scenario
 import matplotlib.pyplot as plt
@@ -30,9 +31,9 @@ tic()
 
 
 # Simulation Parameters
-numSteps = 30000/3   # easier one
+numSteps = 30000   # easier one
 numChans = 4
-nodeTypes = np.array( [5,3])    #
+nodeTypes = np.array( [5,2,2,0])    #
 # The type of each node 
 #0 - Legacy (Dumb) Node 
 #1 - Hopping Node
@@ -59,7 +60,7 @@ t = mdpNode(numChans,states,numSteps)     # breakpoint
 
 for k in range(0,numNodes):
     if nodeTypes[k] == 0:
-        t = legacyNode(numChans,numSteps,legacyTxProb)
+        t = legacyNode(numChans,numSteps,legacyTxProb,0)  # modify
 
     elif nodeTypes[k] == 1:
         t = hoppingNode(numChans,numSteps)
@@ -81,7 +82,7 @@ for k in range(0,numNodes):
         
 nodes[0].goodChans = np.array( [1,1,0,0] )        
 nodes[1].goodChans = np.array( [0,1,1,0] )          
-nodes[2].goodChans = np.array( [0,0,1,1] )    
+#nodes[2].goodChans = np.array( [0,0,1,1] )    
 
 simulationScenario = scenario(numSteps,'fixed',3)  
 
@@ -99,9 +100,9 @@ print "Starting Main Loop"
 
 
 ###############################   DEBUG SENTENCE #############################                
-action = nodes[0].getAction(0)
+#action = nodes[0].getAction(0,observation)
 
-reward = nodes[0].getReward(collisions[0],0)
+#reward = nodes[0].getReward(collisions[0],0)
 
 
 
@@ -128,7 +129,11 @@ for s in range(0,numSteps):
     
     #Determination of next action for each node
     for n in range(0,numNodes):
-        actions[n,:] = nodes[n].getAction(s)
+        if isinstance(nodes[n],dqnNode):
+            observation = observedStates[n,:]
+            actions[n,:], actionScalar = nodes[n].getAction(s, observation)  ###########
+        else:    
+            actions[n,:] = nodes[n].getAction(s)
         assert not any(np.isnan(actions[n,:])), "ERROR! action is Nan"
         # good for quick guess than step by step
         
@@ -162,13 +167,21 @@ for s in range(0,numSteps):
                 
 ###############################   DQN BEGIN #############################                
         if isinstance(nodes[n],dqnNode):
-            reward = nodes[n].getUpdate(collisions[n],s)
+            reward = nodes[n].getReward(collisions[n],s)
+            observation_ = observedStates[n,:]  # update already
+            done = True
+            nodes[n].storeTransition(observation, actionScalar, reward, observation_)
+            if s > 200 and s % 5 == 0:
+                nodes[n].learn()
+
+            # original  action -> step() -> observation_, reward, done
+            # 1. action -> collisions
+            # 2. collisions -> getReward() -> observation_, reward, done
+
+            
             #TODO the env - RL take action and get next observation and reward
              # observation_, reward, done = env.step(action)
              # 1. step - get s_ r; 2. store 3. learn
-            
-            
-
 ###############################   DQN END #############################                
 
                   
@@ -185,78 +198,137 @@ toc()
 
 
                  
-#########################################################################
-##############################plot session###############################
-#
-#txPackets = [ ]
-#
-#
-################ cumulativeCollisions ##################
-#plt.figure(1)
-##plt.hold()
-#legendInfo = [ ]
-#for n in range(0,numNodes):
-#    plt.plot(cumulativeCollisions[:,n])      # <<<<
-##    if isinstance(nodes[n],dsaNode):
-##        legendInfo = 'Node %d (DSA)'%{n}
-#    if isinstance(nodes[n],hoppingNode):
-#        legendInfo.append( 'Node %d (Hopping)'%(n) )
-#    elif isinstance(nodes[n],mdpNode):
-#        legendInfo.append( 'Node %d (MDP)'%(n) )
-#    else:
-#        legendInfo.append( 'Node %d (Legacy)'%(n) )
-#    
-#    txPackets.append( np.cumsum(np.sum(nodes[n].actionHist.T).T ) )
-#plt.legend(legendInfo)
-#plt.xlabel('Step Number')
-#plt.ylabel('Cumulative Collisions')
-#plt.title( 'Cumulative Collisions Per Node')                      
-#plt.show()
-#            
-#        
-################ cumulativeReward ##################
-#plt.figure(2)
-##plt.hold()  #deprecate
-#c = 1
-#legendInfo = [ ]
-#for n in range(0,numNodes):
-#    if isinstance(nodes[n],mdpNode):
-#        plt.plot(nodes[n].cumulativeReward)
-#        legendInfo.append('Node %d (MDP)'%(n) )
-#if legendInfo:
-#    plt.legend(legendInfo)
-#    plt.xlabel('Step Number')
-#    plt.ylabel('Cumulative Reward')
-#    plt.title( 'Cumulative Reward Per Node')   
-#plt.show()             
-#        
-##np.ceil
-################ Actions #################################
-#plt.figure(3)
-#split = np.ceil(numNodes / 2)    
-#for n in range(0,numNodes):
-#    if n <= split:
-#        plt.subplot(split,2,n+1)
-#    else:
-#        plt.subplot(split,2,n+1)
-#        
-#    if isinstance(nodes,mdpNode):
-#        offset = 1
-#    else:
-#        offset = 0
-#    plt.plot( np.maximum(nodes[n].actionHistInd-1 , np.zeros(numSteps)),'bo' )
-#    plt.ylim(0,numChans+2)
-#    plt.xlabel('Step Number')
-#    plt.ylabel('Action Number')
-#    
-#    if isinstance(nodes[n],legacyNode):
-#        titleLabel = 'Action Taken by Node %d (Legacy)'%(n)
-#    elif isinstance(nodes[n],hoppingNode):
-#        titleLabel = 'Action Taken by Node %d (Hopping)'%(n)
-#    else:
-#        titleLabel = 'Action Taken by Node %d (MDP)'%(n)   # no dsa
-#    plt.title(titleLabel)
+########################################################################
+#############################plot session###############################
 
+txPackets = [ ]
+
+
+############### 1 cumulativeCollisions ##################
+plt.figure(1)
+#plt.hold()
+legendInfo = [ ]
+for n in range(0,numNodes):
+    plt.plot(cumulativeCollisions[:,n])      # <<<<
+#    if isinstance(nodes[n],dsaNode):
+#        legendInfo = 'Node %d (DSA)'%{n}
+    if isinstance(nodes[n],hoppingNode):
+        legendInfo.append( 'Node %d (Hopping)'%(n) )
+    elif isinstance(nodes[n],mdpNode):
+        legendInfo.append( 'Node %d (MDP)'%(n) )
+    elif isinstance(nodes[n],dsaNode):
+        legendInfo.append( 'Node %d (DSA)'%(n) )
+    elif isinstance(nodes[n],dqnNode):
+        legendInfo.append( 'Node %d (DQN)'%(n) )
+    else:
+        legendInfo.append( 'Node %d (Legacy)'%(n) )
+    
+    txPackets.append( np.cumsum(np.sum(nodes[n].actionHist.T , axis=0).T ) )
+plt.legend(legendInfo)
+plt.xlabel('Step Number')
+plt.ylabel('Cumulative Collisions')
+plt.title( 'Cumulative Collisions Per Node')                      
+plt.show()
+            
+        
+############### 2 cumulativeReward ##################
+plt.figure(2)
+#plt.hold()  #deprecate
+#c = 1
+legendInfo = [ ]
+for n in range(0,numNodes):
+    if isinstance(nodes[n],mdpNode):
+        plt.plot(nodes[n].cumulativeReward)
+        legendInfo.append('Node %d (MDP)'%(n) )
+    elif isinstance(nodes[n],dqnNode):
+        plt.plot(nodes[n].cumulativeReward)
+        legendInfo.append('Node %d (DQN)'%(n) )
+if legendInfo:
+    plt.legend(legendInfo)
+    plt.xlabel('Step Number')
+    plt.ylabel('Cumulative Reward')
+    plt.title( 'Cumulative Reward Per Node')   
+plt.show()             
+        
+#np.ceil
+############### 3 Actions #################################
+plt.figure(3)
+split = np.ceil(numNodes / 2)    
+for n in range(0,numNodes):
+    if n <= split:
+        plt.subplot(split,2,n+1)
+    else:
+        plt.subplot(split,2,n+1)
+        
+    if isinstance(nodes,mdpNode):
+        offset = 1
+    else:
+        offset = 0
+    plt.plot( np.maximum(nodes[n].actionHistInd-1 , np.zeros(numSteps)),'bo' )
+    plt.ylim(0,numChans+2)
+    plt.xlabel('Step Number')
+    plt.ylabel('Action Number')
+    
+    if   isinstance(nodes[n],legacyNode):
+        titleLabel = 'Action Taken by Node %d (Legacy)'%(n)
+    elif isinstance(nodes[n],hoppingNode):
+        titleLabel = 'Action Taken by Node %d (Hopping)'%(n)
+    elif isinstance(nodes[n],dsaNode):
+        titleLabel = 'Action Taken by Node %d (DSA)'%(n)
+    elif isinstance(nodes[n],mdpNode):
+        titleLabel = 'Action Taken by Node %d (MDP)'%(n)
+    else:
+        titleLabel = 'Action Taken by Node %d (DQN)'%(n)   # no dsa
+    plt.title(titleLabel)
+
+    
+
+############### 4 Packet Error Rate  #################################
+timeSlots = np.matlib.repmat( np.arange(1,numSteps+1)[np.newaxis].T  ,1,numNodes )  
+txPackets = np.array(txPackets).T
+PER =  cumulativeCollisions / txPackets
+PLR = (cumulativeCollisions + timeSlots - txPackets) /timeSlots
+    
+plt.figure(4)
+legendInfo = [ ]
+for i in range(numNodes):
+    if isinstance(nodes[i],mdpNode):
+        plt.semilogy( PER[:,i] )
+        legendInfo.append( 'Node %d (MDP)'%(i) )
+    elif isinstance(nodes[i],dsaNode):
+        plt.semilogy( PER[:,i] )
+        legendInfo.append( 'Node %d (DSA)'%(i) )
+    elif isinstance(nodes[i],dqnNode):
+        plt.semilogy( PER[:,i] )
+        legendInfo.append( 'Node %d (DQN)'%(i) )
+    else:
+        plt.semilogy( PER[:,i] )
+        legendInfo.append( 'Node %d (legacy)'%(i) )
+plt.legend(legendInfo)
+plt.xlabel('Step Number')
+plt.ylabel('Cumulative Packet Error Rate')
+plt.title( 'Cumulative Packet Error Rate')                      
+plt.show()        
+        
+
+############### 5 Packet Loss Rate  #################################
+plt.figure(5)
+legendInfo = [ ]
+for i in range(numNodes):
+    if isinstance(nodes[i],mdpNode):
+        plt.semilogy( PLR[:,i] )
+        legendInfo.append( 'Node %d (MDP)'%(i) )
+    elif isinstance(nodes[i],dqnNode):
+        plt.semilogy( PLR[:,i] )
+        legendInfo.append( 'Node %d (DQN)'%(i) )
+if not legendInfo:
+    plt.xlabel('Step Number')
+    plt.ylabel('Cumulative Packet Loss Rate')
+    plt.title( 'Cumulative Packet Loss Rate')                      
+    plt.show() 
+    
+
+############### END OF PLOT  ################################# 
     
     
     

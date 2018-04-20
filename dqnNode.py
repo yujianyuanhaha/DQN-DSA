@@ -17,7 +17,7 @@ from dqn import dqn
 
 
 class dqnNode(radioNode):
-    goodChans     = [ ]    
+    goodChans     = [ ]    #
     numStates     = [ ]
     states        = [ ]
     stateHist     = [ ]
@@ -52,7 +52,8 @@ class dqnNode(radioNode):
         self.actions = np.zeros((numChans+1,numChans))
         for k in range(0,numChans):
             self.actions[k+1,k] = 1
-            #for n in range(0,numNodes):        
+            #for n in range(0,numNodes): 
+        self.numChans      = numChans
         self.numActions    = np.shape(self.actions)[0]
         self.actionTally   = np.zeros(numChans+1)
         self.actionHist    = np.zeros((numSteps,numChans))
@@ -76,40 +77,100 @@ class dqnNode(radioNode):
         
         self.policy = np.zeros(numChans)
         
-        self.n_features = 2**numChans   # ToDo
         
-        self.dqn_ = dqn.DeepQNetwork(self.actions, self.n_features,
-                      learning_rate=0.01,
-                      reward_decay=0.9,
-                      e_greedy=0.9,
-                      replace_target_iter=200,
-                      memory_size=2000,
-                      # output_graph=True
-                      )      # nest class ? - YES    
+        
+        self.n_actions     = numChans   # !!! notice
+        self.n_features    = numChans  # TODO  # extreme high later
+        # set real deadline, good to start early
+        # head for GLOBECOMM
+        # Let it be
+        
+        self.dqn_ = dqn(self,self.n_actions, self.n_features,   learning_rate=0.01,reward_decay=0.9,e_greedy=0.9,replace_target_iter=200,memory_size=2000,)      # nest class ? - YES    
+                     # add self - duplicate value
+                     # emit , else type error
 
           
         
         
         
-    def getAction(self,stepNum):
-        return self.dqn_.choose_action(self.rl, self.rl.observation)
+    def getAction(self, stepNum ,observation):
+        temp = self.dqn_.choose_action(observation)  # damn
+        # !!! new define, convert action from a int to a array
+        action       = np.zeros(self.numChans)  # attention, allow WAIT
+        action[temp] = 1 
+        # garbage code - actionHist, actionTally, actionHistInd
+        self.actionHist[stepNum,:] = action
+                    
+        if not np.sum(action):
+            self.actionTally[0] +=    1
+            self.actionHistInd[stepNum] = 1
+        else:
+            self.actionHistInd[stepNum] = np.where(action == 1)[0] + 1
+            self.actionTally[1:] += action
+        return action, temp  # return two type
     
     
-    def getUpdate(self,stepNum, action):
-        #TODO
+    def getReward(self,collision,stepNum):
         
-        # encapsulted together 
-        self.dqn_.store_transition(observation, action, reward, observation_)  
-        #return observation_, reward, done
-        if (stepNum > 200) and (stepNum % 5 == 0): 
-            self.dqn_.learn()
-            
-        observation = observation_
-        if done:
-            break
+        action = self.actionHist[stepNum,:]
+        if not np.sum(action):
+            reward = self.rewards[0]
+            #  rewards = [-200, 100, -100, 50, -200] 
+            self.rewardTally[0] +=  reward
+        else:
+            if not any(np.array(self.goodChans+action) > 1):    # find the 1st of ...
+                if collision == 1:
+                    reward = self.rewards[4]
+                else:
+                    reward = self.rewards[3]               
+            else:
+                if collision == 1:
+                    reward = self.rewards[2]
+                else:
+                    reward = self.rewards[1]                                                         
+            self.rewardTally[1:] += action * reward        
+        self.rewardHist[stepNum] = reward   
         
+        if stepNum == 0:
+            self.cumulativeReward[stepNum] = reward
+        else:
+            self.cumulativeReward[stepNum] = self.cumulativeReward[stepNum-1] + reward
+        return reward   # for debug
+    
+    
+    def storeTransition(self, s, a, r, s_):
+        self.dqn_.store_transition(s, a, r, s_)   # silly, double check after copy-paste
         
-        return reward
+    def learn(self):
+        self.dqn_.learn()
+        
+    
+    
+    
+    
+    
+    
+#    def getUpdate(self,collision,stepNum):
+#        #TODO
+#        
+#        
+#        
+#        
+#        
+#        # encapsulted together 
+#        self.dqn_.store_transition(observation, action, reward, observation_)  
+#        #return observation_, reward, done
+#        if (stepNum > 200) and (stepNum % 5 == 0): 
+#            self.dqn_.learn()
+#            
+#        observation = observation_
+#        if done:
+#            break
+#        
+#        
+#        #TODO - update rewardTally cumulativeReward 
+#        
+#        return reward   # for plot
         
         # notice, return a tuple
         
