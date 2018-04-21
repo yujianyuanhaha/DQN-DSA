@@ -84,9 +84,10 @@ class dqnNode(radioNode):
                         self.n_features,   
                         learning_rate=0.01,
                         reward_decay=0.9,
-                        e_greedy=0.9,
+                        e_greedy=0.99,
                         replace_target_iter=200,
-                        memory_size=2000,) 
+                        memory_size=2000,
+                        e_greedy_increment=True,) 
         # for debug, see the prob of learn vs random try
         # self.countLearn = 0
 

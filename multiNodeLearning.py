@@ -63,10 +63,10 @@ tic()
 
  
 ##################### Network Setup & Simulation Parameters #######################################
-numSteps = 30000/3/5  
-numChans = 4
+numSteps = 30000    # 10000 as minimum for MDP 
+numChans = 8
 ############################################
-nodeTypes = np.array( [5,0,0,0])    ########
+nodeTypes = np.array( [0,0,2,5])    ########
 ############################################
 # The type of each node 
 # 0 - Legacy (Dumb) Node 
@@ -185,31 +185,43 @@ for s in range(0,numSteps):
         for nn in range(0,numNodes):
             if n != nn:
                 if not nodes[nn].hidden:
-                    observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)
+                    
+                    observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)   # partial obseravtion
+
+
+                    # fully understand
+                    # mdp - always [1 1 1 0] does it matters
                 if np.sum(actions[n,:]) > 0 \
                   and any( np.array( actions[n,:] + actions[nn,:])> 1 ) \
                                 and not nodes[nn].exposed:
                     # np.array( ) for robust to test np.where()
                     collisions[n]         = 1
                     collisionTally[n,nn] += 1
+                    
+                
+                    
                      
         if isinstance(nodes[n],mdpNode):
             reward = nodes[n].getReward(collisions[n],s)
             nodes[n].updateTrans(observedStates[n,:],s)
+#            print observedStates[n,:]
             if not math.fmod(s,nodes[n].policyAdjustRate):
                 nodes[n].updatePolicy(s)
                                 
         if isinstance(nodes[n],dqnNode):
             reward = nodes[n].getReward(collisions[n],s)
+#            observedStates[n,:] =  (observedStates[n,:] + actions[n,:] > 0)  #include itself ?
             observation_ = observedStates[n,:]  # update already # full already
+
             done = True
             
-            
-          #  print observation,  actionScalar, reward, observation_
+#            if s%200 == 0:  # fit size of step
+
+#                print observation,  actionScalar, reward, observation_
             
             nodes[n].storeTransition(observation, actionScalar, 
                  reward, observation_)
-            if s > 200 and s % 5 == 0:
+            if s > 200 and s % 5 == 0:    # step 2 trade in more computation for better performance
                 nodes[n].learn()
             # original  action -> step() -> observation_, reward, done
             # 1. action -> collisions
@@ -232,8 +244,8 @@ plt.plot(countLearnHist)
 plt.title( 'Learning Ratio') 
 plt.show()
 
-plt.figure(2)
-nodes[0].dqn_.plot_cost()
+#plt.figure(2)
+#nodes[0].dqn_.plot_cost()
 
    
 ##################### MAIN LOOP END ###############################################
