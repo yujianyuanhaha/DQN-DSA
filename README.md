@@ -6,9 +6,12 @@ Date  : April, 2018
 
 -------------------------------------------------------------------------
 # Related Files:
-1. The Result Demo Google Slides( https://drive.google.com/open?id=1Tl5y8Ov_P_Fwqt1SpoRLuaAqaTlG20mImVx5o15VUsY ) , and figure come from VT Google Folder( https://drive.google.com/open?id=1hQxplvCs_hSfgr9rrJ-rywutUkHWwnxP ) of .png .pdf figure autosave by python, notice we SEPERATE figure from github to avoid too frequent update git folder.
-2. The technic report (https://drive.google.com/open?id=1X-I2D4Dk_Z1IXAt19XUnlWHUvkxn42EB) and the latex folder (https://drive.google.com/open?id=1GeqjxzAroWrWHcM8LnwumbAo0h-ZYItX).
-
+1. The [Result Demo of DQN-DCA](https://drive.google.com/open?id=1Tl5y8Ov_P_Fwqt1SpoRLuaAqaTlG20mImVx5o15VUsY) of Google Slides, 
+and figure come from VT Google Folder [qdnFig](https://drive.google.com/open?id=1hQxplvCs_hSfgr9rrJ-rywutUkHWwnxP) of .png .pdf 
+figure autosave by python, notice we SEPERATE figure from github to avoid too frequent update git folder.
+2. The [technic report](https://drive.google.com/open?id=1X-I2D4Dk_Z1IXAt19XUnlWHUvkxn42EB) and 
+the [latex folder](https://drive.google.com/open?id=1GeqjxzAroWrWHcM8LnwumbAo0h-ZYItX).
+3. A backup of Chris(Dr. Headley) MDP codes of [MDP solver](https://drive.google.com/open?id=1rddetimeRR8MECEsv0KRfdV1uLvd-4ZQ).
 
 
 
