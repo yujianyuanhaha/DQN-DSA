@@ -21,6 +21,19 @@ tf.set_random_seed(1)
 
 # Deep Q Network off-policy
 class dqn:
+    
+    exploreProb      = [ ]              # Current exploration probability
+    exploreInit      = 1.0              # Initial exploration probability
+    exploreDecay     = 0.1              # Percentage reduction in exploration chance per policy calculation
+    exploreHist      = [ ]    
+    exploreDecayType = 'expo'           # either 'expo', 'step' or 'perf'
+    exploreWindow    = 500              # only used with 'step'
+    exploreMin       = 0.01             # only used with 'step'    
+    explorePerf      = 10               # only used with 'perf' 
+    explorePerfWin   = 100              
+    # triggers jump in explore prob to 1 if reward is below this over last explorePerfWin epoch   
+    
+    
     def __init__(
             self,
             dqnNode,
@@ -28,7 +41,7 @@ class dqn:
             n_features,
             learning_rate=0.01,
             reward_decay=0.9,
-            e_greedy=0.999,
+            exploreDecayType = 'expo',    # more detail in static var above
             replace_target_iter=300,
             memory_size=500,
             batch_size=32,
@@ -37,21 +50,19 @@ class dqn:
     ):    # allow dqnNode to call in its attribute
         
         
-        self.n_actions = n_actions
-        self.n_features = n_features
-        self.lr = learning_rate
-        self.gamma = reward_decay
-        self.epsilon_max = e_greedy
+        self.n_actions           = n_actions
+        self.n_features          = n_features
+        self.lr                  = learning_rate
+        self.gamma               = reward_decay
         self.replace_target_iter = replace_target_iter
-        self.memory_size = memory_size
-        self.batch_size = batch_size
-        self.epsilon_increment = e_greedy_increment
-        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
+        self.memory_size         = memory_size
+        self.batch_size          = batch_size
+        # self.epsilon_max = e_greedy  #
+        #self.epsilon_increment = e_greedy_increment #
+        #self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
         # not None -> not learn; None/ Default -> 90% learn
         
-        self.countLearn = 0 #!!!
-
-        # total learning step
+        self.exploreProb   = self.exploreInit
         self.learn_step_counter = 0
 
         # initialize zero memory [s, a, r, s_]
@@ -123,12 +134,12 @@ class dqn:
         # to have batch dimension when feed into tf placeholder
         observation = observation[np.newaxis, :]
 
-        if np.random.uniform() < self.epsilon:
+        if np.random.uniform() < 1.0 - self.exploreProb:   #
             # forward feed the observation and get q value for every actions
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation})
             # size of observation = s / n_feature
             action = np.argmax(actions_value) 
-            self.countLearn += 1
+            self.learn_step_counter += 1
         else:
             action = np.random.randint(0, self.n_actions)
             
@@ -158,12 +169,14 @@ class dqn:
             })
 
         self.cost_his.append(cost)
+         #increasing epsilon
+#        self.epsilon = self.epsilon + self.epsilon_increment \
+#                    if self.epsilon < self.epsilon_max else self.epsilon_max
+        if self.exploreDecayType == 'expo':
+            self.exploreProb = self.exploreInit * \
+                np.exp(-self.exploreDecay * self.learn_step_counter )
+            self.learn_step_counter += 1
 
-        # increasing epsilon
-        self.epsilon = self.epsilon + self.epsilon_increment \
-                    if self.epsilon < self.epsilon_max else self.epsilon_max
-        self.learn_step_counter += 1
-        #!!! NO MODIFICATION NEED - epsilion 
 
     def plot_cost(self):
         import matplotlib.pyplot as plt

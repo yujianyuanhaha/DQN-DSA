@@ -28,17 +28,7 @@ class dqnNode(radioNode):
     discountFactor   = 0.9
     policyAdjustRate = 100         # Policy is adjusted at this step increment
     
-    exploreProb      = [ ]                    # Current exploration probability
-    exploreInit      = 1.0               # Initial exploration probability
-    exploreDecay     = 0.1              # Percentage reduction in exploration chance per policy calculation
-    exploreHist      = [ ]    
-    exploreDecayType = 'perf'             # either 'expo', 'step' or 'perf'
-    exploreWindow    = 500           # only used with 'step'
-    exploreMin       = 0.01              # only used with 'step'    
-    explorePerf      = 10               # only used with 'perf' 
-    explorePerfWin   = 100           # triggers jump in explore prob to
-                                    # 1 if reward is below this over 
-                                    # last explorePerfWin epoch               
+            
     policy           = [ ] 
     policyHist       = [ ]        
     # [Not transmitting, Good Channel no Interference, Good Channel Interference, Bad Channel no Interference, Bad Channel Interference]
@@ -72,7 +62,7 @@ class dqnNode(radioNode):
         self.cumulativeReward = np.zeros(numSteps)
         self.rewardTrans   = np.zeros((self.numActions, self.numStates,self.numStates) )
         
-        self.exploreProb   = self.exploreInit
+  #      self.exploreProb   = self.exploreInit
         self.exploreHist   = [ ]
         
         self.policy = np.zeros(numChans)
@@ -84,7 +74,7 @@ class dqnNode(radioNode):
                         self.n_features,   
                         learning_rate=0.01,
                         reward_decay=0.9,
-                        e_greedy=0.99,
+                        exploreDecayType = 'perf',
                         replace_target_iter=200,
                         memory_size=2000,
                         e_greedy_increment=True,) 

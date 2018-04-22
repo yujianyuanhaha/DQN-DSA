@@ -46,6 +46,8 @@ class mdpNode(radioNode):
     cumulativeReward = [ ]
     
     def __init__(self,numChans,states,numSteps):
+        
+       # self.exploreDecayType = exploreDecayType
         self.actions = np.zeros((numChans+1,numChans))
         for k in range(0,numChans):
             self.actions[k+1,k] = 1
@@ -171,7 +173,7 @@ class mdpNode(radioNode):
         
         if self.exploreDecayType == 'expo':
             self.exploreProb = self.exploreInit * \
-            np.exp(-self.exploreDecay * np.shape(self.policyHist)[0])
+            np.exp(-self.exploreDecay * np.shape(self.policyHist)[1])
         elif self.exploreDecayType == 'step':
             if step > self.exploreWindow:
                 self.exploreProb = self.exploreMin

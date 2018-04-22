@@ -5,6 +5,14 @@ Email : *jianyuan@vt.edu*
 Date  : April, 2018  
 
 -------------------------------------------------------------------------
+# Related Files:
+1. The Result Demo Google Slides( https://drive.google.com/open?id=1Tl5y8Ov_P_Fwqt1SpoRLuaAqaTlG20mImVx5o15VUsY ) , and figure come from VT Google Folder( https://drive.google.com/open?id=1hQxplvCs_hSfgr9rrJ-rywutUkHWwnxP ) of .png .pdf figure autosave by python, notice we SEPERATE figure from github to avoid too frequent update git folder.
+2. The technic report (https://drive.google.com/open?id=1X-I2D4Dk_Z1IXAt19XUnlWHUvkxn42EB) and the latex folder (https://drive.google.com/open?id=1GeqjxzAroWrWHcM8LnwumbAo0h-ZYItX).
+
+
+
+
+
 # Overview  
 This project work around applying **deep Q network**[1] in **dynamic channel access**. It validate the performance of intelligent node acess channel without information exchange with other nodes(legacy, hopping etc). It mainly concerns about convergency speed and scale issues.
 The inspiration comes from SC2 competition, and some papers[2][3] have start some work around it.  

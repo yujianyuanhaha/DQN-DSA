@@ -63,10 +63,10 @@ tic()
 
  
 ##################### Network Setup & Simulation Parameters #######################################
-numSteps = 30000    # 10000 as minimum for MDP 
-numChans = 8
+numSteps = 30000/3    # 10000 as minimum for MDP 
+numChans = 4
 ############################################
-nodeTypes = np.array( [0,0,2,5])    ########
+nodeTypes = np.array( [0,0,0,2])    ########
 ############################################
 # The type of each node 
 # 0 - Legacy (Dumb) Node 
@@ -78,7 +78,7 @@ nodeTypes = np.array( [0,0,2,5])    ########
 
 # !!! capacity check
 
-legacyTxProb = 1
+legacyDutyCircle = 0.5
 numNodes = len(nodeTypes)
 hiddenNodes = np.array( [0,0,0,0])
 exposedNodes = np.array( [0,0,0,0])
@@ -106,13 +106,13 @@ CountHoppingChanIndex = 0
 ##################### Construct diff Type of Nodes #######################################
 for k in range(0,numNodes):
     if nodeTypes[k] == 0:
-        t = legacyNode(numChans,numSteps,legacyTxProb,LegacyChanIndex[CountLegacyChanIndex])
+        t = legacyNode(numChans,numSteps,legacyDutyCircle,LegacyChanIndex[CountLegacyChanIndex])
         CountLegacyChanIndex += 1        
     elif nodeTypes[k] == 1:
         t = hoppingNode(numChans,numSteps,HoppingChanIndex[CountHoppingChanIndex])
         CountHoppingChanIndex += 1
     elif nodeTypes[k] == 2:
-        t = mdpNode(numChans,states,numSteps)     
+        t = mdpNode(numChans,states,numSteps)
     elif nodeTypes[k] == 3:
 #        t = dsaNode(numChans,numSteps,legacyTxProb)
         pass
@@ -158,7 +158,7 @@ observedStates = np.zeros((numNodes,numChans))
 
 
 
-countLearnHist = np.zeros(numSteps);
+#countLearnHist = np.zeros(numSteps);
 
 for s in range(0,numSteps):
     
@@ -229,7 +229,7 @@ for s in range(0,numSteps):
             
             # save the count of Learn for debug
             
-            countLearnHist[s] = nodes[n].dqn_.countLearn*1.0 / (s+1)
+#            countLearnHist[s] = nodes[n].dqn_.learn_step_counter*1.0 / (s+1)
 
     collisionHist[s,:]        = collisions
     cumulativeCollisions[s,:] = collisions
@@ -239,10 +239,10 @@ for s in range(0,numSteps):
 print "End Main Loop"
 toc()   
 
-plt.figure(1)
-plt.plot(countLearnHist)
-plt.title( 'Learning Ratio') 
-plt.show()
+#plt.figure(1)
+#plt.plot(countLearnHist)
+#plt.title( 'Learning Ratio') 
+#plt.show()
 
 #plt.figure(2)
 #nodes[0].dqn_.plot_cost()
@@ -255,7 +255,11 @@ plt.show()
                  
 ################################################################################
 #############################plot session#######################################
-
+import os
+# "test if directory ../dqnFig exist, if not create one"
+if not os.path.exists('../dqnFig'):
+    os.makedirs('../dqnFig')
+            
 txPackets = [ ]
 
 
@@ -284,7 +288,8 @@ plt.xlabel('Step Number')
 plt.ylabel('Cumulative Collisions')
 plt.title( 'Cumulative Collisions Per Node')                      
 plt.show()
-            
+plt.savefig('../dqnFig/CumulativeCollisions.png')
+plt.savefig('../dqnFig/CumulativeCollisions.pdf')             
         
 ############### 2 cumulativeReward ##################
 plt.figure(2)
@@ -304,7 +309,8 @@ if legendInfo:
     plt.ylabel('Cumulative Reward')
     plt.title( 'Cumulative Reward Per Node')   
 plt.show()             
-        
+plt.savefig('../dqnFig/CumulativeReward.png')
+plt.savefig('../dqnFig/CumulativeReward.pdf')        
 #np.ceil
 ############### 3 Actions #################################
 plt.figure(3)
@@ -320,7 +326,7 @@ for n in range(0,numNodes):
     else:
         offset = 0
     plt.plot( np.maximum(nodes[n].actionHistInd-1 ,
-                         np.zeros(numSteps)),'bo' )
+                         np.zeros(numSteps)),'bo' ,fillstyle= 'none')
     plt.ylim(0,numChans+2)
     plt.xlabel('Step Number')
     plt.ylabel('Action Number')
@@ -336,7 +342,8 @@ for n in range(0,numNodes):
     else:
         titleLabel = 'Action Taken by Node %d (DQN)'%(n)   # no dsa
     plt.title(titleLabel)
-
+plt.savefig('../dqnFig/Actions.png')
+plt.savefig('../dqnFig/Actions.pdf')
     
 
 ############### 4 Packet Error Rate  #################################
@@ -366,7 +373,8 @@ plt.xlabel('Step Number')
 plt.ylabel('Cumulative Packet Error Rate')
 plt.title( 'Cumulative Packet Error Rate')                      
 plt.show()        
-        
+plt.savefig('../dqnFig/PER.png')
+plt.savefig('../dqnFig/PER.pdf')        
 
 ############### 5 Packet Loss Rate  #################################
 plt.figure(5)
@@ -383,8 +391,8 @@ if not legendInfo:
     plt.ylabel('Cumulative Packet Loss Rate')
     plt.title( 'Cumulative Packet Loss Rate')                      
     plt.show() 
-    
-
+plt.savefig('../dqnFig/PLR.png')
+plt.savefig('../dqnFig/PLR.pdf')
 ############### END OF PLOT  ################################# 
         
     
