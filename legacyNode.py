@@ -32,10 +32,9 @@ class legacyNode(radioNode):
         if self.legacyDutyCircleCount < self.legacyDutyCircle * self.legacyDutyPeriod:
             action = self.actions  # %  self.actions = zeros(1,numChans);            
         else:
-            action = np.ones(len(self.actions)) * -1  # do nothing
-            self.legacyDutyCircleCount = 0 if self.legacyDutyCircleCount == self.legacyDutyPeriod else self.legacyDutyCircleCount
-            # more efficient ono-line style
-
+            action = np.ones(len(self.actions)) * -1  # do nothing rather than choose channel 0            
+            if self.legacyDutyCircleCount >= self.legacyDutyPeriod:
+                self.legacyDutyCircleCount = 0
             
         self.actionHist[stepNum,:] = action;  # same synax with matlab   # replace () []
         if not np.sum(action):

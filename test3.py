@@ -35,7 +35,27 @@
 #plt.savefig('../dqnFig/test.png')
 
 
-import os
-"test if Directory exist"
-if not os.path.exists('../testDir'):
-    os.makedirs('../testDir')
+#import os
+#"test if Directory exist"
+#if not os.path.exists('../testDir'):
+#    os.makedirs('../testDir')
+#"nest tic toc"
+#from myFunction  import tic
+#from myFunction  import toc
+#tic()
+#for i in range(100000):
+#    pass
+#tic()
+#for i in range(100000):
+#    pass
+#toc()
+#toc() 
+ 
+ 
+"get value of time"
+import time
+start_time = time.time()
+for i in range(100000):
+    pass
+print("--- %s seconds ---" % (time.time() - start_time))
+ 

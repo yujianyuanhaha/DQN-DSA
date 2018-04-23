@@ -34,7 +34,7 @@ Another repository[6] maintain by Yue would merge soon, and [7] is the technical
 
 --------------------------------------------------------------------------
 # Configuration  
-We run codes on Spyder GUI under Anaconda, tensorflow is required as well as related tensorboard setup.  
+We run codes on **Spyder** GUI under Anaconda, tensorflow is required as well as related tensorboard setup.  
 For batch test, we run codes on ARC VT.   
 
 
@@ -42,7 +42,7 @@ For batch test, we run codes on ARC VT.
 # How to run the codes?  
 Paramter all configurable at header part of multiNodeLearning.py
 in terminal run:  
-python multiNodeLearning.py
+**python multiNodeLearning.py**
 
 
 

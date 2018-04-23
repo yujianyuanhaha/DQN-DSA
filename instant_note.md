@@ -6,7 +6,7 @@ Created on Mon Apr  2 14:12:55 2018
 @author: Jet
 """
 --------------------------------------------------------------------------------
-Head
+Headline
 1. BE IN LAB 10am-1am 5pm-7pm breaks
 2. less turnover time
 
@@ -26,18 +26,18 @@ Sat - [x] run through DQN
 
 --------------------------------------------------------------------------------
 B. Logs
-0. detail running time
-1. exp episolon e-geedy to reduce random 
+[X]. detail running time
+[X]. exp episolon e-geedy to reduce random 
     - perfect
     - full API for different decay
 2. flexiable nodeType, init pattern, capacity check <
 3. 8+ channel
 4. refine code, input/output, wrap plot, multiple run
-5. auto save & naming figure
+[X]. auto save & naming figure
 6. tensorboard setoff
 5. DSA node
 6. hidden node/expose node
-7. learn to WAIT
+[ ]. learn to WAIT (NOT EASY JOB)
 8. DQN tricks
 9. ARC steup
 
@@ -46,7 +46,10 @@ B. Logs
     - tiny, perf seems better a little bit, do it later
 
 
+[] - DQN learn hopping, detail metric
 
+
+[] - the spectrum period of MDP? wrong conclusion, seems MDP has lower baseline of compution
 
 
 --------------------------------------------------------------------------------
@@ -60,17 +63,21 @@ C. Debug
     
 2. interminent node not doing right
 
+3. learn step 5 -> 0 
+4. channel utility
+
 
 
 --------------------------------------------------------------------------------
 D. Miscellaneous
-1. How to tell computing time in each time slot?
+[X]. How to tell computing time in each time slot?
     - hard to tell
 2. Wil legacy with txProb work?
     - Yes, it did work for 0.9 or 0.5
     - for 0.5, it GIVE UP
     - bug so far,all 0 does not mean choose channel 0(ToDo)
 2. intermittent Node
+3. even 2 MDP, 2 legacy, the performance of MDP is not the same? always the former better? (ToDo)
 
 
 
