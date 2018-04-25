@@ -32,8 +32,8 @@ File Achitecture:
                      
 ----------------------------                     
 Main Configuration:  
-    assignment of "array nodeTypes"
-                       
+1. assignment of array "nodeTypes"  "legacyChanList"  "hoppingChanList"
+                        
 
 
 
@@ -64,9 +64,17 @@ from myFunction import channelAssignment
  
 ##################### Network Setup & Simulation Parameters #######################################
 numSteps = 30000/3    # 10000 as minimum for MDP 
-numChans = 8
+numChans = 3
+# for unknown reason, terminal of Spyder would keep the old tensorflow neural network data
+# when change numChans(related to neural network), REMEMBER TO SHUT OFF AND OPEN A NEW terminal
+# it would not happen in raw terminal 
+
 ############################################
-nodeTypes = np.array( [0,0,0,0,1,1,2,5])    ########
+nodeTypes = np.array( [0,0,0,5])    ##########
+legacyChanList = [0,1,2,3,4]          ######
+legacyDutyCircleList = [ 1.0, 0.5, 0.5]   ####### 
+hoppingChanList = [ [1,2],[2,3]]    ########
+
 ############################################
 # The type of each node 
 # 0 - Legacy (Dumb) Node 
@@ -77,7 +85,7 @@ nodeTypes = np.array( [0,0,0,0,1,1,2,5])    ########
 # 5 - DQN Node
 # 6 - Intermittent Node
 hoppingWidth = 2
-ChannelAssignType = 'case2'
+ChannelAssignType = 'typeIn'
 if ChannelAssignType == 'random':
     legacyChanList, imChanList, hoppingChanList, utilization =\
         channelAssignment(nodeTypes, hoppingWidth, numChans)
@@ -92,16 +100,7 @@ elif ChannelAssignType == 'case2':
 else:
     pass
         
-    
 
-
-
-
-
-
-
-
-legacyDutyCircle = 0.50
 numNodes = len(nodeTypes)
 hiddenNodes = np.zeros( numChans)
 exposedNodes = np.zeros( numChans)
@@ -117,22 +116,22 @@ numStates = np.shape(states)[0]
 
 
 
+legacyTxProb = 0.8
 
-
-CountLegacyChanIndex = 0
+CountLegacyChanIndex = -1
 CountHoppingChanIndex = 0
 ##################### Construct diff Type of Nodes #######################################
 for k in range(0,numNodes):
     if nodeTypes[k] == 0:
-        t = legacyNode(numChans,numSteps,legacyDutyCircle,legacyChanList[CountLegacyChanIndex])
-        CountLegacyChanIndex += 1        
+        CountLegacyChanIndex += 1
+        t = legacyNode(numChans,numSteps,legacyDutyCircleList[CountLegacyChanIndex], legacyChanList[CountLegacyChanIndex])                
     elif nodeTypes[k] == 1:
         t = hoppingNode(numChans,numSteps,hoppingChanList[CountHoppingChanIndex])
         CountHoppingChanIndex += 1
     elif nodeTypes[k] == 2:
         t = mdpNode(numChans,states,numSteps)
     elif nodeTypes[k] == 3:
-#        t = dsaNode(numChans,numSteps,legacyTxProb)
+        t = dsaNode(numChans,numSteps,legacyTxProb)
         pass
     elif nodeTypes[k] == 4:
         pass
@@ -140,7 +139,7 @@ for k in range(0,numNodes):
         t = dqnNode(numChans,states,numSteps)      # dqnNode
         pass
     t.hidden = hiddenNodes[k]
-    t.exposed = exposedNodes[k] 
+#    t.exposed = exposedNodes[k] 
     nodes.append(t)
         
 #nodes[0].goodChans = np.array( [1,1,0,0] )        
@@ -163,6 +162,8 @@ dqnLearnTime = np.zeros(numSteps)
 
 ##################### MAIN LOOP BEGIN ############################################
 tic = time.time()
+ticMdpAction = [ ]
+ticDqnAction = [ ]
 print "Starting Main Loop"
 
 legacyNodeIndicies = []
@@ -173,7 +174,6 @@ for n in range(0,numNodes):
 if (simulationScenario.scenarioType != 'fixed') and legacyNodeIndicies:
     simulationScenario.initializeScenario(nodes,legacyNodeIndicies)  
 
-observedStates = np.zeros((numNodes,numChans))
 
 
 ###  TODO LEGACY/HOPPING NODE BEFROE START #######################
@@ -181,7 +181,7 @@ observedStates = np.zeros((numNodes,numChans))
 
 
 #countLearnHist = np.zeros(numSteps);
-
+observedStates = np.zeros((numNodes,numChans))
 for s in range(0,numSteps):
     
     #Determination of next action for each node
@@ -196,6 +196,9 @@ for s in range(0,numSteps):
             ticMdpAction  = time.time()
             actions[n,:] = nodes[n].getAction(s)
             tocMdpAction  = time.time()
+#        elif isinstance(nodes[n],dsaNode):
+#            nodes[n].observedState = observedStates[n,:]
+#            actions[n,:] = nodes[n].getAction(s)
         else:    
             actions[n,:] = nodes[n].getAction(s)
         assert not any(np.isnan(actions[n,:])), "ERROR! action is Nan"
@@ -216,11 +219,14 @@ for s in range(0,numSteps):
                 if not nodes[nn].hidden:                    
                     observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)   # partial obseravtion
                 if np.sum(actions[n,:]) > 0 \
-                  and any( np.array( actions[n,:] + actions[nn,:])> 1 ) \
-                                and not nodes[nn].exposed:    
+                  and any( np.array( actions[n,:] + actions[nn,:])> 1 ): #\and not nodes[nn].exposed:    
                     collisions[n]         = 1
                     collisionTally[n,nn] += 1
                      
+                    
+        if isinstance(nodes[n],dsaNode):
+            nodes[n].updateState(observedStates[n,:],s)
+                    
         if isinstance(nodes[n],mdpNode):
             ticMdpLearn = time.time()
             reward = nodes[n].getReward(collisions[n],s)
@@ -246,9 +252,11 @@ for s in range(0,numSteps):
     cumulativeCollisions[s,:] = collisions
     if s != 0:
         cumulativeCollisions[s,:] +=  cumulativeCollisions[s-1,:]
-        
-    mdpLearnTime[s] = tocMdpAction - ticMdpAction + tocMdpLearn - ticMdpLearn
-    dqnLearnTime[s] = tocDqnAction - ticDqnAction + tocDqnLearn - ticDqnLearn
+    
+    if ticMdpAction:
+        mdpLearnTime[s] = tocMdpAction - ticMdpAction + tocMdpLearn - ticMdpLearn
+    if ticDqnAction:
+        dqnLearnTime[s] = tocDqnAction - ticDqnAction + tocDqnLearn - ticDqnLearn
           
 print "End Main Loop"
 toc =  time.time()
@@ -305,14 +313,15 @@ for n in range(0,numNodes):
     plt.plot(cumulativeCollisions[:,n])      # <<<<
 #    if isinstance(nodes[n],dsaNode):
 #        legendInfo = 'Node %d (DSA)'%{n}
-    if isinstance(nodes[n],hoppingNode):
+    if isinstance(nodes[n],dqnNode):
+        legendInfo.append( 'Node %d (DQN)'%(n) )
+    elif isinstance(nodes[n],hoppingNode):
         legendInfo.append( 'Node %d (Hopping)'%(n) )
     elif isinstance(nodes[n],mdpNode):
         legendInfo.append( 'Node %d (MDP)'%(n) )
     elif isinstance(nodes[n],dsaNode):
         legendInfo.append( 'Node %d (DSA)'%(n) )
-    elif isinstance(nodes[n],dqnNode):
-        legendInfo.append( 'Node %d (DQN)'%(n) )
+
     else:
         legendInfo.append( 'Node %d (Legacy)'%(n) )
     
@@ -365,12 +374,14 @@ for n in range(0,numNodes):
     plt.xlabel('Step Number')
     plt.ylabel('Action Number')
     
-    if   isinstance(nodes[n],legacyNode):
+    
+    if isinstance(nodes[n],dsaNode):
+        titleLabel = 'Action Taken by Node %d (DSA)'%(n)
+    elif   isinstance(nodes[n],legacyNode):
         titleLabel = 'Action Taken by Node %d (Legacy)'%(n)
     elif isinstance(nodes[n],hoppingNode):
         titleLabel = 'Action Taken by Node %d (Hopping)'%(n)
-    elif isinstance(nodes[n],dsaNode):
-        titleLabel = 'Action Taken by Node %d (DSA)'%(n)
+
     elif isinstance(nodes[n],mdpNode):
         titleLabel = 'Action Taken by Node %d (MDP)'%(n)
     else:
@@ -424,7 +435,7 @@ for i in range(numNodes):
     elif isinstance(nodes[i],dqnNode):
         plt.semilogy( PLR[:,i] )
         legendInfo.append( 'Node %d (DQN)'%(i) )
-if not legendInfo:
+if legendInfo:
     plt.xlabel('Step Number')
     plt.ylabel('Cumulative Packet Loss Rate')
     plt.title( 'Cumulative Packet Loss Rate')                      

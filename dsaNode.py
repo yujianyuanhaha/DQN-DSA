@@ -1,10 +1,11 @@
 import numpy as np
 import random
 from radioNode import radioNode
-from legacyNode import legacyNode
+#from legacyNode import legacyNode
 
 
-class dsaNode (legacyNode):
+class dsaNode (radioNode):   
+    # when come to isinstance(), both isinstance(nodes[1],dsaNode) or isinstance(nodes[1],legacyNode) is true
     # one typical of 'legacy Node'
     ###################################################################
     # Defines a node with the default behavior of always using the same
@@ -22,7 +23,7 @@ class dsaNode (legacyNode):
     def __init__(self, numChans, numSteps,txProb):
 #        self = legacyNode(numChans,numSteps,txProb)   
         # TODO what about occupied 
-
+       # self = legacyNode(numChans, numSteps, legacyDutyCircle, legacyChanIndex)
         
         self.actions = np.zeros((numChans+1,numChans))
         for k in range(numChans):
@@ -43,8 +44,10 @@ class dsaNode (legacyNode):
         
         ind = np.where(self.observedState == 0)[0]   # numpy return two set of value, cause np.zeros is treat as matrix
         #ind = ind(randi(length(ind)))
+        assert len(ind)>0, "empty ind"
         
-        if stepNum > 0 and np.where(self.actionHistInd[stepNum-1] == ind+1):
+        # choose the first one
+        if stepNum > 0 and np.where(self.actionHistInd[stepNum-1] == ind+1) == True:
                 # TODO ind+1 
             ind = self.actionHistInd[stepNum-1]-1            
         else:

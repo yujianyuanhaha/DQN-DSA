@@ -70,14 +70,17 @@ class dqnNode(radioNode):
         self.n_actions     = numChans   # !!! notice
         self.n_features    = numChans  # TODO  # extreme high later
        
-        self.dqn_ = dqn(self,self.n_actions, 
+        self.dqn_ = dqn(
+                        self,
+                        self.n_actions, 
                         self.n_features,   
                         learning_rate=0.01,
                         reward_decay=0.9,
                         exploreDecayType = 'perf',
                         replace_target_iter=200,
                         memory_size=2000,
-                        e_greedy_increment=True,) 
+                        e_greedy_increment=True,
+                        ) 
         # for debug, see the prob of learn vs random try
         # self.countLearn = 0
 

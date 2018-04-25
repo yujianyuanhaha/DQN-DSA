@@ -91,6 +91,8 @@ def channelAssignment(nodeTypes, hoppingWidth, numChans):
             print "nodeTypes from 0 - 6"
             
     assert len(hoppingWidth) == hoppingNodeNum, "hopWidth array does not match num of hop node"
+    
+    # if hoppingWidth include 2/ 3, also collision
             
     # capacity check
     occupiedHopping = 0
