@@ -52,7 +52,7 @@ class mdpNode(radioNode):
         for k in range(0,numChans):
             self.actions[k+1,k] = 1
             #for n in range(0,numNodes):        
-        self.numActions    = np.shape(self.actions)[0]
+        self.numActions    = np.shape(self.actions)[0]  
         self.actionTally   = np.zeros(numChans+1)
         self.actionHist    = np.zeros((numSteps,numChans))
         self.actionHistInd = np.zeros(numSteps)
@@ -85,6 +85,7 @@ class mdpNode(radioNode):
     def getAction(self,stepNum):
         if random.random( ) < self.exploreProb:
             action = self.actions[ random.randint(0, self.numActions-1) , :]              # randi
+            # random.randint() both close end; np.random.randint() left close right open
             assert not any(np.isnan(action)), "ERROR! action is Nan at getAction() case 1"
     
         else:
@@ -96,7 +97,9 @@ class mdpNode(radioNode):
         self.actionHist[stepNum,:] = action                    
         if not np.sum(action):
             self.actionTally[0] +=    1
-            self.actionHistInd[stepNum] = 1
+            self.actionHistInd[stepNum] = 0
+            # i.e legacy channel 0 - actionHistInd 1
+            # stay zero, stay WAIT
         else:
             self.actionHistInd[stepNum] = np.where(action == 1)[0] + 1
             self.actionTally[1:] += action             

@@ -96,7 +96,7 @@ class dqnNode(radioNode):
         self.actionHist[stepNum,:] = action                   
         if not np.sum(action):
             self.actionTally[0] +=    1
-            self.actionHistInd[stepNum] = 1
+            self.actionHistInd[stepNum] = 0
         else:
             self.actionHistInd[stepNum] = np.where(action == 1)[0] + 1
             self.actionTally[1:] += action

@@ -140,11 +140,21 @@ class dqn:
             # size of observation = s / n_feature
             action = np.argmax(actions_value) 
             self.learn_step_counter += 1
+            if action == 0:
+                print "learn case action = 0 "
+            
         else:
-            action = np.random.randint(0, self.n_actions)
+            action = np.random.randint(0, self.n_actions+1)
+            
+            if action == 0:
+                print "explore case action = 0 "
             
         
         return action
+        # make clear of defination of the actions
+    
+    
+    
 
     def learn(self):
         # check to replace target parameters

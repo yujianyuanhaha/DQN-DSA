@@ -63,21 +63,21 @@ from myFunction import channelAssignment
 
 
 
- 
-##################### Network Setup & Simulation Parameters #######################################
-numSteps = 30000/3    # 10000 as minimum for MDP 
-numChans = 4
+
 # for unknown reason, terminal of Spyder would keep the old tensorflow neural network data
 # when change numChans(related to neural network), REMEMBER TO SHUT OFF AND OPEN A NEW terminal
 # it would not happen in raw terminal 
 
-############################################
-nodeTypes = np.array( [0,0,0,2,4])    ##########
-legacyChanList = [0,1,2,3,4]          ######
-imDutyCircleList = [0.5,0.5,0.8,0.8]   ####### 
-hoppingChanList = [ [1,2],[2,3]]    ########
-txProbability = 1.0                ########
-############################################
+################################################################
+#######################     Network Setup & Simulation Parameters  ############
+numSteps = 30000  
+numChans = 4                             
+nodeTypes = np.array( [0,0,0,2,4])              
+legacyChanList = [0,1,2,3,4]                      
+imDutyCircleList = [0.5,0.5,0.2,0.2]           
+hoppingChanList = [ [1,2],[2,3]]                   
+txProbability = 1.0
+hoppingWidth = 2  
 # The type of each node 
 # 0 - Legacy (Dumb) Node 
 # 1 - Hopping Node
@@ -86,9 +86,12 @@ txProbability = 1.0                ########
 # 4 - MDP Node
 # 5 - DQN Node       
 # 6 - Adv. MDP Node
+                                
+################################################################
+################################################################
 
 
-hoppingWidth = 2
+
 ChannelAssignType = 'typeIn'
 if ChannelAssignType == 'random':
     legacyChanList, imChanList, hoppingChanList, utilization =\
@@ -197,20 +200,14 @@ for s in range(0,numSteps):
             actions[n,:], actionScalar = nodes[n].getAction(s, observation)  ###########
             tocDqnAction  = time.time()
         elif isinstance(nodes[n],mdpNode):
-           # todo
             ticMdpAction  = time.time()
             actions[n,:] = nodes[n].getAction(s)
             tocMdpAction  = time.time()
-#        elif isinstance(nodes[n],dsaNode):
-#            nodes[n].observedState = observedStates[n,:]
-#            actions[n,:] = nodes[n].getAction(s)
         else:    
             actions[n,:] = nodes[n].getAction(s)
         assert not any(np.isnan(actions[n,:])), "ERROR! action is Nan"
 
-        
-        
-        
+
     if simulationScenario.scenarioType != 'fixed':
          simulationScenario.updateScenario(nodes,legacyNodeIndicies, s)
 
@@ -363,7 +360,9 @@ plt.savefig('../dqnFig/CumulativeReward.pdf')
 #np.ceil
 ############### 3 Actions #################################
 plt.figure(3)
-split = np.ceil(numNodes / 2)    
+#plt.figure(figsize=(80,10))
+split = np.ceil(numNodes*1.0/2)
+
 for n in range(0,numNodes):
   
     plt.subplot(split,2,n+1)        
@@ -385,6 +384,8 @@ for n in range(0,numNodes):
     else:
         titleLabel = 'Action Taken by Node %d (DQN)'%(n)   # no dsa
     plt.title(titleLabel)
+    
+
 #plt.show() 
 plt.savefig('../dqnFig/Actions.png')
 plt.savefig('../dqnFig/Actions.pdf')
@@ -465,7 +466,7 @@ plt.savefig('../dqnFig/PLR.pdf')
 plt.figure(6)
 plotPeriod = 400
 iteration = numSteps/plotPeriod
-split = np.ceil(numNodes / 2)    
+split = np.ceil(numNodes*1.0/2)    
 for n in range(0,numNodes):
   
     plt.subplot(split,2,n+1)        
@@ -483,7 +484,7 @@ for n in range(0,numNodes):
     nonAction = np.ones(plotPeriod) * -2
     
     for i in range(0,plotPeriod):
-        if tempPeriod[i] == -1:
+        if tempPeriod[i] < 0:
             nonAction[i] = temp[i]
         else:
             isAction[i] = temp[i]
