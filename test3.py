@@ -52,10 +52,27 @@
 #toc() 
  
  
-"get value of time"
+#"get value of time"
+#import time
+#start_time = time.time()
+#for i in range(100000):
+#    pass
+#print("--- %s seconds ---" % (time.time() - start_time))
+import matplotlib.pyplot as plt   
+"plot issue"
+import numpy  as np
+import random
 import time
-start_time = time.time()
-for i in range(100000):
-    pass
-print("--- %s seconds ---" % (time.time() - start_time))
+temp = np.zeros(10000)
+tic = time.time()
+for i in range(len(temp)):
+    temp[i] = random.randint(0,5)
  
+    if temp[i] < 5:
+        plt.plot(i%400,temp[i],'yo' ,fillstyle= 'none')
+    else:
+        plt.plot(i%400,temp[i],'bo' ,fillstyle= 'none')
+plt.show()
+toc = time.time()
+print toc-tic
+"nothing bug, 132.039689064s"

@@ -24,6 +24,7 @@ File Achitecture:
     multiNodeLearning.py -- myFunction.py
                          -- legacyNode.py
                          -- hoppingNode.py
+                         -- imNode.py
                          -- dsaNode.py
                          -- mdpNode.py      -- mdp.py
                          -- dqnNode.py      -- dqn.py
@@ -50,6 +51,7 @@ from mdpNode     import mdpNode
 from hoppingNode import hoppingNode
 from dqnNode     import dqnNode   #
 from dsaNode     import dsaNode 
+from imNode     import imNode 
 
 from scenario    import scenario
 import matplotlib.pyplot as plt
@@ -64,26 +66,28 @@ from myFunction import channelAssignment
  
 ##################### Network Setup & Simulation Parameters #######################################
 numSteps = 30000/3    # 10000 as minimum for MDP 
-numChans = 3
+numChans = 4
 # for unknown reason, terminal of Spyder would keep the old tensorflow neural network data
 # when change numChans(related to neural network), REMEMBER TO SHUT OFF AND OPEN A NEW terminal
 # it would not happen in raw terminal 
 
 ############################################
-nodeTypes = np.array( [0,0,0,5])    ##########
+nodeTypes = np.array( [0,0,0,2,4])    ##########
 legacyChanList = [0,1,2,3,4]          ######
-legacyDutyCircleList = [ 1.0, 0.5, 0.5]   ####### 
+imDutyCircleList = [0.5,0.5,0.8,0.8]   ####### 
 hoppingChanList = [ [1,2],[2,3]]    ########
-
+txProbability = 1.0                ########
 ############################################
 # The type of each node 
 # 0 - Legacy (Dumb) Node 
 # 1 - Hopping Node
-# 2 - MDP Node
-# 3 - DSA node (just avoids)         
-# 4 - Adv. MDP Node
-# 5 - DQN Node
-# 6 - Intermittent Node
+# 2 - Intermittent Node/ im Node
+# 3 - DSA node (just avoids)  
+# 4 - MDP Node
+# 5 - DQN Node       
+# 6 - Adv. MDP Node
+
+
 hoppingWidth = 2
 ChannelAssignType = 'typeIn'
 if ChannelAssignType == 'random':
@@ -116,27 +120,28 @@ numStates = np.shape(states)[0]
 
 
 
-legacyTxProb = 0.8
 
-CountLegacyChanIndex = -1
+
+CountLegacyChanIndex = 0
 CountHoppingChanIndex = 0
 ##################### Construct diff Type of Nodes #######################################
 for k in range(0,numNodes):
-    if nodeTypes[k] == 0:
-        CountLegacyChanIndex += 1
-        t = legacyNode(numChans,numSteps,legacyDutyCircleList[CountLegacyChanIndex], legacyChanList[CountLegacyChanIndex])                
+    if   nodeTypes[k] == 0:
+        t = legacyNode(numChans,numSteps, txProbability, legacyChanList[CountLegacyChanIndex]) 
+        CountLegacyChanIndex += 1               
     elif nodeTypes[k] == 1:
         t = hoppingNode(numChans,numSteps,hoppingChanList[CountHoppingChanIndex])
         CountHoppingChanIndex += 1
     elif nodeTypes[k] == 2:
-        t = mdpNode(numChans,states,numSteps)
+        t = imNode(numChans,numSteps,imDutyCircleList[CountLegacyChanIndex], legacyChanList[CountLegacyChanIndex])
+        CountLegacyChanIndex += 1
     elif nodeTypes[k] == 3:
-        t = dsaNode(numChans,numSteps,legacyTxProb)
-        pass
+        t = dsaNode(numChans,numSteps,txProbability)    
     elif nodeTypes[k] == 4:
-        pass
-    else:
+        t = mdpNode(numChans,states,numSteps)   
+    elif nodeTypes[k] == 5:
         t = dqnNode(numChans,states,numSteps)      # dqnNode
+    else:
         pass
     t.hidden = hiddenNodes[k]
 #    t.exposed = exposedNodes[k] 
@@ -311,19 +316,20 @@ plt.figure(1)
 legendInfo = [ ]
 for n in range(0,numNodes):
     plt.plot(cumulativeCollisions[:,n])      # <<<<
-#    if isinstance(nodes[n],dsaNode):
-#        legendInfo = 'Node %d (DSA)'%{n}
-    if isinstance(nodes[n],dqnNode):
-        legendInfo.append( 'Node %d (DQN)'%(n) )
+    if isinstance(nodes[n],legacyNode):
+        legendInfo.append( 'Node %d (Legacy)'%(n) )
     elif isinstance(nodes[n],hoppingNode):
         legendInfo.append( 'Node %d (Hopping)'%(n) )
-    elif isinstance(nodes[n],mdpNode):
-        legendInfo.append( 'Node %d (MDP)'%(n) )
+    elif isinstance(nodes[n],imNode):
+        legendInfo.append( 'Node %d (Intermittent)'%(n) )
     elif isinstance(nodes[n],dsaNode):
         legendInfo.append( 'Node %d (DSA)'%(n) )
-
+    elif isinstance(nodes[n],mdpNode):
+        legendInfo.append( 'Node %d (MDP)'%(n) )
+    if isinstance(nodes[n],dqnNode):
+        legendInfo.append( 'Node %d (DQN)'%(n) )
     else:
-        legendInfo.append( 'Node %d (Legacy)'%(n) )
+        pass
     
     txPackets.append( np.cumsum(np.sum(nodes[n].actionHist.T , axis=0).T ) )
 plt.legend(legendInfo)
@@ -359,29 +365,21 @@ plt.savefig('../dqnFig/CumulativeReward.pdf')
 plt.figure(3)
 split = np.ceil(numNodes / 2)    
 for n in range(0,numNodes):
-    if n <= split:
-        plt.subplot(split,2,n+1)
-    else:
-        plt.subplot(split,2,n+1)
-        
-    if isinstance(nodes,mdpNode):
-        offset = 1
-    else:
-        offset = 0
-    plt.plot( np.maximum(nodes[n].actionHistInd-1 ,
-                         np.zeros(numSteps)),'bo' ,fillstyle= 'none')
-    plt.ylim(0,numChans+2)
+  
+    plt.subplot(split,2,n+1)        
+    plt.plot( nodes[n].actionHistInd-1,'bo' ,fillstyle= 'none')
+    plt.ylim(0,numChans)   # -1 for WAIT
     plt.xlabel('Step Number')
     plt.ylabel('Action Number')
-    
-    
-    if isinstance(nodes[n],dsaNode):
-        titleLabel = 'Action Taken by Node %d (DSA)'%(n)
-    elif   isinstance(nodes[n],legacyNode):
+
+    if   isinstance(nodes[n],legacyNode):
         titleLabel = 'Action Taken by Node %d (Legacy)'%(n)
     elif isinstance(nodes[n],hoppingNode):
         titleLabel = 'Action Taken by Node %d (Hopping)'%(n)
-
+    elif   isinstance(nodes[n],imNode):
+        titleLabel = 'Action Taken by Node %d (Intermittent)'%(n)
+    elif isinstance(nodes[n],dsaNode):
+        titleLabel = 'Action Taken by Node %d (DSA)'%(n)
     elif isinstance(nodes[n],mdpNode):
         titleLabel = 'Action Taken by Node %d (MDP)'%(n)
     else:
@@ -390,6 +388,12 @@ for n in range(0,numNodes):
 #plt.show() 
 plt.savefig('../dqnFig/Actions.png')
 plt.savefig('../dqnFig/Actions.pdf')
+
+
+
+
+
+
     
 
 ############### 4 Packet Error Rate  #################################
@@ -402,21 +406,26 @@ PLR = (cumulativeCollisions + timeSlots - txPackets) /timeSlots
 plt.figure(4)
 legendInfo = [ ]
 for i in range(numNodes):
-    if isinstance(nodes[i],mdpNode):
+    if isinstance(nodes[i],legacyNode):
         plt.semilogy( PER[:,i] )
-        legendInfo.append( 'Node %d (MDP)'%(i) )
-    elif isinstance(nodes[i],dsaNode):
-        plt.semilogy( PER[:,i] )
-        legendInfo.append( 'Node %d (DSA)'%(i) )
-    elif isinstance(nodes[i],dqnNode):
-        plt.semilogy( PER[:,i] )
-        legendInfo.append( 'Node %d (DQN)'%(i) )
+        legendInfo.append( 'Node %d (Legacy)'%(i) )
     elif isinstance(nodes[i],hoppingNode):
         plt.semilogy( PER[:,i] )
         legendInfo.append( 'Node %d (Hopping)'%(i) )
-    else:
+    elif isinstance(nodes[i],imNode):
         plt.semilogy( PER[:,i] )
-        legendInfo.append( 'Node %d (legacy)'%(i) )
+        legendInfo.append( 'Node %d (Intermittent)'%(i) )
+    elif isinstance(nodes[i],dsaNode):
+        plt.semilogy( PER[:,i] )
+        legendInfo.append( 'Node %d (DSA)'%(i) )
+    elif isinstance(nodes[i],mdpNode):
+        plt.semilogy( PER[:,i] )
+        legendInfo.append( 'Node %d (MDP)'%(i) )
+    elif isinstance(nodes[i],dqnNode):
+        plt.semilogy( PER[:,i] )
+        legendInfo.append( 'Node %d (DQN)'%(i) )
+    else:
+        pass
 plt.legend(legendInfo)
 plt.xlabel('Step Number')
 plt.ylabel('Cumulative Packet Error Rate')
@@ -452,6 +461,55 @@ plt.savefig('../dqnFig/PLR.pdf')
     
     
     
+# plot period
+plt.figure(6)
+plotPeriod = 400
+iteration = numSteps/plotPeriod
+split = np.ceil(numNodes / 2)    
+for n in range(0,numNodes):
+  
+    plt.subplot(split,2,n+1)        
+   
+    temp = nodes[n].actionHistInd-1   
+    # -1 for WAIT
+    length = len(temp)   
+    tempPeriod = np.zeros(plotPeriod)
+    
+    for m in range(0,length):   # last 3/4 
+        tempPeriod[m%400] += temp[m]   
+    tempPeriod =  tempPeriod*1.0/iteration
+    
+    isAction  = np.ones(plotPeriod) * -2
+    nonAction = np.ones(plotPeriod) * -2
+    
+    for i in range(0,plotPeriod):
+        if tempPeriod[i] == -1:
+            nonAction[i] = temp[i]
+        else:
+            isAction[i] = temp[i]
+
+    plt.plot(isAction,'bo' ,fillstyle= 'none')
+    plt.plot(nonAction,'yo' ,fillstyle= 'none')
+    plt.ylim(-1,numChans)  #-1 to show WAIT
+    plt.xlabel('Step Number')
+    plt.ylabel('Periodic Action Number')
+
+    if   isinstance(nodes[n],legacyNode):
+        titleLabel = 'Periodic Action of Node %d (Legacy)'%(n)
+    elif   isinstance(nodes[n],hoppingNode):
+        titleLabel = 'Periodic Action of Node %d (Hopping)'%(n)
+    elif   isinstance(nodes[n],imNode):
+        titleLabel = 'Periodic Action of Node %d (Intermittent)'%(n)
+    elif isinstance(nodes[n],dsaNode):
+        titleLabel = 'Periodic Action of Node %d (DSA)'%(n)
+    elif isinstance(nodes[n],mdpNode):
+        titleLabel = 'Periodic Action of Node %d (MDP)'%(n)
+    else:
+        titleLabel = 'Periodic Action of Node %d (DQN)'%(n)   # no dsa
+    plt.title(titleLabel)
+plt.show() 
+plt.savefig('../dqnFig/peroidicActions.png')
+plt.savefig('../dqnFig/peroidicActions.pdf')
     
     
     
