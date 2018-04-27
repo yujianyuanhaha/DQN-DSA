@@ -13,6 +13,9 @@ import numpy as np
 #import myRL_brain as rl
 #from myRL_brain import DeepQNetwork
 from dqn import dqn
+import dqnDouble
+import dqnPriReplay
+import dqnDuel
 #from mdp import PolicyIteration  #
 
 
@@ -39,7 +42,7 @@ class dqnNode(radioNode):
     rewardTrans      = [ ]
     cumulativeReward = [ ]
     
-    def __init__(self,numChans,states,numSteps):
+    def __init__(self,numChans,states,numSteps, dqnType):
         self.actions = np.zeros((numChans+1,numChans))
         for k in range(0,numChans):
             self.actions[k+1,k] = 1
@@ -71,17 +74,61 @@ class dqnNode(radioNode):
         self.n_actions     = numChans+1   # !!! notice
         self.n_features    = numChans  # TODO  # extreme high later
        
-        self.dqn_ = dqn(
-                        self,
-                        self.n_actions, 
-                        self.n_features,   
-                        learning_rate=0.01,
-                        reward_decay=0.9,
-                        exploreDecayType = 'perf',
-                        replace_target_iter=200,
-                        memory_size=2000,
-                        e_greedy_increment=True,
-                        ) 
+        
+        if dqnType == 5 :
+            self.dqn_ = dqn(
+                            self,
+                            self.n_actions, 
+                            self.n_features,   
+                            learning_rate=0.01,
+                            reward_decay=0.9,
+                            exploreDecayType = 'perf',
+                            replace_target_iter=200,
+                            memory_size=2000,
+                            e_greedy_increment=True,
+                            ) 
+        elif dqnType == 6 :
+            self.dqn_ = dqnDouble.DoubleDQN(
+                            self,
+                            self.n_actions, 
+                            self.n_features,   
+                            learning_rate=0.005,
+                            reward_decay=0.9,
+                            e_greedy=0.9,
+                            replace_target_iter=200,
+                            memory_size=2000,
+                            e_greedy_increment=None,
+                            double_q = True, 
+                            )
+        elif dqnType == 7 :
+            self.dqn_ = dqnPriReplay.DQNPrioritizedReplay(
+                            self,
+                            self.n_actions, 
+                            self.n_features,   
+                            learning_rate=0.01,
+                            reward_decay=0.9,
+                            e_greedy=0.9,
+                            replace_target_iter=200,
+                            memory_size=2000,
+                            e_greedy_increment=None,
+                            prioritized=True,  
+                            ) 
+        elif dqnType == 8 :
+            self.dqn_ = dqnDuel.DuelingDQN(
+                            self,
+                            self.n_actions, 
+                            self.n_features,   
+                            learning_rate=0.01,
+                            reward_decay=0.9,
+                            e_greedy=0.9,
+                            replace_target_iter=200,
+                            memory_size=2000,
+                            e_greedy_increment=None,
+                            dueling=True, 
+                            ) 
+        else:
+                pass
+            
         # for debug, see the prob of learn vs random try
         # self.countLearn = 0
 

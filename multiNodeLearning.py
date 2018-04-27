@@ -71,16 +71,22 @@ from myFunction import channelAssignment
 ################################################################
 #######################     Network Setup & Simulation Parameters  ############
 numSteps = 30000
-numChans = 16                             
-nodeTypes = np.array( [0,0,0,0,
-                       0,0,1,1,
-                       2,2,3,3,
-                       4,4,5,5] )
+numChans = 4  
+ChannelAssignType = 'typeIn'  
+
+nodeTypes = np.array( [0,1,5,6])
+legacyChanList = [0,1]
+hoppingChanList = [ [2,3]]
+                         
+#nodeTypes = np.array( [0,0,0,0,
+#                       0,0,1,1,
+#                       2,2,3,3,
+#                       4,4,5,5] )
                     
-legacyChanList = [3,4,5,6,8,9]
+#legacyChanList = [3,4,5,6,8,9]
 imChanList = [1,2]                      
 imDutyCircleList = [0.5,0.6]           
-hoppingChanList = [ [11,12],[12,13]]                   
+#hoppingChanList = [ [11,12],[12,13]]                   
 txProbability = 1.0
 hoppingWidth = 2
 isWait = False  #default no imNode
@@ -95,7 +101,12 @@ if any(nodeTypes==2) and len(nodeTypes) > numChans:
 # 2 - Intermittent Node/ im Node
 # 3 - DSA node (just avoids)  
 # 4 - MDP Node
-# 5 - DQN Node       
+# 5 - DQN Node
+# 6 - DQN-DoubleQ
+# 7 - DQN-PriReplay
+# 8 - DQN-Duel
+    
+       
 # 6 - Adv. MDP Node
 
 # the order does not matter for dsa, dqn, mdp make action
@@ -106,7 +117,7 @@ if any(nodeTypes==2) and len(nodeTypes) > numChans:
 
 
 
-ChannelAssignType = 'typeIn'
+
 if ChannelAssignType == 'random':
     legacyChanList, imChanList, hoppingChanList, utilization =\
         channelAssignment(nodeTypes, hoppingWidth, numChans)
@@ -157,8 +168,8 @@ for k in range(0,numNodes):
         t = dsaNode(numChans,numSteps,txProbability)    
     elif nodeTypes[k] == 4:
         t = mdpNode(numChans,states,numSteps)   
-    elif nodeTypes[k] == 5:
-        t = dqnNode(numChans,states,numSteps)      # dqnNode
+    elif nodeTypes[k] >= 5 and nodeTypes[k] <= 8:
+        t = dqnNode(numChans,states,numSteps, nodeTypes[k])      # dqnNode
     else:
         pass
     t.hidden = hiddenNodes[k]
