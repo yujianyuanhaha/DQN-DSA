@@ -42,7 +42,9 @@ For batch test, we run codes on ARC VT.
 # How to run the codes?  
 Paramter all configurable at header part of multiNodeLearning.py
 in terminal run:  
-**python multiNodeLearning.py**
+‘’‘
+python multiNodeLearning.py
+’‘’
 
 
 

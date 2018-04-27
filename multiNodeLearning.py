@@ -28,6 +28,10 @@ File Achitecture:
                          -- dsaNode.py
                          -- mdpNode.py      -- mdp.py
                          -- dqnNode.py      -- dqn.py
+                                            -- dqnDouble.py
+                                            -- dqnPriReplay.py
+                                            -- dqnDuel.py
+                         
                          -- stateSpaceCreate.py
                          -- scenario.py
                      
@@ -71,22 +75,22 @@ from myFunction import channelAssignment
 ################################################################
 #######################     Network Setup & Simulation Parameters  ############
 numSteps = 30000
-numChans = 4  
+numChans = 16  
 ChannelAssignType = 'typeIn'  
 
-nodeTypes = np.array( [0,1,5,6])
-legacyChanList = [0,1]
-hoppingChanList = [ [2,3]]
+#nodeTypes = np.array( [0,1,5,8])
+#legacyChanList = [0,1]
+#hoppingChanList = [ [2,3]]
                          
-#nodeTypes = np.array( [0,0,0,0,
-#                       0,0,1,1,
-#                       2,2,3,3,
-#                       4,4,5,5] )
+nodeTypes = np.array( [0,0,0,0,
+                       0,0,1,1,
+                       2,2,3,3,
+                       5,5,5,5] )
                     
-#legacyChanList = [3,4,5,6,8,9]
+legacyChanList = [3,4,5,6,8,9]
 imChanList = [1,2]                      
 imDutyCircleList = [0.5,0.6]           
-#hoppingChanList = [ [11,12],[12,13]]                   
+hoppingChanList = [ [11,12],[12,13]]                   
 txProbability = 1.0
 hoppingWidth = 2
 isWait = False  #default no imNode

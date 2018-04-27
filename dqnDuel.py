@@ -18,6 +18,7 @@ tf.set_random_seed(1)
 class DuelingDQN:
     def __init__(
             self,
+            dqnNode,
             n_actions,
             n_features,
             learning_rate=0.001,
@@ -92,7 +93,7 @@ class DuelingDQN:
         # ------------------ build evaluate_net ------------------
         self.s = tf.placeholder(tf.float32, [None, self.n_features], name='s')  # input
         self.q_target = tf.placeholder(tf.float32, [None, self.n_actions], name='Q_target')  # for calculating loss
-        with tf.variable_scope('eval_net'):
+        with tf.variable_scope('eval_net',reuse=tf.AUTO_REUSE):
             c_names, n_l1, w_initializer, b_initializer = \
                 ['eval_net_params', tf.GraphKeys.GLOBAL_VARIABLES], 20, \
                 tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)  # config of layers
@@ -101,12 +102,12 @@ class DuelingDQN:
 
         with tf.variable_scope('loss'):
             self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval))
-        with tf.variable_scope('train'):
+        with tf.variable_scope('train',reuse=tf.AUTO_REUSE):
             self._train_op = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss)
 
         # ------------------ build target_net ------------------
         self.s_ = tf.placeholder(tf.float32, [None, self.n_features], name='s_')    # input
-        with tf.variable_scope('target_net'):
+        with tf.variable_scope('target_net',reuse=tf.AUTO_REUSE):
             c_names = ['target_net_params', tf.GraphKeys.GLOBAL_VARIABLES]
 
             self.q_next = build_layers(self.s_, c_names, n_l1, w_initializer, b_initializer)
@@ -131,7 +132,7 @@ class DuelingDQN:
     def learn(self):
         if self.learn_step_counter % self.replace_target_iter == 0:
             self.sess.run(self.replace_target_op)
-            print('\ntarget_params_replaced\n')
+            #print('\ntarget_params_replaced\n')
 
         sample_index = np.random.choice(self.memory_size, size=self.batch_size)
         batch_memory = self.memory[sample_index, :]
