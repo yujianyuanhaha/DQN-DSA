@@ -39,9 +39,7 @@ class mdpNode(radioNode):
     policy           = [ ] 
     policyHist       = [ ]        
     # [Not transmitting, Good Channel no Interference, Good Channel Interference, Bad Channel no Interference, Bad Channel Interference]
-    #rewards          = [-200, 100, -100, 50, -200]   # -j ??    
-    #rewards          = [0, 100, -100, 50, -400]
-    rewards          = [-100, 100, -100, 50, -200]
+    rewards          = [-200, 100, -100, 50, -200]  
     rewardHist       = [ ]
     rewardTally      = [ ]        
     rewardTrans      = [ ]
@@ -109,7 +107,10 @@ class mdpNode(radioNode):
         # unlike matlab, python must return        
 
         
-    def getReward(self,collision,stepNum):
+    def getReward(self,collision,stepNum,isWait):
+        
+        if isWait == True:
+             self.rewards  = [0, 100, -100, 50, -400]  
         
         action = self.actionHist[stepNum,:]
         if not np.sum(action):

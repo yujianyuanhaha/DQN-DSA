@@ -32,10 +32,8 @@ class dqnNode(radioNode):
     policy           = [ ] 
     policyHist       = [ ]        
     # [Not transmitting, Good Channel no Interference, Good Channel Interference, Bad Channel no Interference, Bad Channel Interference]
-    rewards          = [0, 100, -100, 50, -400]   # -!!!   
-    # orginal [-200, 100, -100, 50, -200]
-    # learning im Node 0.2 [0, 100, -100, 50, -400] fair, 
-    # 0.8 perfect
+    rewards          = [-200, 100, -100, 50, -100]   
+    # different duty cycle need different rewards   
     rewardHist       = [ ]
     rewardTally      = [ ]        
     rewardTrans      = [ ]
@@ -109,23 +107,27 @@ class dqnNode(radioNode):
         return action, temp  # return two type
     
     
-    def getReward(self,collision,stepNum):
+    def getReward(self,collision,stepNum, isWait):
         
+        if isWait == True:
+             self.rewards  = [-50, 100, -200, 50, -100] 
+             # 10% acceptable  # reduece -100 to -50
         action = self.actionHist[stepNum,:]
         if not np.sum(action):
             reward = self.rewards[0]
             self.rewardTally[0] +=  reward
         else:
-            if not any(np.array(self.goodChans+action) > 1):    
-                if collision == 1:
-                    reward = self.rewards[4]
-                else:
-                    reward = self.rewards[3]               
-            else:
+            if any(np.array(self.goodChans+action) > 1): 
                 if collision == 1:
                     reward = self.rewards[2]
                 else:
-                    reward = self.rewards[1]  
+                    reward = self.rewards[1]             
+            else:
+                if collision == 1:
+                    reward = self.rewards[4]
+                else:
+                    reward = self.rewards[3]   
+ 
             #[0, 100, -100, 50, -400]                                                       
             self.rewardTally[1:] += action * reward        
         self.rewardHist[stepNum] = reward   

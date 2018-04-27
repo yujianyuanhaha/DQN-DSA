@@ -70,14 +70,25 @@ from myFunction import channelAssignment
 
 ################################################################
 #######################     Network Setup & Simulation Parameters  ############
-numSteps = 30000 
-numChans = 4                             
-nodeTypes = np.array( [0,0,0,2,5])              
-legacyChanList = [0,1,2,3,4]                      
-imDutyCircleList = [0.5,0.5,0.2,0.2]           
-hoppingChanList = [ [2,3]]                   
+numSteps = 30000
+numChans = 16                             
+nodeTypes = np.array( [0,0,0,0,
+                       0,0,1,1,
+                       2,2,3,3,
+                       4,4,5,5] )
+                    
+legacyChanList = [3,4,5,6,8,9]
+imChanList = [1,2]                      
+imDutyCircleList = [0.5,0.6]           
+hoppingChanList = [ [11,12],[12,13]]                   
 txProbability = 1.0
-hoppingWidth = 2  
+hoppingWidth = 2
+isWait = False  #default no imNode
+if any(nodeTypes==2) and len(nodeTypes) > numChans:
+    isWait = True
+    print "learn to occupy imNode"
+# if need to learn imNode, enable isWait to change rewards 
+    
 # The type of each node 
 # 0 - Legacy (Dumb) Node 
 # 1 - Hopping Node
@@ -130,6 +141,7 @@ numStates = np.shape(states)[0]
 
 CountLegacyChanIndex = 0
 CountHoppingChanIndex = 0
+CountIm = 0
 ##################### Construct diff Type of Nodes #######################################
 for k in range(0,numNodes):
     if   nodeTypes[k] == 0:
@@ -139,8 +151,8 @@ for k in range(0,numNodes):
         t = hoppingNode(numChans,numSteps,hoppingChanList[CountHoppingChanIndex])
         CountHoppingChanIndex += 1
     elif nodeTypes[k] == 2:
-        t = imNode(numChans,numSteps,imDutyCircleList[CountLegacyChanIndex], legacyChanList[CountLegacyChanIndex])
-        CountLegacyChanIndex += 1
+        t = imNode(numChans,numSteps,imDutyCircleList[CountIm], imChanList[CountIm])
+        CountIm += 1
     elif nodeTypes[k] == 3:
         t = dsaNode(numChans,numSteps,txProbability)    
     elif nodeTypes[k] == 4:
@@ -155,7 +167,12 @@ for k in range(0,numNodes):
         
 #nodes[0].goodChans = np.array( [1,1,0,0] )        
 #nodes[1].goodChans = np.array( [0,1,1,0] )          
-#nodes[2].goodChans = np.array( [0,0,1,1] )    
+#nodes[2].goodChans = np.array( [0,0,1,1] ) 
+    
+
+       
+    
+   
 
 simulationScenario = scenario(numSteps,'fixed',3)  
 
@@ -236,7 +253,7 @@ for s in range(0,numSteps):
                     
         if isinstance(nodes[n],mdpNode):
             ticMdpLearn = time.time()
-            reward = nodes[n].getReward(collisions[n],s)
+            reward = nodes[n].getReward(collisions[n],s,isWait)
             nodes[n].updateTrans(observedStates[n,:],s)
             if not math.fmod(s,nodes[n].policyAdjustRate):
                 nodes[n].updatePolicy(s)
@@ -244,7 +261,7 @@ for s in range(0,numSteps):
                                 
         if isinstance(nodes[n],dqnNode):
             ticDqnLearn = time.time()
-            reward = nodes[n].getReward(collisions[n],s)
+            reward = nodes[n].getReward(collisions[n],s, isWait)
             observation_ = observedStates[n,:]  # update already # full already
             done = True            
             nodes[n].storeTransition(observation, actionScalar, 
@@ -459,9 +476,10 @@ for i in range(numNodes):
 if legendInfo:
     plt.xlabel('Step Number')
     plt.ylabel('Cumulative Packet Loss Rate')
-    plt.title( 'Cumulative Packet Loss Rate')                      
+    plt.title( 'Cumulative Packet Loss Rate') 
+    plt.grid(True)                     
     plt.show() 
-plt.grid(True)
+    
 
 #plt.show() 
 plt.savefig('../dqnFig/PLR.png')
@@ -478,7 +496,7 @@ plt.savefig('../dqnFig/PLR.pdf')
 # plot period
 plt.figure(6)
 plotPeriod = 400
-iteration = 0.75*numSteps/plotPeriod
+
 split = np.ceil(numNodes*1.0/2)    
 for n in range(0,numNodes):
   
@@ -489,18 +507,17 @@ for n in range(0,numNodes):
     length = len(temp)   
     tempPeriod = np.zeros(plotPeriod)
     
-    for m in range(length/4,length):   # last 3/4 
-        tempPeriod[m%400] += temp[m]   
-    tempPeriod =  tempPeriod*1.0/iteration
+    for m in range(length-plotPeriod,length):   # last 3/4 
+        tempPeriod[m%400] += temp[m]
     
     isAction  = np.ones(plotPeriod) * -2
     nonAction = np.ones(plotPeriod) * -2
     
     for i in range(0,plotPeriod):
         if tempPeriod[i] < 0:
-            nonAction[i] = temp[i]
+            nonAction[i] = tempPeriod[i]
         else:
-            isAction[i] = temp[i]
+            isAction[i] = tempPeriod[i]
 
     plt.plot(isAction,'bo' ,fillstyle= 'none')
     plt.plot(nonAction,'yo' ,fillstyle= 'none')

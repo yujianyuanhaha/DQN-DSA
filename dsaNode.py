@@ -44,20 +44,22 @@ class dsaNode (radioNode):
         
         ind = np.where(self.observedState == 0)[0]   # numpy return two set of value, cause np.zeros is treat as matrix
         #ind = ind(randi(length(ind)))
-        assert len(ind)>0, "empty ind"
-        
-        # choose the first one
-        if stepNum > 0 and np.where(self.actionHistInd[stepNum-1] == ind+1) == True:
-                # TODO ind+1 
-            ind = self.actionHistInd[stepNum-1]-1            
-        else:
-            ind = ind[random.randint(0,len(ind)-1)]
-        
-        ind = ind.astype(int)  # unkown
-        if random.random() <= self.txProbability:
-            action = self.actions[ind+1,:]   #  self.actions = zeros(numChans+1,numChans)
-        else:
+        #assert len(ind)>0, "empty ind"
+        if not any(ind):
             action = np.zeros(np.shape(self.actions)[1])
+        else:
+            # choose the first one
+            if stepNum > 0 and np.where(self.actionHistInd[stepNum-1] == ind+1) == True:
+                    # TODO ind+1 
+                ind = self.actionHistInd[stepNum-1]-1            
+            else:
+                ind = ind[random.randint(0,len(ind)-1)]
+        
+            ind = ind.astype(int)  # unkown
+            if random.random() <= self.txProbability:
+                action = self.actions[ind+1,:]   #  self.actions = zeros(numChans+1,numChans)
+            else:
+                action = np.zeros(np.shape(self.actions)[1])
         
         self.actionHist[stepNum,:] = action
         if not np.sum(action):
