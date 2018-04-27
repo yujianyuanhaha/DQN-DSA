@@ -72,6 +72,9 @@ class dsaNode (radioNode):
             self.actionTally[1:] = self.actionTally[1:] + action
             
         return action
+    
+    
+        # dsa learn to WAIT
         
     
     

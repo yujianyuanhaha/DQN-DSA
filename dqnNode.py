@@ -32,7 +32,10 @@ class dqnNode(radioNode):
     policy           = [ ] 
     policyHist       = [ ]        
     # [Not transmitting, Good Channel no Interference, Good Channel Interference, Bad Channel no Interference, Bad Channel Interference]
-    rewards          = [-200, 100, -100, 50, -200]   # -!!!   
+    rewards          = [0, 100, -100, 50, -400]   # -!!!   
+    # orginal [-200, 100, -100, 50, -200]
+    # learning im Node 0.2 [0, 100, -100, 50, -400] fair, 
+    # 0.8 perfect
     rewardHist       = [ ]
     rewardTally      = [ ]        
     rewardTrans      = [ ]
@@ -67,7 +70,7 @@ class dqnNode(radioNode):
         
         self.policy = np.zeros(numChans)
                
-        self.n_actions     = numChans   # !!! notice
+        self.n_actions     = numChans+1   # !!! notice
         self.n_features    = numChans  # TODO  # extreme high later
        
         self.dqn_ = dqn(
@@ -88,10 +91,12 @@ class dqnNode(radioNode):
 
         
     def getAction(self, stepNum ,observation):
-        temp = self.dqn_.choose_action(observation)  
+        temp = self.dqn_.choose_action(observation) 
+        #print temp
         # !!! new define, convert action from a int to a array
         action       = np.zeros(self.numChans)  # !!! no WAIT so fat
-        action[temp] = 1 
+        if temp > 0:
+            action[temp-1] = 1 
         
         self.actionHist[stepNum,:] = action                   
         if not np.sum(action):
@@ -120,7 +125,8 @@ class dqnNode(radioNode):
                 if collision == 1:
                     reward = self.rewards[2]
                 else:
-                    reward = self.rewards[1]                                                         
+                    reward = self.rewards[1]  
+            #[0, 100, -100, 50, -400]                                                       
             self.rewardTally[1:] += action * reward        
         self.rewardHist[stepNum] = reward   
         

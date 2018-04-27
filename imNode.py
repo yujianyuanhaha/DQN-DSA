@@ -27,7 +27,7 @@ class imNode(radioNode):
     
     def getAction(self, stepNum):             
         
-        if self.imDutyCircleCount < self.imDutyCircle * self.imDutyPeriod:
+        if self.imDutyCircleCount <= self.imDutyCircle * self.imDutyPeriod:
             action = self.actions  
         else:
             action = np.zeros(len(self.actions))   # do nothing rather than choose channel 0            

@@ -39,7 +39,9 @@ class mdpNode(radioNode):
     policy           = [ ] 
     policyHist       = [ ]        
     # [Not transmitting, Good Channel no Interference, Good Channel Interference, Bad Channel no Interference, Bad Channel Interference]
-    rewards          = [-200, 100, -100, 50, -200]   # -j ??    
+    #rewards          = [-200, 100, -100, 50, -200]   # -j ??    
+    #rewards          = [0, 100, -100, 50, -400]
+    rewards          = [-100, 100, -100, 50, -200]
     rewardHist       = [ ]
     rewardTally      = [ ]        
     rewardTrans      = [ ]

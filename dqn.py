@@ -12,6 +12,7 @@ Tensorflow: r1.2
 import numpy as np
 import tensorflow as tf
 import os
+import random
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'   
 #from dqnNode import dqnNode
 # to avoid the warning Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
@@ -66,7 +67,7 @@ class dqn:
         self.learn_step_counter = 0
 
         # initialize zero memory [s, a, r, s_]
-        self.memory = np.zeros((self.memory_size, n_features * 2 + 2))
+        self.memory = np.zeros((self.memory_size, n_features * 2 + 2))  # tiny
 
         # consist of [target_net, evaluate_net]
         self._build_net()
@@ -140,14 +141,14 @@ class dqn:
             # size of observation = s / n_feature
             action = np.argmax(actions_value) 
             self.learn_step_counter += 1
-            if action == 0:
-                print "learn case action = 0 "
+#            if action == 0:
+#                print "learn case action == 0 "
             
         else:
-            action = np.random.randint(0, self.n_actions+1)
+            action = random.randint(0, self.n_actions-1)
             
-            if action == 0:
-                print "explore case action = 0 "
+#            if action == 0:
+#                print "explore case action = 0 "
             
         
         return action
@@ -176,7 +177,7 @@ class dqn:
                 self.a: batch_memory[:, self.n_features],
                 self.r: batch_memory[:, self.n_features + 1],
                 self.s_: batch_memory[:, -self.n_features:],
-            })
+            })   # be sharp, man
 
         self.cost_his.append(cost)
          #increasing epsilon

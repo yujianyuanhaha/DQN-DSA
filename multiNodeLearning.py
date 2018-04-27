@@ -70,12 +70,12 @@ from myFunction import channelAssignment
 
 ################################################################
 #######################     Network Setup & Simulation Parameters  ############
-numSteps = 30000  
+numSteps = 30000 
 numChans = 4                             
-nodeTypes = np.array( [0,0,0,2,4])              
+nodeTypes = np.array( [0,0,0,2,5])              
 legacyChanList = [0,1,2,3,4]                      
 imDutyCircleList = [0.5,0.5,0.2,0.2]           
-hoppingChanList = [ [1,2],[2,3]]                   
+hoppingChanList = [ [2,3]]                   
 txProbability = 1.0
 hoppingWidth = 2  
 # The type of each node 
@@ -86,6 +86,9 @@ hoppingWidth = 2
 # 4 - MDP Node
 # 5 - DQN Node       
 # 6 - Adv. MDP Node
+
+# the order does not matter for dsa, dqn, mdp make action
+# we even allow several DSA coexsit
                                 
 ################################################################
 ################################################################
@@ -198,6 +201,8 @@ for s in range(0,numSteps):
             ticDqnAction  = time.time()
             observation = observedStates[n,:]
             actions[n,:], actionScalar = nodes[n].getAction(s, observation)  ###########
+#            if not np.sum(actions[n,:] ):
+#                print "dqnNode WAIT"
             tocDqnAction  = time.time()
         elif isinstance(nodes[n],mdpNode):
             ticMdpAction  = time.time()
@@ -332,7 +337,9 @@ for n in range(0,numNodes):
 plt.legend(legendInfo)
 plt.xlabel('Step Number')
 plt.ylabel('Cumulative Collisions')
-plt.title( 'Cumulative Collisions Per Node')                      
+plt.title( 'Cumulative Collisions Per Node')  
+plt.grid(True)
+                    
 #plt.show()
 plt.savefig('../dqnFig/CumulativeCollisions.png')
 plt.savefig('../dqnFig/CumulativeCollisions.pdf')             
@@ -354,6 +361,8 @@ if legendInfo:
     plt.xlabel('Step Number')
     plt.ylabel('Cumulative Reward')
     plt.title( 'Cumulative Reward Per Node')   
+    plt.grid(True)
+
 #plt.show()             
 plt.savefig('../dqnFig/CumulativeReward.png')
 plt.savefig('../dqnFig/CumulativeReward.pdf')        
@@ -430,7 +439,9 @@ for i in range(numNodes):
 plt.legend(legendInfo)
 plt.xlabel('Step Number')
 plt.ylabel('Cumulative Packet Error Rate')
-plt.title( 'Cumulative Packet Error Rate')                      
+plt.title( 'Cumulative Packet Error Rate')   
+plt.grid(True)
+                   
 #plt.show()        
 plt.savefig('../dqnFig/PER.png')
 plt.savefig('../dqnFig/PER.pdf')        
@@ -450,6 +461,8 @@ if legendInfo:
     plt.ylabel('Cumulative Packet Loss Rate')
     plt.title( 'Cumulative Packet Loss Rate')                      
     plt.show() 
+plt.grid(True)
+
 #plt.show() 
 plt.savefig('../dqnFig/PLR.png')
 plt.savefig('../dqnFig/PLR.pdf')
@@ -465,7 +478,7 @@ plt.savefig('../dqnFig/PLR.pdf')
 # plot period
 plt.figure(6)
 plotPeriod = 400
-iteration = numSteps/plotPeriod
+iteration = 0.75*numSteps/plotPeriod
 split = np.ceil(numNodes*1.0/2)    
 for n in range(0,numNodes):
   
@@ -476,7 +489,7 @@ for n in range(0,numNodes):
     length = len(temp)   
     tempPeriod = np.zeros(plotPeriod)
     
-    for m in range(0,length):   # last 3/4 
+    for m in range(length/4,length):   # last 3/4 
         tempPeriod[m%400] += temp[m]   
     tempPeriod =  tempPeriod*1.0/iteration
     
@@ -508,6 +521,8 @@ for n in range(0,numNodes):
     else:
         titleLabel = 'Periodic Action of Node %d (DQN)'%(n)   # no dsa
     plt.title(titleLabel)
+
+
 plt.show() 
 plt.savefig('../dqnFig/peroidicActions.png')
 plt.savefig('../dqnFig/peroidicActions.pdf')
