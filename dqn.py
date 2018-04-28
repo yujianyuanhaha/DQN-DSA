@@ -25,7 +25,9 @@ class dqn:
     
     exploreProb      = [ ]              # Current exploration probability
     exploreInit      = 1.0              # Initial exploration probability
-    exploreDecay     = 0.1              # Percentage reduction in exploration chance per policy calculation
+   # exploreDecay     = 0.1              # Percentage reduction in exploration chance per policy calculation
+    exploreDecay     = 0.001
+    exploreProbMin       = 0.01  # avoid the risk to stuck
     exploreHist      = [ ]    
     exploreDecayType = 'expo'           # either 'expo', 'step' or 'perf'
     exploreWindow    = 500              # only used with 'step'
@@ -190,6 +192,8 @@ class dqn:
         if self.exploreDecayType == 'expo':
             self.exploreProb = self.exploreInit * \
                 np.exp(-self.exploreDecay * self.learn_step_counter )
+            if self.exploreProb <= self.exploreProbMin:
+                self.exploreProb = self.exploreProbMin                
             self.learn_step_counter += 1
         elif self.exploreDecayType == 'incre':
             self.epsilon = self.epsilon + self.epsilon_increment \

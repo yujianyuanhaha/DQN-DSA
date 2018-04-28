@@ -20,7 +20,9 @@ class DuelingDQN:
     e_greedy=0.9999
     exploreInit      = 1.0
     exploreProb      = [ ]
-    exploreDecay     = 0.1 
+    exploreDecay     = 0.001 
+    exploreProbMin   = 0.01
+    
     exploreHist      = [ ] 
     exploreDecayType = 'expo' 
     
@@ -168,6 +170,9 @@ class DuelingDQN:
         if self.exploreDecayType == 'expo':
             self.exploreProb = self.exploreInit * \
                 np.exp(-self.exploreDecay * self.learn_step_counter )
+            if self.exploreProb <= self.exploreProbMin:
+                self.exploreProb = self.exploreProbMin 
+                
             self.learn_step_counter += 1
         elif self.exploreDecayType == 'incre':
             self.epsilon = self.epsilon + self.epsilon_increment \

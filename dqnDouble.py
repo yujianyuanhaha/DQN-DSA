@@ -20,9 +20,10 @@ class DoubleDQN:
     e_greedy=0.9999
     exploreInit      = 1.0
     exploreProb      = [ ]
-    exploreDecay     = 0.1 
+    exploreDecay     = 0.001 
     exploreHist      = [ ] 
-    exploreDecayType = 'expo' 
+    exploreDecayType = 'expo'
+    exploreProbMin       = 0.01
     
     def __init__(
             self,
@@ -170,6 +171,9 @@ class DoubleDQN:
         if self.exploreDecayType == 'expo':
             self.exploreProb = self.exploreInit * \
                 np.exp(-self.exploreDecay * self.learn_step_counter )
+            if self.exploreProb <= self.exploreProbMin:
+                self.exploreProb = self.exploreProbMin
+                
             self.learn_step_counter += 1
         elif self.exploreDecayType == 'incre':
             self.epsilon = self.epsilon + self.epsilon_increment \

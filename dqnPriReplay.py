@@ -134,7 +134,10 @@ class DQNPrioritizedReplay:
     e_greedy=0.9999
     exploreInit      = 1.0
     exploreProb      = [ ]
-    exploreDecay     = 0.001
+    exploreProbMin = 0.001
+    # exploreDecay  = 0.1 for other DQN solver    
+    exploreDecay     = 0.01
+    # get 10% PER and right converge
     exploreHist      = [ ] 
     exploreDecayType = 'expo' 
     
@@ -295,6 +298,8 @@ class DQNPrioritizedReplay:
             self.exploreProb = self.exploreInit * \
                 np.exp(-self.exploreDecay * self.learn_step_counter )
             self.learn_step_counter += 1
+            if self.exploreProb <= self.exploreProbMin:
+                self.exploreProb = self.exploreProbMin
         elif self.exploreDecayType == 'incre':
             self.epsilon = self.epsilon + self.epsilon_increment \
                     if self.epsilon < self.epsilon_max else self.epsilon_max            

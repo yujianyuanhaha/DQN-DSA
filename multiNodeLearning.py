@@ -78,10 +78,11 @@ numSteps = 30000
 numChans = 4 
 ChannelAssignType = 'typeIn'  
 
-nodeTypes = np.array( [0 ,1 ,0 ,7])
+nodeTypes = np.array( [0 ,1 ,5 ,6])
 legacyChanList = [0,1]
 hoppingChanList = [ [2,3]]
                          
+
 #nodeTypes = np.array( [0,0,0,0,
 #                       0,0,1,1,
 #                       2,2,3,3,
@@ -133,6 +134,9 @@ elif ChannelAssignType == 'case2':
     hoppingChanList = [ [4,5,6],[5,6,4],[6,5,4]]
 else:
     pass
+
+
+print 
         
 
 numNodes = len(nodeTypes)
