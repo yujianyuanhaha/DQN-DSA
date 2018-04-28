@@ -130,6 +130,14 @@ class Memory(object):  # stored as ( s, a, r, s_ ) in SumTree
 
 
 class DQNPrioritizedReplay:
+    
+    e_greedy=0.9999
+    exploreInit      = 1.0
+    exploreProb      = [ ]
+    exploreDecay     = 0.001
+    exploreHist      = [ ] 
+    exploreDecayType = 'expo' 
+    
     def __init__(
             self,
             dqnNode,
@@ -137,7 +145,7 @@ class DQNPrioritizedReplay:
             n_features,
             learning_rate=0.005,
             reward_decay=0.9,
-            e_greedy=0.9,
+            exploreDecayType = 'expo',
             replace_target_iter=500,
             memory_size=10000,
             batch_size=32,
@@ -150,12 +158,15 @@ class DQNPrioritizedReplay:
         self.n_features = n_features
         self.lr = learning_rate
         self.gamma = reward_decay
-        self.epsilon_max = e_greedy
+        self.epsilon_max = self.e_greedy
         self.replace_target_iter = replace_target_iter
         self.memory_size = memory_size
         self.batch_size = batch_size
+        
+        self.exploreDecayType = exploreDecayType
         self.epsilon_increment = e_greedy_increment
-        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
+        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max    
+        self.exploreProb   = self.exploreInit
 
         self.prioritized = prioritized    # decide to use double q or not
 
@@ -236,7 +247,7 @@ class DQNPrioritizedReplay:
 
     def choose_action(self, observation):
         observation = observation[np.newaxis, :]
-        if np.random.uniform() < self.epsilon:
+        if np.random.uniform() <  1 - self.exploreProb:
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation})
             action = np.argmax(actions_value)
         else:
@@ -279,5 +290,13 @@ class DQNPrioritizedReplay:
 
         self.cost_his.append(self.cost)
 
-        self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
+        #self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
+        if self.exploreDecayType == 'expo':
+            self.exploreProb = self.exploreInit * \
+                np.exp(-self.exploreDecay * self.learn_step_counter )
+            self.learn_step_counter += 1
+        elif self.exploreDecayType == 'incre':
+            self.epsilon = self.epsilon + self.epsilon_increment \
+                    if self.epsilon < self.epsilon_max else self.epsilon_max            
+            self.exploreProb  = 1 -  self.epsilon
         self.learn_step_counter += 1

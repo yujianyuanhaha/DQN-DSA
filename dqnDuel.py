@@ -16,6 +16,14 @@ tf.set_random_seed(1)
 
 
 class DuelingDQN:
+    
+    e_greedy=0.9999
+    exploreInit      = 1.0
+    exploreProb      = [ ]
+    exploreDecay     = 0.1 
+    exploreHist      = [ ] 
+    exploreDecayType = 'expo' 
+    
     def __init__(
             self,
             dqnNode,
@@ -23,7 +31,7 @@ class DuelingDQN:
             n_features,
             learning_rate=0.001,
             reward_decay=0.9,
-            e_greedy=0.9,
+            exploreDecayType = 'expo',
             replace_target_iter=200,
             memory_size=500,
             batch_size=32,
@@ -36,12 +44,15 @@ class DuelingDQN:
         self.n_features = n_features
         self.lr = learning_rate
         self.gamma = reward_decay
-        self.epsilon_max = e_greedy
+        self.epsilon_max = self.e_greedy
         self.replace_target_iter = replace_target_iter
         self.memory_size = memory_size
         self.batch_size = batch_size
+        
+        self.exploreDecayType = exploreDecayType
         self.epsilon_increment = e_greedy_increment
-        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
+        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max    
+        self.exploreProb   = self.exploreInit
 
         self.dueling = dueling      # decide to use dueling DQN or not
 
@@ -63,7 +74,7 @@ class DuelingDQN:
 
     def _build_net(self):
         def build_layers(s, c_names, n_l1, w_initializer, b_initializer):
-            with tf.variable_scope('l1'):
+            with tf.variable_scope('l1',reuse=tf.AUTO_REUSE):
                 w1 = tf.get_variable('w1', [self.n_features, n_l1], initializer=w_initializer, collections=c_names)
                 b1 = tf.get_variable('b1', [1, n_l1], initializer=b_initializer, collections=c_names)
                 l1 = tf.nn.relu(tf.matmul(s, w1) + b1)
@@ -122,7 +133,7 @@ class DuelingDQN:
 
     def choose_action(self, observation):
         observation = observation[np.newaxis, :]
-        if np.random.uniform() < self.epsilon:  # choosing action
+        if np.random.uniform() < 1- self.exploreProb:  # choosing action
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation})
             action = np.argmax(actions_value)
         else:
@@ -153,7 +164,16 @@ class DuelingDQN:
                                                 self.q_target: q_target})
         self.cost_his.append(self.cost)
 
-        self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
+#        self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
+        if self.exploreDecayType == 'expo':
+            self.exploreProb = self.exploreInit * \
+                np.exp(-self.exploreDecay * self.learn_step_counter )
+            self.learn_step_counter += 1
+        elif self.exploreDecayType == 'incre':
+            self.epsilon = self.epsilon + self.epsilon_increment \
+                    if self.epsilon < self.epsilon_max else self.epsilon_max            
+            self.exploreProb  = 1 -  self.epsilon
+        
         self.learn_step_counter += 1
 
 

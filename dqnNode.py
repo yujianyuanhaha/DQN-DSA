@@ -73,6 +73,8 @@ class dqnNode(radioNode):
                
         self.n_actions     = numChans+1   # !!! notice
         self.n_features    = numChans  # TODO  # extreme high later
+        
+        self.type = "raw"
        
         
         if dqnType == 5 :
@@ -82,48 +84,51 @@ class dqnNode(radioNode):
                             self.n_features,   
                             learning_rate=0.01,
                             reward_decay=0.9,
-                            exploreDecayType = 'perf',
+                            exploreDecayType = 'expo',
                             replace_target_iter=200,
                             memory_size=2000,
                             e_greedy_increment=True,
                             ) 
         elif dqnType == 6 :
+            self.type = "double"
             self.dqn_ = dqnDouble.DoubleDQN(
                             self,
                             self.n_actions, 
                             self.n_features,   
                             learning_rate=0.005,
                             reward_decay=0.9,
-                            e_greedy=0.9,
+                            exploreDecayType = 'expo',
                             replace_target_iter=200,
                             memory_size=2000,
-                            e_greedy_increment=None,
+                            e_greedy_increment=True,
                             double_q = True, 
                             )
         elif dqnType == 7 :
+            self.type = "priReplay"
             self.dqn_ = dqnPriReplay.DQNPrioritizedReplay(
                             self,
                             self.n_actions, 
                             self.n_features,   
                             learning_rate=0.01,
                             reward_decay=0.9,
-                            e_greedy=0.9,
+                            exploreDecayType = 'expo',
                             replace_target_iter=200,
                             memory_size=2000,
-                            e_greedy_increment=None,
+                            e_greedy_increment=True,
                             prioritized=True,  
                             ) 
         elif dqnType == 8 :
+            self.type = "duel"
             self.dqn_ = dqnDuel.DuelingDQN(
                             self,
                             self.n_actions, 
                             self.n_features,   
                             learning_rate=0.01,
                             reward_decay=0.9,
-                            e_greedy=0.9,
+                             exploreDecayType = 'expo',
                             replace_target_iter=200,
                             memory_size=2000,
-                            e_greedy_increment=None,
+                            e_greedy_increment=True,
                             dueling=True, 
                             ) 
         else:

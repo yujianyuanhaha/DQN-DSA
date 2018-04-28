@@ -30,7 +30,7 @@ File Achitecture:
                          -- dqnNode.py      -- dqn.py
                                             -- dqnDouble.py
                                             -- dqnPriReplay.py
-                                            -- dqnDuel.py
+                                            -- dqnDuel.py 
                          
                          -- stateSpaceCreate.py
                          -- scenario.py
@@ -75,22 +75,22 @@ from myFunction import channelAssignment
 ################################################################
 #######################     Network Setup & Simulation Parameters  ############
 numSteps = 30000
-numChans = 16  
+numChans = 4 
 ChannelAssignType = 'typeIn'  
 
-#nodeTypes = np.array( [0,1,5,8])
-#legacyChanList = [0,1]
-#hoppingChanList = [ [2,3]]
+nodeTypes = np.array( [0 ,1 ,0 ,7])
+legacyChanList = [0,1]
+hoppingChanList = [ [2,3]]
                          
-nodeTypes = np.array( [0,0,0,0,
-                       0,0,1,1,
-                       2,2,3,3,
-                       5,5,5,5] )
-                    
-legacyChanList = [3,4,5,6,8,9]
+#nodeTypes = np.array( [0,0,0,0,
+#                       0,0,1,1,
+#                       2,2,3,3,
+#                       5,5,5,5] )                    
+#legacyChanList = [3,4,5,6,8,9]
+#hoppingChanList = [ [11,12],[12,13]]  
 imChanList = [1,2]                      
 imDutyCircleList = [0.5,0.6]           
-hoppingChanList = [ [11,12],[12,13]]                   
+                 
 txProbability = 1.0
 hoppingWidth = 2
 isWait = False  #default no imNode
@@ -105,12 +105,10 @@ if any(nodeTypes==2) and len(nodeTypes) > numChans:
 # 2 - Intermittent Node/ im Node
 # 3 - DSA node (just avoids)  
 # 4 - MDP Node
-# 5 - DQN Node
-# 6 - DQN-DoubleQ
-# 7 - DQN-PriReplay
-# 8 - DQN-Duel
-    
-       
+# 5 - a. DQN Node
+# 6 - b. DQN-DoubleQ
+# 7 - c. DQN-PriReplay
+# 8 - d. DQN-Duel     
 # 6 - Adv. MDP Node
 
 # the order does not matter for dsa, dqn, mdp make action
@@ -221,7 +219,7 @@ if (simulationScenario.scenarioType != 'fixed') and legacyNodeIndicies:
 
 ###  TODO LEGACY/HOPPING NODE BEFROE START #######################
 
-
+learnProbHist = [ ]
 
 #countLearnHist = np.zeros(numSteps);
 observedStates = np.zeros((numNodes,numChans))
@@ -283,6 +281,7 @@ for s in range(0,numSteps):
                  reward, observation_)
             if s > 200 and s % 5 == 0:    # step 2 trade in more computation for better performance
                 nodes[n].learn()
+                learnProbHist.append( nodes[n].dqn_.exploreProb)
             tocDqnLearn = time.time()
             # original  action -> step() -> observation_, reward, done
             # 1. action -> collisions
@@ -302,15 +301,15 @@ toc =  time.time()
 print "--- %s seconds ---" %(toc - tic)
   
 
-#plt.figure(1)
-#plt.plot(countLearnHist)
-#plt.title( 'Learning Ratio') 
-#plt.show()
-
+plt.figure(7)
+plt.plot(learnProbHist)
+plt.title( 'Exploring Ratio') 
+plt.show()
+#
 #plt.figure(2)
 #nodes[0].dqn_.plot_cost()
-
-
+#
+#
 #plt.figure(1)
 #legendInfo = [ ]
 #for n in range(0,numNodes):
@@ -361,7 +360,16 @@ for n in range(0,numNodes):
     elif isinstance(nodes[n],mdpNode):
         legendInfo.append( 'Node %d (MDP)'%(n) )
     if isinstance(nodes[n],dqnNode):
-        legendInfo.append( 'Node %d (DQN)'%(n) )
+        if nodes[n].type == 'raw':
+            legendInfo.append( 'Node %d (DQN)'%(n) )
+        elif nodes[n].type == 'double':
+            legendInfo.append( 'Node %d (DQN-double)'%(n) )
+        elif nodes[n].type == 'priReplay':
+            legendInfo.append( 'Node %d (DQN-pr)'%(n) )
+        elif nodes[n].type == 'duel':
+            legendInfo.append( 'Node %d (DQN-duel)'%(n) )
+        else:
+            pass
     else:
         pass
     
@@ -386,8 +394,20 @@ for n in range(0,numNodes):
         plt.plot(nodes[n].cumulativeReward)
         legendInfo.append('Node %d (MDP)'%(n) )
     elif isinstance(nodes[n],dqnNode):
-        plt.plot(nodes[n].cumulativeReward)
-        legendInfo.append('Node %d (DQN)'%(n) )
+        if nodes[n].type == 'raw':
+            plt.plot(nodes[n].cumulativeReward)
+            legendInfo.append('Node %d (DQN)'%(n) )
+        if nodes[n].type == 'double':
+            plt.plot(nodes[n].cumulativeReward)
+            legendInfo.append('Node %d (DQN-double)'%(n) )
+        if nodes[n].type == 'priReplay':
+            plt.plot(nodes[n].cumulativeReward)
+            legendInfo.append('Node %d (DQN-pr)'%(n) )
+        if nodes[n].type == 'duel':
+            plt.plot(nodes[n].cumulativeReward)
+            legendInfo.append('Node %d (DQN-duel)'%(n) )
+        else:
+            pass
 if legendInfo:
     plt.legend(legendInfo)
     plt.xlabel('Step Number')
@@ -423,7 +443,17 @@ for n in range(0,numNodes):
     elif isinstance(nodes[n],mdpNode):
         titleLabel = 'Action Taken by Node %d (MDP)'%(n)
     else:
-        titleLabel = 'Action Taken by Node %d (DQN)'%(n)   # no dsa
+        if nodes[n].type == 'raw':
+            titleLabel = 'Action Taken by Node %d (DQN)'%(n) 
+        elif nodes[n].type == 'double':
+            titleLabel = 'Action Taken by Node %d (DQN-double)'%(n) 
+        elif nodes[n].type == 'pr':
+            titleLabel = 'Action Taken by Node %d (DQN-pr)'%(n) 
+        elif nodes[n].type == 'duel':
+            titleLabel = 'Action Taken by Node %d (DQN-duel)'%(n) 
+        else:
+            pass
+        
     plt.title(titleLabel)
     
 
@@ -464,8 +494,20 @@ for i in range(numNodes):
         plt.semilogy( PER[:,i] )
         legendInfo.append( 'Node %d (MDP)'%(i) )
     elif isinstance(nodes[i],dqnNode):
-        plt.semilogy( PER[:,i] )
-        legendInfo.append( 'Node %d (DQN)'%(i) )
+        if nodes[n].type == 'raw':
+            plt.semilogy( PER[:,i] )
+            legendInfo.append( 'Node %d (DQN)'%(i) )
+        elif nodes[n].type == 'double':
+            plt.semilogy( PER[:,i] )
+            legendInfo.append( 'Node %d (DQN-double)'%(i) )
+        elif nodes[n].type == 'priReplay':
+            plt.semilogy( PER[:,i] )
+            legendInfo.append( 'Node %d (DQN-pr)'%(i) )
+        if nodes[n].type == 'duel':
+            plt.semilogy( PER[:,i] )
+            legendInfo.append( 'Node %d (DQN-duel)'%(i) )
+        else:
+            pass
     else:
         pass
 plt.legend(legendInfo)

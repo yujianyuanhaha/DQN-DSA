@@ -31,7 +31,8 @@ class dqn:
     exploreWindow    = 500              # only used with 'step'
     exploreMin       = 0.01             # only used with 'step'    
     explorePerf      = 10               # only used with 'perf' 
-    explorePerfWin   = 100              
+    explorePerfWin   = 100
+    e_greedy            = 0.9              
     # triggers jump in explore prob to 1 if reward is below this over last explorePerfWin epoch   
     
     
@@ -58,9 +59,12 @@ class dqn:
         self.replace_target_iter = replace_target_iter
         self.memory_size         = memory_size
         self.batch_size          = batch_size
-        # self.epsilon_max = e_greedy  #
-        #self.epsilon_increment = e_greedy_increment #
-        #self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
+        
+        
+        self.exploreDecayType = exploreDecayType
+        self.epsilon_max = self.e_greedy  #
+        self.epsilon_increment = e_greedy_increment #
+        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
         # not None -> not learn; None/ Default -> 90% learn
         
         self.exploreProb   = self.exploreInit
@@ -187,6 +191,10 @@ class dqn:
             self.exploreProb = self.exploreInit * \
                 np.exp(-self.exploreDecay * self.learn_step_counter )
             self.learn_step_counter += 1
+        elif self.exploreDecayType == 'incre':
+            self.epsilon = self.epsilon + self.epsilon_increment \
+                    if self.epsilon < self.epsilon_max else self.epsilon_max            
+            self.exploreProb  = 1 -  self.epsilon
 
 
     def plot_cost(self):
