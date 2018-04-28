@@ -40,12 +40,12 @@ For batch test, we run codes on ARC VT.
 
 --------------------------------------------------------------------------
 # How to run the codes?  
-Paramter all configurable at header part of multiNodeLearning.py
+Paramter all configurable at header part of **multiNodeLearning.py** OR **setup.config** file 
 in terminal run:  
-‘’‘
+```
 python multiNodeLearning.py
-’‘’
-
+```
+:sunglasses:
 
 
 

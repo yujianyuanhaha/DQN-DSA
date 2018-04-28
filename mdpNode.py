@@ -29,7 +29,7 @@ class mdpNode(radioNode):
     exploreInit      = 1.0               # Initial exploration probability
     exploreDecay     = 0.1              # Percentage reduction in exploration chance per policy calculation
     exploreHist      = [ ]    
-    exploreDecayType = 'perf'             # either 'expo', 'step' or 'perf'
+    exploreDecayType = 'expo'             # either 'expo', 'step' or 'perf'
     exploreWindow    = 500           # only used with 'step'
     exploreMin       = 0.01              # only used with 'step'    
     explorePerf      = 10               # only used with 'perf' 
@@ -180,6 +180,9 @@ class mdpNode(radioNode):
         if self.exploreDecayType == 'expo':
             self.exploreProb = self.exploreInit * \
             np.exp(-self.exploreDecay * np.shape(self.policyHist)[1])
+            if self.exploreProb <= self.exploreMin:
+                self.exploreProb = self.exploreMin
+                
         elif self.exploreDecayType == 'step':
             if step > self.exploreWindow:
                 self.exploreProb = self.exploreMin

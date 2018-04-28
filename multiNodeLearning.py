@@ -21,7 +21,8 @@ Github url:
 ---------------------------
 File Achitecture:
 
-    multiNodeLearning.py -- myFunction.py
+    multiNodeLearning.py -- network.config
+                         -- myFunction.py
                          -- legacyNode.py
                          -- hoppingNode.py
                          -- imNode.py
@@ -74,14 +75,18 @@ from myFunction import channelAssignment
 
 ################################################################
 #######################     Network Setup & Simulation Parameters  ############
-numSteps = 30000
-numChans = 4 
-ChannelAssignType = 'typeIn'  
 
-nodeTypes = np.array( [0 ,1 ,5 ,6])
-legacyChanList = [0,1]
-hoppingChanList = [ [2,3]]
-                         
+#numSteps = 30000
+#numChans = 4 
+#ChannelAssignType = 'typeIn'  
+
+#nodeTypes = np.array( [0 ,1 ,0 ,5])
+#legacyChanList = [0,1]
+#hoppingChanList = [ [2,3]]
+
+import ConfigParser
+Config = ConfigParser.ConfigParser()
+Config.read("network.config")                         
 
 #nodeTypes = np.array( [0,0,0,0,
 #                       0,0,1,1,
@@ -140,7 +145,8 @@ print
         
 
 numNodes = len(nodeTypes)
-hiddenNodes = np.zeros( numChans)
+#hiddenNodes = np.zeros( numChans)
+hiddenNodes = [1,0,0,0]
 exposedNodes = np.zeros( numChans)
 
 if len(hiddenNodes) < numNodes:
