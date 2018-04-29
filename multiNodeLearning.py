@@ -88,12 +88,12 @@ import ConfigParser
 import json
 Config = ConfigParser.ConfigParser()
 Config.read("setup.config")     
-numSteps          =  json.loads( Config.get('Networks', 'numSteps') )                  
-numChans          =  json.loads(  Config.get('Networks', 'numChans')  )  
+numSteps          =  json.loads( Config.get('Networks', 'numSteps'))                  
+numChans          =  json.loads( Config.get('Networks', 'numChans'))  
 ChannelAssignType =  Config.get('Networks', 'ChannelAssignType')    
-nodeTypes         =  np.asarray(  json.loads(Config.get('Networks', 'nodeTypes')  )  )
-legacyChanList    =  json.loads(Config.get('Networks', 'legacyChanList')  )  
-hoppingChanList   =  json.loads(Config.get('Networks', 'hoppingChanList')   ) 
+nodeTypes         =  np.asarray(  json.loads(Config.get('Networks', 'nodeTypes')))
+legacyChanList    =  json.loads(Config.get('Networks', 'legacyChanList'))  
+hoppingChanList   =  json.loads(Config.get('Networks', 'hoppingChanList')) 
 #nodeTypes = np.array( [0,0,0,0,
 #                       0,0,1,1,
 #                       2,2,3,3,
@@ -105,7 +105,7 @@ imDutyCircleList = [0.5,0.6]
                  
 txProbability = 1.0
 hoppingWidth = 2
-isWait = False  #default no imNode
+isWait = True  #default no imNode
 if any(nodeTypes==2) and len(nodeTypes) > numChans:
     isWait = True
     print "learn to occupy imNode"
@@ -151,12 +151,15 @@ print
         
 
 numNodes = len(nodeTypes)
-#hiddenNodes = np.zeros( numChans)
-hiddenDuplexCollision = np.zeros((numNodes,numNodes))
-hiddenDuplexCollision[2,3] = 1
-hiddenDuplexCollision[3,2] = 1
 
-exposedNodes = np.zeros( numChans)
+hiddenDuplexCollision = np.zeros((numNodes,numNodes))
+#hiddenDuplexCollision[2,3] = 1
+#hiddenDuplexCollision[3,2] = 1
+
+exposedSpatialReuse = np.zeros((numNodes,numNodes))
+#exposedSpatialReuse[3,4] = 1
+#exposedSpatialReuse[4,3] = 1
+
 
 #if len(hiddenNodes) < numNodes:
 #    hiddenNodes = np.concatenate( ( hiddenNodes,\
@@ -195,10 +198,11 @@ for k in range(0,numNodes):
     else:
         pass
     t.hiddenDuplexCollision = hiddenDuplexCollision[k]
-#    t.exposed = exposedNodes[k] 
+    t.exposedSpatialReuse   = exposedSpatialReuse[k]
+
     nodes.append(t)
         
-#nodes[0].goodChans = np.array( [1,1,0,0] )        
+nodes[2].goodChans = np.array( [0,0,0,1] )        
 #nodes[1].goodChans = np.array( [0,1,1,0] )          
 #nodes[2].goodChans = np.array( [0,0,1,1] ) 
     
@@ -275,19 +279,22 @@ for s in range(0,numSteps):
             if n != nn:
                 # case 1, duplex collision
                 if nodes[nn].hiddenDuplexCollision[n]:
-                    if any( np.array( actions[n,:] + actions[nn,:])> 1 ):
+                    if  np.sum( actions[n,:] + actions[nn,:])> 1:
                         collisions[n]         = 1
                         collisionTally[n,nn] += 1
-                        observedStates[n,:]   = np.ones(numChans)   # all illegal                                   
+                        observedStates[n,:]   = np.ones(numChans)   # all illegal 
+                        # think duplex col node as "full channel user", only have to is wait
+                       # print "duplex collision"                                  
                 else:
                     observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)   # partial obseravtion
                         
                 # case 2, same channel collision                        
                 if np.sum(actions[n,:]) > 0 \
-                  and any( np.array( actions[n,:] + actions[nn,:])> 1 ): #\and not nodes[nn].exposed:    
+                  and any( np.array( actions[n,:] + actions[nn,:])> 1 ) \
+                  and not nodes[nn].exposedSpatialReuse[n]:    # if nodes[nn].exposedSpatialReuse[n] == 0
                     collisions[n]         = 1
                     collisionTally[n,nn] += 1
-                     
+                      
                     
         if isinstance(nodes[n],dsaNode):
             nodes[n].updateState(observedStates[n,:],s)

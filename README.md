@@ -17,8 +17,26 @@ the [latex folder](https://drive.google.com/open?id=1GeqjxzAroWrWHcM8LnwumbAo0h-
 
 
 # Overview  
-This project work around applying **deep Q network**[1] in **dynamic channel access**. It validate the performance of intelligent node acess channel without information exchange with other nodes(legacy, hopping etc). It mainly concerns about convergency speed and scale issues.
+This project work around applying **deep Q network**[1] in **dynamic channel access**.
+It validate the performance of intelligent node acess channel without information exchange 
+with other nodes(legacy, hopping, intermittent, dsa etc). It mainly concerns about convergency speed
+ and scale issues.  
+To be exact, we look into following aspects:  
+1. coexsitence with other type of nodes
+..* legacy
+..* legacy with tx prob
+..* hopping
+..* intermittent
+..* dsa (able to wait)
+..* mdp 
+..* dqn
+2. learn to wait
+3. learn to occupy more than one channels
+4. learn to avoid hidden nodes
+5. learn to utilize spatial reuse (exposed nodes)
+6, select good channels (when several channel available, some low quality channel bring low reward).  
 The inspiration comes from SC2 competition, and some papers[2][3] have start some work around it.  
+  
 The project transfer Chris's code of MDP-DCA Matlab simulator as the starter with MDP python solver[4], and then adapot DQN python solver[5].  
 Another repository[6] maintain by Yue would merge soon, and [7] is the technical report.  
 
