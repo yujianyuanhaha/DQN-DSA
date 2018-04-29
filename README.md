@@ -23,18 +23,18 @@ with other nodes(legacy, hopping, intermittent, dsa etc). It mainly concerns abo
  and scale issues.  
 To be exact, we look into following aspects:  
 1. coexsitence with other type of nodes
-..* legacy
-..* legacy with tx prob
-..* hopping
-..* intermittent
-..* dsa (able to wait)
-..* mdp 
-..* dqn
+⋅⋅* legacy
+⋅⋅* legacy with tx prob
+⋅⋅* hopping
+⋅⋅* intermittent
+⋅⋅* dsa (able to wait)
+⋅⋅* mdp 
+⋅⋅* dqn
 2. learn to wait
 3. learn to occupy more than one channels
 4. learn to avoid hidden nodes
 5. learn to utilize spatial reuse (exposed nodes)
-6, select good channels (when several channel available, some low quality channel bring low reward).  
+6. select good channels (when several channel available, some low quality channel bring low reward).  
 The inspiration comes from SC2 competition, and some papers[2][3] have start some work around it.  
   
 The project transfer Chris's code of MDP-DCA Matlab simulator as the starter with MDP python solver[4], and then adapot DQN python solver[5].  
