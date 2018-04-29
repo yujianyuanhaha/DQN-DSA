@@ -22,14 +22,14 @@ It validate the performance of intelligent node acess channel without informatio
 with other nodes(legacy, hopping, intermittent, dsa etc). It mainly concerns about convergency speed
  and scale issues.  
 To be exact, we look into following aspects:  
-1. coexsitence with other type of nodes
-⋅⋅* legacy
-⋅⋅* legacy with tx prob
-⋅⋅* hopping
-⋅⋅* intermittent
-⋅⋅* dsa (able to wait)
-⋅⋅* mdp 
-⋅⋅* dqn
+1. coexsitence with other type of nodes    
+* legacy  
+* legacy with tx prob  
+* hopping  
+* intermittent(duty cycle)  
+* dsa (able to wait)  
+* mdp   
+* dqn  
 2. learn to wait
 3. learn to occupy more than one channels
 4. learn to avoid hidden nodes
