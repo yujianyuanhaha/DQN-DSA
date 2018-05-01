@@ -26,7 +26,7 @@ class dqn:
     exploreProb      = [ ]              # Current exploration probability
     exploreInit      = 1.0              # Initial exploration probability
    # exploreDecay     = 0.1              # Percentage reduction in exploration chance per policy calculation
-    exploreDecay     = 0.001
+    exploreDecay     = 0.01
     exploreProbMin       = 0.01  # avoid the risk to stuck
     exploreHist      = [ ]    
     exploreDecayType = 'expo'           # either 'expo', 'step' or 'perf'
@@ -43,7 +43,7 @@ class dqn:
             dqnNode,
             n_actions,
             n_features,
-            learning_rate=0.01,
+            learning_rate=0.001,
             reward_decay=0.9,
             exploreDecayType = 'expo',    # more detail in static var above
             replace_target_iter=300,

@@ -64,7 +64,6 @@ import time
 import random
 from myFunction import channelAssignment, myPlot
 
-# !!! ToDo import myPlot
 
 
 
@@ -75,6 +74,9 @@ from myFunction import channelAssignment, myPlot
 
 ################################################################
 #######################     Network Setup & Simulation Parameters  ############
+
+# recommend to load configuration from "setup.config" file
+
 
 #numSteps = 30000
 #numChans = 4 
@@ -92,20 +94,37 @@ numSteps          =  json.loads( Config.get('Networks', 'numSteps'))
 numChans          =  json.loads( Config.get('Networks', 'numChans'))  
 ChannelAssignType =  Config.get('Networks', 'ChannelAssignType')    
 nodeTypes         =  np.asarray(  json.loads(Config.get('Networks', 'nodeTypes')))
+
 legacyChanList    =  json.loads(Config.get('Networks', 'legacyChanList'))  
+txProbability     =  json.loads(Config.get('Networks', 'txProbability'))  
 hoppingChanList   =  json.loads(Config.get('Networks', 'hoppingChanList')) 
+hoppingWidth      =  json.loads( Config.get('Networks', 'hoppingWidth'))  
+imChanList        =  json.loads(Config.get('Networks', 'imChanList')) 
+imDutyCircleList  =  json.loads(Config.get('Networks', 'imDutyCircleList')) 
+
 #nodeTypes = np.array( [0,0,0,0,
 #                       0,0,1,1,
 #                       2,2,3,3,
 #                       5,5,5,5] )                    
 #legacyChanList = [3,4,5,6,8,9]
 #hoppingChanList = [ [11,12],[12,13]]  
-imChanList = [1,2]                      
-imDutyCircleList = [0.5,0.6]           
-                 
-txProbability = 1.0
-hoppingWidth = 2
-isWait = True  #default no imNode
+         
+print nodeTypes                 
+numNodes = len(nodeTypes)
+
+hiddenDuplexCollision = np.zeros((numNodes,numNodes))
+#hiddenDuplexCollision[2,3] = 1
+#hiddenDuplexCollision[3,2] = 1
+
+exposedSpatialReuse = np.zeros((numNodes,numNodes))
+#exposedSpatialReuse[3,4] = 1
+#exposedSpatialReuse[4,3] = 1
+
+#if len(hiddenNodes) < numNodes:
+#    hiddenNodes = np.concatenate( ( hiddenNodes,\
+#                                   np.zeros(numNodes-len(hiddenNodes)) ), axis=0)
+
+isWait = False  #default no imNode
 if any(nodeTypes==2) and len(nodeTypes) > numChans:
     isWait = True
     print "learn to occupy imNode"
@@ -128,10 +147,6 @@ if any(nodeTypes==2) and len(nodeTypes) > numChans:
                                 
 ################################################################
 ################################################################
-
-
-
-
 if ChannelAssignType == 'random':
     legacyChanList, imChanList, hoppingChanList, utilization =\
         channelAssignment(nodeTypes, hoppingWidth, numChans)
@@ -147,41 +162,18 @@ else:
     pass
 
 
-print 
-        
-
-numNodes = len(nodeTypes)
-
-hiddenDuplexCollision = np.zeros((numNodes,numNodes))
-#hiddenDuplexCollision[2,3] = 1
-#hiddenDuplexCollision[3,2] = 1
-
-exposedSpatialReuse = np.zeros((numNodes,numNodes))
-#exposedSpatialReuse[3,4] = 1
-#exposedSpatialReuse[4,3] = 1
-
-
-#if len(hiddenNodes) < numNodes:
-#    hiddenNodes = np.concatenate( ( hiddenNodes,\
-#                                   np.zeros(numNodes-len(hiddenNodes)) ), axis=0)
 
 # Initializing Nodes, Observable States, and Possible Actions
 nodes =  []
 states = stateSpaceCreate(numChans)
 numStates = np.shape(states)[0]
-
-
-print nodeTypes
-
-
-
 CountLegacyChanIndex = 0
 CountHoppingChanIndex = 0
 CountIm = 0
 ##################### Construct diff Type of Nodes #######################################
 for k in range(0,numNodes):
     if   nodeTypes[k] == 0:
-        t = legacyNode(numChans,numSteps, txProbability, legacyChanList[CountLegacyChanIndex]) 
+        t = legacyNode(numChans,numSteps, txProbability[CountLegacyChanIndex], legacyChanList[CountLegacyChanIndex]) 
         CountLegacyChanIndex += 1               
     elif nodeTypes[k] == 1:
         t = hoppingNode(numChans,numSteps,hoppingChanList[CountHoppingChanIndex])
@@ -202,15 +194,11 @@ for k in range(0,numNodes):
 
     nodes.append(t)
         
-nodes[2].goodChans = np.array( [0,0,0,1] )        
+#nodes[2].goodChans = np.array( [0,0,0,1] )        
 #nodes[1].goodChans = np.array( [0,1,1,0] )          
 #nodes[2].goodChans = np.array( [0,0,1,1] ) 
     
-
-       
-    
-   
-
+      
 simulationScenario = scenario(numSteps,'fixed',3)  
 
 # Vector and Matrix Initializations
@@ -221,10 +209,8 @@ collisionHist        = np.zeros((numSteps,numNodes))
 cumulativeCollisions = np.zeros((numSteps,numNodes)) 
 
 
-
 mdpLearnTime = np.zeros(numSteps)
 dqnLearnTime = np.zeros(numSteps)
-
 ##################### MAIN LOOP BEGIN ############################################
 tic = time.time()
 ticMdpAction = [ ]
@@ -239,9 +225,6 @@ for n in range(0,numNodes):
 if (simulationScenario.scenarioType != 'fixed') and legacyNodeIndicies:
     simulationScenario.initializeScenario(nodes,legacyNodeIndicies)  
 
-
-
-###  TODO LEGACY/HOPPING NODE BEFROE START #######################
 
 learnProbHist = [ ]
 
@@ -334,7 +317,9 @@ for s in range(0,numSteps):
 print "End Main Loop"
 toc =  time.time()
 print "--- %s seconds ---" %(toc - tic)
-  
+
+
+##################### PLOT ############################################  
 myPlot(nodes, numChans, numSteps, learnProbHist,cumulativeCollisions)
     
     

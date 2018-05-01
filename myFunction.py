@@ -23,29 +23,7 @@ def ismember(a,B):
 
 # if no match, return 0
 # possible one line function    
-    
-
-
-
-
-
-# to be wrap in seperate files
-def tic():
-    #Homemade version of matlab tic and toc functions
-    import time
-    global startTime_for_tictoc
-    startTime_for_tictoc = time.time()
-
-def toc():
-    import time
-    if 'startTime_for_tictoc' in globals():
-        print "Elapsed time is " + str(time.time() - startTime_for_tictoc) + " seconds."
-    else:
-        print "Toc: start time not set"
-        
-        
-        
-        
+                    
 def channelAssignment(nodeTypes, hoppingWidth, numChans):        
     # random assign channel or choose example set
     # hopping is kind of combination of imNode, legecy also a special kind of legacy   
@@ -428,24 +406,24 @@ def myPlot(nodes, numChans, numSteps, learnProbHist,cumulativeCollisions):
         plt.plot(nonAction,'yo' ,fillstyle= 'none')
         plt.ylim(-1,numChans)  #-1 to show WAIT
         plt.xlabel('Step Number')
-        plt.ylabel('Periodic Action Number')
+        plt.ylabel('Last 400 Action Number')
     
         if   isinstance(nodes[n],legacyNode):
-            titleLabel = 'Periodic Action of Node %d (Legacy)'%(n)
+            titleLabel = 'Last 400 Action of Node %d (Legacy)'%(n)
         elif   isinstance(nodes[n],hoppingNode):
-            titleLabel = 'Periodic Action of Node %d (Hopping)'%(n)
+            titleLabel = 'Last 400 Action of Node %d (Hopping)'%(n)
         elif   isinstance(nodes[n],imNode):
-            titleLabel = 'Periodic Action of Node %d (Intermittent)'%(n)
+            titleLabel = 'Last 400 Action of Node %d (Intermittent)'%(n)
         elif isinstance(nodes[n],dsaNode):
-            titleLabel = 'Periodic Action of Node %d (DSA)'%(n)
+            titleLabel = 'Last 400 Action of Node %d (DSA)'%(n)
         elif isinstance(nodes[n],mdpNode):
-            titleLabel = 'Periodic Action of Node %d (MDP)'%(n)
+            titleLabel = 'Last 400 Action of Node %d (MDP)'%(n)
         else:
-            titleLabel = 'Periodic Action of Node %d (DQN)'%(n)   # no dsa
+            titleLabel = 'Last 400 Action of Node %d (DQN)'%(n)   # no dsa
         plt.title(titleLabel)
     
     
-    plt.show() 
+    #plt.show() 
     plt.savefig('../dqnFig/peroidicActions.png')
     plt.savefig('../dqnFig/peroidicActions.pdf')
     

@@ -17,10 +17,10 @@ tf.set_random_seed(1)
 
 class DoubleDQN:
         
-    e_greedy=0.9999
+    e_greedy= 0.9
     exploreInit      = 1.0
     exploreProb      = [ ]
-    exploreDecay     = 0.001 
+    exploreDecay     = 0.01 
     exploreHist      = [ ] 
     exploreDecayType = 'expo'
     exploreProbMin       = 0.01
@@ -30,7 +30,7 @@ class DoubleDQN:
             dqnNode,
             n_actions,
             n_features,
-            learning_rate=0.005,
+            learning_rate=0.001,
             reward_decay=0.9,
             exploreDecayType = 'expo',
             replace_target_iter=200,

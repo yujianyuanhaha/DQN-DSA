@@ -28,6 +28,7 @@ class mdpNode(radioNode):
     exploreProb      = [ ]                    # Current exploration probability
     exploreInit      = 1.0               # Initial exploration probability
     exploreDecay     = 0.1              # Percentage reduction in exploration chance per policy calculation
+    # exploreDecay = 0.01 would screw it up
     exploreHist      = [ ]    
     exploreDecayType = 'expo'             # either 'expo', 'step' or 'perf'
     exploreWindow    = 500           # only used with 'step'
@@ -193,7 +194,9 @@ class mdpNode(radioNode):
                                                           * np.shape(self.policyHist)[1])  # qucik   
              if (np.mean(self.rewardHist[step-self.explorePerfWin+1:step]) < self.explorePerf)\
                                                                  and (self.exploreProb < 0.05):
-                 self.exploreProb = 0.2 #self.exploreProb + self.explorePerfJump                 
+                 self.exploreProb = 0.2 #self.exploreProb + self.explorePerfJump  
+                 
+                 
         else:
             print 'error - exploreDecayType misdefined'
         
