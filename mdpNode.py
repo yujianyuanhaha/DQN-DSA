@@ -194,14 +194,8 @@ class mdpNode(radioNode):
                                                           * np.shape(self.policyHist)[1])  # qucik   
              if (np.mean(self.rewardHist[step-self.explorePerfWin+1:step]) < self.explorePerf)\
                                                                  and (self.exploreProb < 0.05):
-                 self.exploreProb = 0.2 #self.exploreProb + self.explorePerfJump  
-                 
-                 
+                 self.exploreProb = 0.2 #self.exploreProb + self.explorePerfJump                                    
         else:
             print 'error - exploreDecayType misdefined'
         
-        self.exploreHist.append(self.exploreProb)
-       
-        
-        
-        
+        self.exploreHist.append(self.exploreProb)       

@@ -62,7 +62,11 @@ from scenario    import scenario
 import matplotlib.pyplot as plt
 import time
 import random
-from myFunction import channelAssignment, myPlot
+from myFunction import channelAssignment, myPlot,\
+     myPlotCollision, myPlotReward, myPlotAction,\
+     myPlotOccupiedEnd, myPlotOccupiedAll,\
+     myPlotPER, myPlotPLR
+     
 
 
 
@@ -320,13 +324,20 @@ toc =  time.time()
 print "--- %s seconds ---" %(toc - tic)
 
 
-##################### PLOT ############################################  
-myPlot(nodes, numChans, numSteps, learnProbHist,cumulativeCollisions)
+##################### PLOT ############################################ 
+import os
+if not os.path.exists('../dqnFig'):
+    os.makedirs('../dqnFig') 
     
-    
-    
-    
-    
+#myPlot(nodes, numChans, numSteps, learnProbHist,cumulativeCollisions)
+myPlotProb(learnProbHist)
+txPackets = myPlotCollision(nodes, cumulativeCollisions)
+myPlotReward(nodes, cumulativeCollisions)
+myPlotAction(nodes, numChans)    
+myPlotOccupiedEnd(nodes, numChans, plotPeriod = 100)
+myPlotOccupiedAll(nodes, numChans)
+PLR = myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions)    
+myPlotPLR(nodes, PLR)    
     
     
     
