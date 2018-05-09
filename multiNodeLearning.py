@@ -97,7 +97,8 @@ nodeTypes         =  np.asarray(  json.loads(Config.get('Networks', 'nodeTypes')
 
 legacyChanList    =  json.loads(Config.get('Networks', 'legacyChanList'))  
 txProbability     =  json.loads(Config.get('Networks', 'txProbability'))  
-hoppingChanList   =  json.loads(Config.get('Networks', 'hoppingChanList')) 
+hoppingChanList   =  json.loads(Config.get('Networks', 'hoppingChanList'))
+hopRate           =  json.loads( Config.get('Networks', 'hopRate'))  
 hoppingWidth      =  json.loads( Config.get('Networks', 'hoppingWidth'))  
 imChanList        =  json.loads(Config.get('Networks', 'imChanList')) 
 imDutyCircleList  =  json.loads(Config.get('Networks', 'imDutyCircleList')) 
@@ -176,7 +177,7 @@ for k in range(0,numNodes):
         t = legacyNode(numChans,numSteps, txProbability[CountLegacyChanIndex], legacyChanList[CountLegacyChanIndex]) 
         CountLegacyChanIndex += 1               
     elif nodeTypes[k] == 1:
-        t = hoppingNode(numChans,numSteps,hoppingChanList[CountHoppingChanIndex])
+        t = hoppingNode(numChans,numSteps,hoppingChanList[CountHoppingChanIndex],hopRate)
         CountHoppingChanIndex += 1
     elif nodeTypes[k] == 2:
         t = imNode(numChans,numSteps,imDutyCircleList[CountIm], imChanList[CountIm])

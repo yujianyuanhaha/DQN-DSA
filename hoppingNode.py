@@ -15,7 +15,7 @@ class hoppingNode(radioNode):
     hopRate = [ ]   #must, else error
     hopPattern = [ ]
     hopIndex = 0  # TODO we start from zero
-    def __init__(self, numChans, numSteps, HoppingChanIndex):
+    def __init__(self, numChans, numSteps, HoppingChanIndex, hopRate):
  #       self.actions       = np.zeros((2,numChans) )      # TODO # matrix than vector, fix than random
 #        self.actions[1,2]  = 1   # actions(sequence, channel)
     #    self.actions[2,4]  = 1
@@ -32,7 +32,7 @@ class hoppingNode(radioNode):
         self.actionHist    = np.zeros((numSteps,numChans))
         self.actionHistInd = np.zeros(numSteps)
         
-        self.hopRate       = 1    # hop rate, the freq it decide to hop next channel
+        self.hopRate       = hopRate  # hop rate, the freq it decide to hop next channel
 #        self.hopPattern    = np.array( [0,1])   # we hop only two here #TODO
         self.hopPattern    = HoppingChanIndex
         
@@ -41,6 +41,7 @@ class hoppingNode(radioNode):
             self.hopIndex +=  1
             if self.hopIndex >= len(self.hopPattern):
                 self.hopIndex = 0  # roll over, what if fully understand at once
+                
         action = self.actions[self.hopIndex,:]
         
         self.actionHist[stepNum,:] = action

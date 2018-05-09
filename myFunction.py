@@ -116,6 +116,65 @@ def isCollisonFree(hopPattern, exsitHopChanList):
 
 
 import matplotlib.pyplot as plt
+#
+#def myPlotProb(learnProbHist):
+#    plt.plot(learnProbHist)
+#    plt.title( 'Exploring Ratio') 
+#    plt.show()
+#
+#import os
+#if not os.path.exists('../dqnFig'):
+#    os.makedirs('../dqnFig') 
+#from legacyNode  import legacyNode
+#from mdpNode     import mdpNode
+#from hoppingNode import hoppingNode
+#from dqnNode     import dqnNode   #
+#from dsaNode     import dsaNode 
+#from imNode     import imNode  
+#
+#txPackets = [ ]   
+#    
+#def myPlotCollision(nodes, cumulativeCollisions):
+#    legendInfo = [ ]
+#    for n in range(0,len(nodes)):
+#        plt.plot(cumulativeCollisions[:,n])      # <<<<
+#        if isinstance(nodes[n],legacyNode):
+#            legendInfo.append( 'Node %d (Legacy)'%(n) )
+#        elif isinstance(nodes[n],hoppingNode):
+#            legendInfo.append( 'Node %d (Hopping)'%(n) )
+#        elif isinstance(nodes[n],imNode):
+#            legendInfo.append( 'Node %d (Intermittent)'%(n) )
+#        elif isinstance(nodes[n],dsaNode):
+#            legendInfo.append( 'Node %d (DSA)'%(n) )
+#        elif isinstance(nodes[n],mdpNode):
+#            legendInfo.append( 'Node %d (MDP)'%(n) )
+#        if isinstance(nodes[n],dqnNode):
+#            if nodes[n].type == 'raw':
+#                legendInfo.append( 'Node %d (DQN)'%(n) )
+#            elif nodes[n].type == 'double':
+#                legendInfo.append( 'Node %d (DQN-double)'%(n) )
+#            elif nodes[n].type == 'priReplay':
+#                legendInfo.append( 'Node %d (DQN-pr)'%(n) )
+#            elif nodes[n].type == 'duel':
+#                legendInfo.append( 'Node %d (DQN-duel)'%(n) )
+#            else:
+#                pass
+#        else:
+#            pass
+#        
+#        txPackets.append( np.cumsum(np.sum(nodes[n].actionHist.T , axis=0).T ) )
+#    plt.legend(legendInfo)
+#    plt.xlabel('Step Number')
+#    plt.ylabel('Cumulative Collisions')
+#    plt.title( 'Cumulative Collisions Per Node')  
+#    plt.grid(True)
+#                        
+#    #plt.show()
+#    plt.savefig('../dqnFig/CumulativeCollisions.png')
+#    plt.savefig('../dqnFig/CumulativeCollisions.pdf') 
+
+
+
 def myPlot(nodes, numChans, numSteps, learnProbHist,cumulativeCollisions):
     
     from legacyNode  import legacyNode
@@ -289,19 +348,118 @@ def myPlot(nodes, numChans, numSteps, learnProbHist,cumulativeCollisions):
     
     
     
-    
-    
-    
+        ############### 3-B  Occupied #################################
+    plt.figure(4)
+    plotPeriod = 100
+    split = np.ceil(numNodes*1.0/2)
+    legendInfo = [ ]
+    for n in range(0,numNodes):
+        temp = nodes[n].actionHistInd-1
+        length = len(temp) 
+        tempPeriod = np.zeros(plotPeriod)
+        x = range(length-plotPeriod,length)
+        for m in x:
+            tempPeriod[m%100] += temp[m]
+        
+        if isinstance(nodes[n],legacyNode):
+            plt.plot(  tempPeriod, x,'k.' ,fillstyle= 'full')
+            legendInfo.append('Legacy')
+        elif isinstance(nodes[n],hoppingNode):
+            plt.plot(tempPeriod, x,'c.' ,fillstyle= 'full')
+            legendInfo.append('Hopping')
+        elif isinstance(nodes[n],imNode):
+            plt.plot(tempPeriod, x,'m.' ,fillstyle= 'full')
+            legendInfo.append('Intermittent')
+        elif isinstance(nodes[n],dsaNode):
+            plt.plot( tempPeriod, x,'r.' ,fillstyle= 'full')
+            legendInfo.append('DSA')
+        elif isinstance(nodes[n],mdpNode):
+            plt.plot( tempPeriod, x,'g.' ,fillstyle= 'full')
+            legendInfo.append('MDP')
+        else:
+            if nodes[n].type == 'raw':
+                plt.plot(tempPeriod, x,'b.' ,fillstyle= 'full')
+                legendInfo.append('DQN')
+            elif nodes[n].type == 'double':
+                plt.plot( tempPeriod,'b+' ,fillstyle= 'none') 
+            elif nodes[n].type == 'pr':
+                plt.plot( tempPeriod,'b^' ,fillstyle= 'none') 
+            elif nodes[n].type == 'duel':
+                plt.plot( tempPeriod,'bx' ,fillstyle= 'none') 
+            else:
+                pass
+            
+       # plt.title(titleLabel)
+    plt.legend(legendInfo,loc='upper right', prop={'size': 9})
+    plt.xlim(0, numChans+1)   # -1 for WAIT
+    plt.ylim(length-plotPeriod,length)
+    plt.xlabel('time slot')
+    plt.ylabel('channel selection')
         
     
-    ############### 4 Packet Error Rate  #################################
+    #plt.show() 
+    plt.savefig('../dqnFig/Occupied.png')
+    plt.savefig('../dqnFig/Occupied.pdf')
+    
+    
+            ############### 3-C  Occupied Full #################################
+    plt.figure(5)
+
+    legendInfo = [ ]
+    for n in range(0,numNodes):
+        temp = nodes[n].actionHistInd-1
+        length = len(temp) 
+        x = range(0,length)
+        
+        if isinstance(nodes[n],legacyNode):
+            plt.plot(  temp, x,'k.' ,fillstyle= 'full')
+            legendInfo.append('Legacy')
+        elif isinstance(nodes[n],hoppingNode):
+            plt.plot(temp, x,'c.' ,fillstyle= 'full')
+            legendInfo.append('Hopping')
+        elif isinstance(nodes[n],imNode):
+            plt.plot(temp, x,'m.' ,fillstyle= 'full')
+            legendInfo.append('Intermittent')
+        elif isinstance(nodes[n],dsaNode):
+            plt.plot(temp, x,'r.' ,fillstyle= 'full')
+            legendInfo.append('DSA')
+        elif isinstance(nodes[n],mdpNode):
+            plt.plot( temp, x,'g.' ,fillstyle= 'full')
+            legendInfo.append('MDP')
+        else:
+            if nodes[n].type == 'raw':
+                plt.plot(temp, x,'b.' ,fillstyle= 'full')
+                legendInfo.append('DQN')
+            elif nodes[n].type == 'double':
+                plt.plot( temp,'b+' ,fillstyle= 'none') 
+            elif nodes[n].type == 'pr':
+                plt.plot( temp,'b^' ,fillstyle= 'none') 
+            elif nodes[n].type == 'duel':
+                plt.plot( temp,'bx' ,fillstyle= 'none') 
+            else:
+                pass
+            
+       # plt.title(titleLabel)
+    plt.legend(legendInfo,loc='upper right', prop={'size': 9})
+    plt.xlim(0, numChans+1)   # -1 for WAIT
+    plt.ylim(0,length)
+    plt.xlabel('channel selection')
+    plt.ylabel('time slot')
+        
+    
+    #plt.show() 
+    plt.savefig('../dqnFig/Occupied-full.png')
+    plt.savefig('../dqnFig/Occupied-full.pdf')
+        
+    
+    ############### 5 Packet Error Rate  #################################
     timeSlots = np.matlib.repmat( np.arange(1,numSteps+1)[np.newaxis].T  ,
                                  1,numNodes )  
     txPackets = np.array(txPackets).T
     PER =  cumulativeCollisions / txPackets
     PLR = (cumulativeCollisions + timeSlots - txPackets) /timeSlots
         
-    plt.figure(4)
+    plt.figure(6)
     legendInfo = [ ]
     for i in range(numNodes):
         if isinstance(nodes[i],legacyNode):
@@ -346,8 +504,8 @@ def myPlot(nodes, numChans, numSteps, learnProbHist,cumulativeCollisions):
     plt.savefig('../dqnFig/PER.png')
     plt.savefig('../dqnFig/PER.pdf')        
     
-    ############### 5 Packet Loss Rate  #################################
-    plt.figure(5)
+    ############### 6 Packet Loss Rate  #################################
+    plt.figure(7)
     legendInfo = [ ]
     for i in range(numNodes):
         if isinstance(nodes[i],mdpNode):
@@ -377,7 +535,7 @@ def myPlot(nodes, numChans, numSteps, learnProbHist,cumulativeCollisions):
         
         
     # plot period
-    plt.figure(6)
+    plt.figure(8)
     plotPeriod = 400
     
     split = np.ceil(numNodes*1.0/2)    
