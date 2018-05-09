@@ -63,6 +63,7 @@ import matplotlib.pyplot as plt
 import time
 import random
 from myFunction import channelAssignment, myPlot,\
+     myPlotProb,\
      myPlotCollision, myPlotReward, myPlotAction,\
      myPlotOccupiedEnd, myPlotOccupiedAll,\
      myPlotPER, myPlotPLR
@@ -329,14 +330,23 @@ import os
 if not os.path.exists('../dqnFig'):
     os.makedirs('../dqnFig') 
     
+    
 #myPlot(nodes, numChans, numSteps, learnProbHist,cumulativeCollisions)
+plt.figure(1)
 myPlotProb(learnProbHist)
+plt.figure(2)
 txPackets = myPlotCollision(nodes, cumulativeCollisions)
+plt.figure(3)
 myPlotReward(nodes, cumulativeCollisions)
-myPlotAction(nodes, numChans)    
+plt.figure(4)
+myPlotAction(nodes, numChans) 
+plt.figure(5)   
 myPlotOccupiedEnd(nodes, numChans, plotPeriod = 100)
+plt.figure(6)
 myPlotOccupiedAll(nodes, numChans)
-PLR = myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions)    
+plt.figure(7)
+PLR = myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions) 
+plt.figure(8)   
 myPlotPLR(nodes, PLR)    
     
     

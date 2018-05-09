@@ -11,7 +11,7 @@ import numpy as np
 from legacyNode  import legacyNode
 #from mdpNode     import mdpNode
 from hoppingNode import hoppingNode
-from dqnNode     import dqnNode   #
+#from dqnNode     import dqnNode   #
 from dsaNode     import dsaNode 
 from imNode     import imNode  
 
@@ -120,22 +120,20 @@ def isCollisonFree(hopPattern, exsitHopChanList):
         
 
 
-
-
 import matplotlib.pyplot as plt
-#
+
 def myPlotProb(learnProbHist):
     plt.plot(learnProbHist)
     plt.title( 'Exploring Ratio') 
     plt.show()
-#
 
-
-  
     
 def myPlotCollision(nodes, cumulativeCollisions):
+    from dqnNode     import dqnNode
+    from mdpNode     import mdpNode
     txPackets = [ ] 
     legendInfo = [ ]
+    
     for n in range(0,len(nodes)):
         plt.plot(cumulativeCollisions[:,n])      # <<<<
         if isinstance(nodes[n],legacyNode):
@@ -172,7 +170,10 @@ def myPlotCollision(nodes, cumulativeCollisions):
     plt.savefig('../dqnFig/CumulativeCollisions.pdf')
     return txPackets
 
+
 def myPlotReward(nodes, cumulativeCollisions):
+    from dqnNode     import dqnNode
+    from mdpNode     import mdpNode
     legendInfo = [ ]
     for n in range(0,len(nodes)):
         if isinstance(nodes[n],mdpNode):
@@ -204,6 +205,8 @@ def myPlotReward(nodes, cumulativeCollisions):
     
     
 def myPlotAction(nodes, numChans):
+    from dqnNode     import dqnNode
+    from mdpNode     import mdpNode
     split = np.ceil( len(nodes)*1.0/2 )    
     for n in range(0,len(nodes)):      
         plt.subplot(split,2,n+1)        
@@ -239,7 +242,9 @@ def myPlotAction(nodes, numChans):
     plt.savefig('../dqnFig/Actions.pdf')    
  
     
-def myPlotOccupiedEnd(nodes, numChans, plotPeriod): 
+def myPlotOccupiedEnd(nodes, numChans, plotPeriod):
+    from dqnNode     import dqnNode
+    from mdpNode     import mdpNode
     legendInfo = [ ]
     for n in range(0,len(nodes)):
         temp = nodes[n].actionHistInd-1
@@ -286,6 +291,8 @@ def myPlotOccupiedEnd(nodes, numChans, plotPeriod):
 
 
 def myPlotOccupiedAll(nodes, numChans):
+    from dqnNode     import dqnNode
+    from mdpNode     import mdpNode
     legendInfo = [ ]
     for n in range(0,len(nodes)):
         temp = nodes[n].actionHistInd-1
@@ -327,8 +334,11 @@ def myPlotOccupiedAll(nodes, numChans):
     plt.ylabel('time slot')
     plt.savefig('../dqnFig/Occupied-full.png')
     plt.savefig('../dqnFig/Occupied-full.pdf')     
+
     
 def myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions):
+    from dqnNode     import dqnNode
+    from mdpNode     import mdpNode
     timeSlots = np.matlib.repmat( np.arange(1,numSteps+1)[np.newaxis].T  ,
                                  1,len(nodes) )  
     txPackets = np.array(txPackets).T
@@ -379,6 +389,8 @@ def myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions):
 
 
 def myPlotPLR(nodes, PLR):
+    from dqnNode     import dqnNode
+    from mdpNode     import mdpNode
     legendInfo = [ ]
     for i in range(len(nodes)):
         if isinstance(nodes[i],mdpNode):
