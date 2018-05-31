@@ -319,7 +319,28 @@ for s in range(0,numSteps):
         mdpLearnTime[s] = tocMdpAction - ticMdpAction + tocMdpLearn - ticMdpLearn
     if ticDqnAction:
         dqnLearnTime[s] = tocDqnAction - ticDqnAction + tocDqnLearn - ticDqnLearn
-          
+        
+    # show compeleted
+    if s == numSteps * 0.1:
+        print "  10% completed"
+    elif s == numSteps * 0.2:
+        print "  20% completed"
+    elif s == numSteps * 0.3:
+        print "  30% completed"
+    elif s == numSteps * 0.4:
+        print "  40% completed"
+    elif s == numSteps * 0.5:
+        print "  50% completed"
+    elif s == numSteps * 0.6:
+        print "  60% completed"
+    elif s == numSteps * 0.7:
+        print "  70% completed"
+    elif s == numSteps * 0.8:
+        print "  80% completed"
+    elif s == numSteps * 0.9:
+        print "  90% completed"
+    
+print " 100% completed"          
 print "End Main Loop"
 toc =  time.time()
 print "--- %s seconds ---" %(toc - tic)

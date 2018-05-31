@@ -284,8 +284,9 @@ def myPlotOccupiedEnd(nodes, numChans, plotPeriod):
     plt.legend(legendInfo,loc='upper right', prop={'size': 9})
     plt.xlim(0, numChans+1)   # -1 for WAIT
     plt.ylim(length-plotPeriod,length)
-    plt.xlabel('time slot')
-    plt.ylabel('channel selection')
+    plt.xlabel('channel selection')
+    plt.ylabel('time slot')
+    plt.title('Channel occupation of last 100 steps')
     plt.savefig('../dqnFig/Occupied.png')
     plt.savefig('../dqnFig/Occupied.pdf')
 
@@ -332,6 +333,7 @@ def myPlotOccupiedAll(nodes, numChans):
     plt.ylim(0,length)
     plt.xlabel('channel selection')
     plt.ylabel('time slot')
+    plt.title('Channel occupation')
     plt.savefig('../dqnFig/Occupied-full.png')
     plt.savefig('../dqnFig/Occupied-full.pdf')     
 
