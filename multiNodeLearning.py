@@ -238,7 +238,7 @@ learnProbHist = [ ]
 observedStates = np.zeros((numNodes,numChans))
 for s in range(0,numSteps):
     
-    #Determination of next action for each node
+    # Determination of next action for each node
     for n in range(0,numNodes):
         if isinstance(nodes[n],dqnNode):
             ticDqnAction  = time.time()
@@ -273,7 +273,7 @@ for s in range(0,numSteps):
                         collisionTally[n,nn] += 1
                         observedStates[n,:]   = np.ones(numChans)   # all illegal 
                         # think duplex col node as "full channel user", only have to is wait
-                       # print "duplex collision"                                  
+                        # print "duplex collision"                                  
                 else:
                     observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)   # partial obseravtion
                         
@@ -371,4 +371,4 @@ plt.figure(8)
 myPlotPLR(nodes, PLR)    
     
     
-    
+# test line for remote command git "git pull"    
