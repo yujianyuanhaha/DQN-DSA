@@ -29,7 +29,7 @@ class dqnNode(radioNode):
     avgStateTrans = [ ]
     
     discountFactor   = 0.9
-    policyAdjustRate = 100         # Policy is adjusted at this step increment
+    policyAdjustRate = 5         # Policy is adjusted at this step increment
     
             
     policy           = [ ] 
@@ -75,6 +75,8 @@ class dqnNode(radioNode):
         self.n_features    = numChans  # TODO  # extreme high later
         
         self.type = "raw"
+        
+
        
         
         if dqnType == 5 :

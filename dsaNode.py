@@ -51,9 +51,14 @@ class dsaNode (radioNode):
             # choose the first one
             if stepNum > 0 and np.where(self.actionHistInd[stepNum-1] == ind+1) == True:
                     # TODO ind+1 
-                ind = self.actionHistInd[stepNum-1]-1            
+                    ind = self.actionHistInd[stepNum-1] - 1                  
+            # STAY ORGANIZED - could not figure Chris intention of follow previous step, would it work with hopping Nodes ? 
+            # first-available-channel would not work
             else:
-                ind = ind[random.randint(0,len(ind)-1)]
+                if random.random() <= 0.5:    # 50% politeness to avoid, but still stuck for hopping node
+                    ind = ind[random.randint(0,len(ind)-1)]
+                else:
+                    ind = self.actionHistInd[stepNum-1] - 1    # avoid ping-pong when mutilple dsaNode
         
             ind = ind.astype(int)  # unkown
             if random.random() <= self.txProbability:
@@ -66,8 +71,7 @@ class dsaNode (radioNode):
             self.actionHistInd[stepNum] = 0
         else:
             self.actionHistInd[stepNum] = np.where(action == 1)[0].astype(int) + 1  # convert to int  #where 
-        
-        
+              
         if not np.sum(action):
             self.actionTally[0] += 1    # like a matrix, damn
         else:
@@ -80,7 +84,7 @@ class dsaNode (radioNode):
         
     
     
-    def updateState(self,observedState,s):
+    def updateState(self, observedState, s):
         self.observedState = observedState
         self.stateHist[s+1,:] = observedState
         

@@ -48,6 +48,7 @@ Main Configuration:
 
 import numpy as np
 import math
+import random
 
 from stateSpaceCreate import stateSpaceCreate
 #from radioNode   import radioNode
@@ -61,7 +62,7 @@ from imNode     import imNode
 from scenario    import scenario
 import matplotlib.pyplot as plt
 import time
-import random
+
 from myFunction import channelAssignment, myPlot,\
      myPlotProb,\
      myPlotCollision, myPlotReward, myPlotAction,\
@@ -114,6 +115,11 @@ imDutyCircleList  =  json.loads(Config.get('Networks', 'imDutyCircleList'))
 #                       5,5,5,5] )                    
 #legacyChanList = [3,4,5,6,8,9]
 #hoppingChanList = [ [11,12],[12,13]]  
+
+noiseErrorProb = 0.00
+noiseFlipNum = 0
+
+PartialObservation = 'False'
          
 print nodeTypes                 
 numNodes = len(nodeTypes)
@@ -193,6 +199,7 @@ for k in range(0,numNodes):
         t = mdpNode(numChans,states,numSteps)   
     elif nodeTypes[k] >= 5 and nodeTypes[k] <= 8:
         t = dqnNode(numChans,states,numSteps, nodeTypes[k])      # dqnNode
+        t.policyAdjustRate = random.randint(5, 9)
     else:
         pass
     t.hiddenDuplexCollision = hiddenDuplexCollision[k]
@@ -265,7 +272,7 @@ for s in range(0,numSteps):
         collisions[n] = 0
         
         for nn in range(0,numNodes):
-            if n != nn:
+            if nn != n:
                 # case 1, duplex collision
                 if nodes[nn].hiddenDuplexCollision[n]:
                     if  np.sum( actions[n,:] + actions[nn,:])> 1:
@@ -291,6 +298,22 @@ for s in range(0,numSteps):
         if isinstance(nodes[n],mdpNode):
             ticMdpLearn = time.time()
             reward = nodes[n].getReward(collisions[n],s,isWait)
+            # additive noise to flip certain bit of observation
+            temp = observedStates[n,:]
+            if random.random() < noiseErrorProb:
+                for k in range(noiseFlipNum):   # 0, 1
+                    ind =  random.randint(0, numChans-1)
+                    temp[ind] = 1- temp[ind]
+            observedStates[n,:] = temp
+            # yes, it did effect on performance under e.g. [0,1,2,4]
+            
+            if PartialObservation == 'True':
+                rollInd = int( math.fmod(s, numChans))
+                temp[rollInd] = 0
+            observedStates[n,:] = temp
+            # 20% PER, unbearable    
+            
+            
             nodes[n].updateTrans(observedStates[n,:],s)
             if not math.fmod(s,nodes[n].policyAdjustRate):
                 nodes[n].updatePolicy(s)
@@ -300,10 +323,29 @@ for s in range(0,numSteps):
             ticDqnLearn = time.time()
             reward = nodes[n].getReward(collisions[n],s, isWait)
             observation_ = observedStates[n,:]  # update already # full already
+            # additive noise to observation_
+            if random.random() < noiseErrorProb:
+                for k in range(noiseFlipNum):
+                    ind =  random.randint(0, numChans-1)
+                    observation_[ind] = 1- observation_[ind]
+            observedStates[n,:] = observation_                        
+            # Todo - rolling partially observation            
+            # mdp seems for robust under same noise
+            # Conclusion - robust to certain level of additive noise, e.g under [0,1,2,5]
+            
+            temp = observedStates[n,:]
+            if PartialObservation == 'True':
+                rollInd = int( math.fmod(s, numChans))
+                temp[rollInd] = 0
+            observedStates[n,:] = temp
+            observation_ = observedStates[n,:]
+            # better than MDP, more rubost to partial observation
+            
+            
             done = True            
             nodes[n].storeTransition(observation, actionScalar, 
                  reward, observation_)
-            if s > 200 and s % 5 == 0:    # step 2 trade in more computation for better performance
+            if s > 200 and s % nodes[n].policyAdjustRate == 0:    
                 nodes[n].learn()
                 learnProbHist.append( nodes[n].dqn_.exploreProb)
             tocDqnLearn = time.time()

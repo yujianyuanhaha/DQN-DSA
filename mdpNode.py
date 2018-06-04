@@ -23,7 +23,7 @@ class mdpNode(radioNode):
     avgStateTrans = [ ]
     
     discountFactor   = 0.9
-    policyAdjustRate = 100         # Policy is adjusted at this step increment
+    policyAdjustRate = 5         # Policy is adjusted at this step increment
     
     exploreProb      = [ ]                    # Current exploration probability
     exploreInit      = 1.0               # Initial exploration probability
