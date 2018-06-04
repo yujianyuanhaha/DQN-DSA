@@ -411,6 +411,3 @@ plt.figure(7)
 PLR = myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions) 
 plt.figure(8)   
 myPlotPLR(nodes, PLR)    
-    
-    
-# test line for remote command git "git pull"    
