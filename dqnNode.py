@@ -10,17 +10,13 @@ from radioNode import radioNode
 from myFunction import ismember   #
 import random
 import numpy as np
-#import myRL_brain as rl
-#from myRL_brain import DeepQNetwork
 from dqn import dqn
 import dqnDouble
 import dqnPriReplay
 import dqnDuel
-#from mdp import PolicyIteration  #
-
 
 class dqnNode(radioNode):
-    goodChans     = [ ]    #
+    goodChans     = [ ]    
     numStates     = [ ]
     states        = [ ]
     stateHist     = [ ]
@@ -34,7 +30,8 @@ class dqnNode(radioNode):
             
     policy           = [ ] 
     policyHist       = [ ]        
-    # [Not transmitting, Good Channel no Interference, Good Channel Interference, Bad Channel no Interference, Bad Channel Interference]
+    # [Not transmitting, Good Channel no Interference, Good Channel Interference, 
+    # Bad Channel no Interference, Bad Channel Interference]
     rewards          = [-200, 100, -100, 50, -100]   
     # different duty cycle need different rewards   
     rewardHist       = [ ]
@@ -46,7 +43,6 @@ class dqnNode(radioNode):
         self.actions = np.zeros((numChans+1,numChans))
         for k in range(0,numChans):
             self.actions[k+1,k] = 1
-            #for n in range(0,numNodes): 
         self.numChans      = numChans
         self.numActions    = np.shape(self.actions)[0]
         self.actionTally   = np.zeros(numChans+1)
@@ -66,19 +62,14 @@ class dqnNode(radioNode):
         self.cumulativeReward = np.zeros(numSteps)
         self.rewardTrans   = np.zeros((self.numActions, self.numStates,self.numStates) )
         
-  #      self.exploreProb   = self.exploreInit
         self.exploreHist   = [ ]
         
         self.policy = np.zeros(numChans)
                
-        self.n_actions     = numChans+1   # !!! notice
-        self.n_features    = numChans  # TODO  # extreme high later
+        self.n_actions     = numChans+1   
+        self.n_features    = numChans 
         
-        self.type = "raw"
-        
-
-       
-        
+        self.type = "raw"        
         if dqnType == 5 :
             self.dqn_ = dqn(
                             self,
@@ -135,18 +126,12 @@ class dqnNode(radioNode):
                             ) 
         else:
                 pass
-            
-        # for debug, see the prob of learn vs random try
-        # self.countLearn = 0
-
-
 
         
     def getAction(self, stepNum ,observation):
         temp = self.dqn_.choose_action(observation) 
-        #print temp
         # !!! new define, convert action from a int to a array
-        action       = np.zeros(self.numChans)  # !!! no WAIT so fat
+        action       = np.zeros(self.numChans) 
         if temp > 0:
             action[temp-1] = 1 
         
@@ -158,14 +143,13 @@ class dqnNode(radioNode):
             self.actionHistInd[stepNum] = np.where(action == 1)[0] + 1
             self.actionTally[1:] += action
         
-        return action, temp  # return two type
+        return action, temp  
     
     
     def getReward(self,collision,stepNum, isWait):
         
         if isWait == True:
              self.rewards  = [-50, 100, -200, 50, -100] 
-             # 10% acceptable  # reduece -100 to -50
         action = self.actionHist[stepNum,:]
         if not np.sum(action):
             reward = self.rewards[0]
@@ -182,7 +166,6 @@ class dqnNode(radioNode):
                 else:
                     reward = self.rewards[3]   
  
-            #[0, 100, -100, 50, -400]                                                       
             self.rewardTally[1:] += action * reward        
         self.rewardHist[stepNum] = reward   
         

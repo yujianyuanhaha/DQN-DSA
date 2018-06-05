@@ -12,18 +12,12 @@ from radioNode import radioNode
 
 
 class hoppingNode(radioNode):
-    hopRate = [ ]   #must, else error
+    hopRate = [ ]  
     hopPattern = [ ]
-    hopIndex = 0  # TODO we start from zero
+    hopIndex = 0  
     def __init__(self, numChans, numSteps, HoppingChanIndex, hopRate):
- #       self.actions       = np.zeros((2,numChans) )      # TODO # matrix than vector, fix than random
-#        self.actions[1,2]  = 1   # actions(sequence, channel)
-    #    self.actions[2,4]  = 1
-    #    self.actions[3,6]  = 1
-    #    self.actions[4,8]  = 1
-    #    self.actions[5,10] = 1  #TODO
         
-        self.numActions    = len(HoppingChanIndex)  # damn, to
+        self.numActions    = len(HoppingChanIndex)  
         self.actions       = np.zeros((self.numActions,numChans) )
         for i in range(self.numActions):
             self.actions[i,HoppingChanIndex[i]] = 1
@@ -33,14 +27,13 @@ class hoppingNode(radioNode):
         self.actionHistInd = np.zeros(numSteps)
         
         self.hopRate       = hopRate  # hop rate, the freq it decide to hop next channel
-#        self.hopPattern    = np.array( [0,1])   # we hop only two here #TODO
         self.hopPattern    = HoppingChanIndex
         
     def  getAction(self,stepNum):
         if not np.fmod(stepNum,self.hopRate):
             self.hopIndex +=  1
             if self.hopIndex >= len(self.hopPattern):
-                self.hopIndex = 0  # roll over, what if fully understand at once
+                self.hopIndex = 0  # roll over
                 
         action = self.actions[self.hopIndex,:]
         
@@ -53,7 +46,6 @@ class hoppingNode(radioNode):
         else:
             self.actionTally[1:] = self.actionTally[1:] + action
         
-        # easy  -- same for DSA, adv
         return action
         
                

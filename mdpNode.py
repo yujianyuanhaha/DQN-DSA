@@ -25,21 +25,22 @@ class mdpNode(radioNode):
     discountFactor   = 0.9
     policyAdjustRate = 5         # Policy is adjusted at this step increment
     
-    exploreProb      = [ ]                    # Current exploration probability
-    exploreInit      = 1.0               # Initial exploration probability
-    exploreDecay     = 0.1              # Percentage reduction in exploration chance per policy calculation
+    exploreProb      = [ ]       # Current exploration probability
+    exploreInit      = 1.0       # Initial exploration probability
+    exploreDecay     = 0.1       # Percentage reduction in exploration chance per policy calculation
     # exploreDecay = 0.01 would screw it up
     exploreHist      = [ ]    
-    exploreDecayType = 'expo'             # either 'expo', 'step' or 'perf'
-    exploreWindow    = 500           # only used with 'step'
-    exploreMin       = 0.01              # only used with 'step'    
-    explorePerf      = 10               # only used with 'perf' 
-    explorePerfWin   = 100           # triggers jump in explore prob to
-                                    # 1 if reward is below this over 
-                                    # last explorePerfWin epoch               
+    exploreDecayType = 'expo'            
+    exploreWindow    = 500          
+    exploreMin       = 0.01             
+    explorePerf      = 10              
+    explorePerfWin   = 100           
+                                    
+                                               
     policy           = [ ] 
     policyHist       = [ ]        
-    # [Not transmitting, Good Channel no Interference, Good Channel Interference, Bad Channel no Interference, Bad Channel Interference]
+    # [Not transmitting, Good Channel no Interference, Good Channel Interference, 
+    # Bad Channel no Interference, Bad Channel Interference]
     rewards          = [-200, 100, -100, 50, -200]  
     rewardHist       = [ ]
     rewardTally      = [ ]        
@@ -48,11 +49,9 @@ class mdpNode(radioNode):
     
     def __init__(self,numChans,states,numSteps):
         
-       # self.exploreDecayType = exploreDecayType
         self.actions = np.zeros((numChans+1,numChans))
         for k in range(0,numChans):
             self.actions[k+1,k] = 1
-            #for n in range(0,numNodes):        
         self.numActions    = np.shape(self.actions)[0]  
         self.actionTally   = np.zeros(numChans+1)
         self.actionHist    = np.zeros((numSteps,numChans))
@@ -85,7 +84,7 @@ class mdpNode(radioNode):
         
     def getAction(self,stepNum):
         if random.random( ) < self.exploreProb:
-            action = self.actions[ random.randint(0, self.numActions-1) , :]              # randi
+            action = self.actions[ random.randint(0, self.numActions-1) , :]              
             # random.randint() both close end; np.random.randint() left close right open
             assert not any(np.isnan(action)), "ERROR! action is Nan at getAction() case 1"
     
@@ -105,7 +104,6 @@ class mdpNode(radioNode):
             self.actionHistInd[stepNum] = np.where(action == 1)[0] + 1
             self.actionTally[1:] += action             
         return action
-        # unlike matlab, python must return        
 
         
     def getReward(self,collision,stepNum,isWait):
@@ -116,7 +114,6 @@ class mdpNode(radioNode):
         action = self.actionHist[stepNum,:]
         if not np.sum(action):
             reward = self.rewards[0]
-            #  rewards = [-200, 100, -100, 50, -200] 
             self.rewardTally[0] +=  reward
         else:
             if not any(np.array(self.goodChans+action) > 1):    # find the 1st of ...
@@ -136,7 +133,7 @@ class mdpNode(radioNode):
             self.cumulativeReward[stepNum] = reward
         else:
             self.cumulativeReward[stepNum] = self.cumulativeReward[stepNum-1] + reward
-        return reward   # for debug
+        return reward  
         
         
         
@@ -191,10 +188,10 @@ class mdpNode(radioNode):
                 self.exploreProb = 1              
         elif self.exploreDecayType == 'perf':
              self.exploreProb = self.exploreInit * np.exp(-self.exploreDecay \
-                                                          * np.shape(self.policyHist)[1])  # qucik   
+                                                          * np.shape(self.policyHist)[1]) 
              if (np.mean(self.rewardHist[step-self.explorePerfWin+1:step]) < self.explorePerf)\
                                                                  and (self.exploreProb < 0.05):
-                 self.exploreProb = 0.2 #self.exploreProb + self.explorePerfJump                                    
+                 self.exploreProb = 0.2                                  
         else:
             print 'error - exploreDecayType misdefined'
         

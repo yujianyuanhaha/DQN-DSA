@@ -14,8 +14,9 @@ import tensorflow as tf
 import os
 import random
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'   
-#from dqnNode import dqnNode
-# to avoid the warning Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+
+# to avoid the warning Your CPU supports instructions that this TensorFlow binary 
+# was not compiled to use: AVX2 FMA
 
 np.random.seed(1)
 tf.set_random_seed(1)
@@ -25,9 +26,8 @@ class dqn:
     
     exploreProb      = [ ]              # Current exploration probability
     exploreInit      = 1.0              # Initial exploration probability
-   # exploreDecay     = 0.1              # Percentage reduction in exploration chance per policy calculation
-    exploreDecay     = 0.01
-    exploreProbMin       = 0.01  # avoid the risk to stuck
+    exploreDecay     = 0.01              # Percentage reduction in exploration chance per policy calculation
+    exploreProbMin   = 0.01  # avoid the risk to stuck
     exploreHist      = [ ]    
     exploreDecayType = 'expo'           # either 'expo', 'step' or 'perf'
     exploreWindow    = 500              # only used with 'step'
@@ -36,8 +36,7 @@ class dqn:
     explorePerfWin   = 100
     e_greedy            = 0.9              
     # triggers jump in explore prob to 1 if reward is below this over last explorePerfWin epoch   
-    
-    
+        
     def __init__(
             self,
             dqnNode,
@@ -45,15 +44,14 @@ class dqn:
             n_features,
             learning_rate=0.001,
             reward_decay=0.9,
-            exploreDecayType = 'expo',    # more detail in static var above
+            exploreDecayType = 'expo',   
             replace_target_iter=300,
             memory_size=500,
             batch_size=32,
             e_greedy_increment=None,
             output_graph=False                  
     ):    # allow dqnNode to call in its attribute
-        
-        
+                
         self.n_actions           = n_actions
         self.n_features          = n_features
         self.lr                  = learning_rate
@@ -61,14 +59,11 @@ class dqn:
         self.replace_target_iter = replace_target_iter
         self.memory_size         = memory_size
         self.batch_size          = batch_size
-        
-        
+                
         self.exploreDecayType = exploreDecayType
-        self.epsilon_max = self.e_greedy  #
-        self.epsilon_increment = e_greedy_increment #
-        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
-        # not None -> not learn; None/ Default -> 90% learn
-        
+        self.epsilon_max = self.e_greedy  
+        self.epsilon_increment = e_greedy_increment 
+        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max       
         self.exploreProb   = self.exploreInit
         self.learn_step_counter = 0
 
@@ -146,22 +141,11 @@ class dqn:
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation})
             # size of observation = s / n_feature
             action = np.argmax(actions_value) 
-            self.learn_step_counter += 1
-#            if action == 0:
-#                print "learn case action == 0 "
-            
+            self.learn_step_counter += 1            
         else:
-            action = random.randint(0, self.n_actions-1)
-            
-#            if action == 0:
-#                print "explore case action = 0 "
-            
-        
+            action = random.randint(0, self.n_actions-1)      
         return action
-        # make clear of defination of the actions
-    
-    
-    
+
 
     def learn(self):
         # check to replace target parameters
@@ -186,9 +170,7 @@ class dqn:
             })   # be sharp, man
 
         self.cost_his.append(cost)
-         #increasing epsilon
-#        self.epsilon = self.epsilon + self.epsilon_increment \
-#                    if self.epsilon < self.epsilon_max else self.epsilon_max
+
         if self.exploreDecayType == 'expo':
             self.exploreProb = self.exploreInit * \
                 np.exp(-self.exploreDecay * self.learn_step_counter )

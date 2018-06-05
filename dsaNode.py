@@ -1,12 +1,12 @@
 import numpy as np
 import random
 from radioNode import radioNode
-#from legacyNode import legacyNode
+
 
 
 class dsaNode (radioNode):   
     # when come to isinstance(), both isinstance(nodes[1],dsaNode) or isinstance(nodes[1],legacyNode) is true
-    # one typical of 'legacy Node'
+    
     ###################################################################
     # Defines a node with the default behavior of always using the same
     # randomly chosen channel.
@@ -14,16 +14,11 @@ class dsaNode (radioNode):
     
     observedState = [ ]
     stateHist = [ ]
-  
-
 
     ###################################################################
     # Constructor
     ###################################################################
     def __init__(self, numChans, numSteps,txProb):
-#        self = legacyNode(numChans,numSteps,txProb)   
-        # TODO what about occupied 
-       # self = legacyNode(numChans, numSteps, legacyDutyCircle, legacyChanIndex)
         
         self.actions = np.zeros((numChans+1,numChans))
         for k in range(numChans):
@@ -43,14 +38,12 @@ class dsaNode (radioNode):
     def getAction(self,stepNum):
         
         ind = np.where(self.observedState == 0)[0]   # numpy return two set of value, cause np.zeros is treat as matrix
-        #ind = ind(randi(length(ind)))
-        #assert len(ind)>0, "empty ind"
         if not any(ind):
             action = np.zeros(np.shape(self.actions)[1])
         else:
             # choose the first one
             if stepNum > 0 and np.where(self.actionHistInd[stepNum-1] == ind+1) == True:
-                    # TODO ind+1 
+                   
                     ind = self.actionHistInd[stepNum-1] - 1                  
             # STAY ORGANIZED - could not figure Chris intention of follow previous step, would it work with hopping Nodes ? 
             # first-available-channel would not work
@@ -60,9 +53,9 @@ class dsaNode (radioNode):
                 else:
                     ind = self.actionHistInd[stepNum-1] - 1    # avoid ping-pong when mutilple dsaNode
         
-            ind = ind.astype(int)  # unkown
+            ind = ind.astype(int)  
             if random.random() <= self.txProbability:
-                action = self.actions[ind+1,:]   #  self.actions = zeros(numChans+1,numChans)
+                action = self.actions[ind+1,:]  
             else:
                 action = np.zeros(np.shape(self.actions)[1])
         
@@ -70,19 +63,15 @@ class dsaNode (radioNode):
         if not np.sum(action):
             self.actionHistInd[stepNum] = 0
         else:
-            self.actionHistInd[stepNum] = np.where(action == 1)[0].astype(int) + 1  # convert to int  #where 
+            self.actionHistInd[stepNum] = np.where(action == 1)[0].astype(int) + 1  
               
         if not np.sum(action):
-            self.actionTally[0] += 1    # like a matrix, damn
+            self.actionTally[0] += 1    
         else:
             self.actionTally[1:] = self.actionTally[1:] + action
             
         return action
-    
-    
-        # dsa learn to WAIT
-        
-    
+
     
     def updateState(self, observedState, s):
         self.observedState = observedState
