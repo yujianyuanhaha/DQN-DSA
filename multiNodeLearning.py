@@ -21,7 +21,7 @@ Github url:
 ---------------------------
 File Achitecture:
 
-    multiNodeLearning.py -- network.config
+    multiNodeLearning.py -- setup.config
                          -- myFunction.py
                          -- legacyNode.py
                          -- hoppingNode.py
@@ -63,7 +63,7 @@ from scenario    import scenario
 import matplotlib.pyplot as plt
 import time
 
-from myFunction import channelAssignment, myPlot,\
+from myFunction import channelAssignment, \
      myPlotProb,\
      myPlotCollision, myPlotReward, myPlotAction,\
      myPlotOccupiedEnd, myPlotOccupiedAll,\
@@ -78,7 +78,7 @@ from myFunction import channelAssignment, myPlot,\
 # when change numChans(related to neural network), REMEMBER TO SHUT OFF AND OPEN A NEW terminal
 # it would not happen in raw terminal 
 
-################################################################
+###############################################################################
 #######################     Network Setup & Simulation Parameters  ############
 
 # recommend to load configuration from "setup.config" file
@@ -121,7 +121,7 @@ noiseFlipNum = 0
 
 PartialObservation = 'False'
          
-print nodeTypes                 
+print(nodeTypes)                
 numNodes = len(nodeTypes)
 
 hiddenDuplexCollision = np.zeros((numNodes,numNodes))
@@ -139,7 +139,7 @@ exposedSpatialReuse = np.zeros((numNodes,numNodes))
 isWait = False  #default no imNode
 if any(nodeTypes==2) and len(nodeTypes) > numChans:
     isWait = True
-    print "learn to occupy imNode"
+    print("learn to occupy imNode")
 # if need to learn imNode, enable isWait to change rewards 
     
 # The type of each node 
@@ -198,7 +198,8 @@ for k in range(0,numNodes):
     elif nodeTypes[k] == 4:
         t = mdpNode(numChans,states,numSteps)   
     elif nodeTypes[k] >= 5 and nodeTypes[k] <= 8:
-        t = dqnNode(numChans,states,numSteps, nodeTypes[k])      # dqnNode
+        t = dqnNode(numChans,states,numSteps, nodeTypes[k])      
+        # dqnNode, temporary asyn
         t.policyAdjustRate = random.randint(5, 9)
     else:
         pass
@@ -228,7 +229,7 @@ dqnLearnTime = np.zeros(numSteps)
 tic = time.time()
 ticMdpAction = [ ]
 ticDqnAction = [ ]
-print "Starting Main Loop"
+print("Starting Main Loop")
 
 legacyNodeIndicies = []
 for n in range(0,numNodes):
@@ -315,7 +316,7 @@ for s in range(0,numSteps):
             
             
             nodes[n].updateTrans(observedStates[n,:],s)
-            if not math.fmod(s,nodes[n].policyAdjustRate):
+            if s % nodes[n].policyAdjustRate == 0:
                 nodes[n].updatePolicy(s)
             tocMdpLearn = time.time()
                                 
@@ -345,7 +346,7 @@ for s in range(0,numSteps):
             done = True            
             nodes[n].storeTransition(observation, actionScalar, 
                  reward, observation_)
-            if s > 200 and s % nodes[n].policyAdjustRate == 0:    
+            if s % nodes[n].policyAdjustRate == 0:    
                 nodes[n].learn()
                 learnProbHist.append( nodes[n].dqn_.exploreProb)
             tocDqnLearn = time.time()
@@ -364,34 +365,34 @@ for s in range(0,numSteps):
         
     # show compeleted
     if s == numSteps * 0.1:
-        print "  10% completed"
+        print( "  10% completed")
     elif s == numSteps * 0.2:
-        print "  20% completed"
+        print( "  20% completed")
     elif s == numSteps * 0.3:
-        print "  30% completed"
+        print( "  30% completed")
     elif s == numSteps * 0.4:
-        print "  40% completed"
+        print( "  40% completed")
     elif s == numSteps * 0.5:
-        print "  50% completed"
+        print( "  50% completed")
     elif s == numSteps * 0.6:
-        print "  60% completed"
+        print ("  60% completed")
     elif s == numSteps * 0.7:
-        print "  70% completed"
+        print( "  70% completed")
     elif s == numSteps * 0.8:
-        print "  80% completed"
+        print( "  80% completed")
     elif s == numSteps * 0.9:
-        print "  90% completed"
+        print( "  90% completed")
     
-print " 100% completed"          
-print "End Main Loop"
+print( " 100% completed"  )        
+print( "End Main Loop")
 toc =  time.time()
-print "--- %s seconds ---" %(toc - tic)
+print( "--- %s seconds ---" %(toc - tic))
 
 
 ##################### PLOT ############################################ 
 import os
 if not os.path.exists('../dqnFig'):
-    os.makedirs('../dqnFig') 
+   os.makedirs('../dqnFig') 
     
     
 #myPlot(nodes, numChans, numSteps, learnProbHist,cumulativeCollisions)

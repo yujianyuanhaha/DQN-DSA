@@ -26,7 +26,7 @@ class dqn:
     
     exploreProb      = [ ]              # Current exploration probability
     exploreInit      = 1.0              # Initial exploration probability
-    exploreDecay     = 0.01              # Percentage reduction in exploration chance per policy calculation
+    exploreDecay     = 0.1              # Percentage reduction in exploration chance per policy calculation
     exploreProbMin   = 0.01  # avoid the risk to stuck
     exploreHist      = [ ]    
     exploreDecayType = 'expo'           # either 'expo', 'step' or 'perf'
@@ -42,7 +42,7 @@ class dqn:
             dqnNode,
             n_actions,
             n_features,
-            learning_rate=0.001,
+            learning_rate=0.001,    # for neural network
             reward_decay=0.9,
             exploreDecayType = 'expo',   
             replace_target_iter=300,
@@ -60,12 +60,12 @@ class dqn:
         self.memory_size         = memory_size
         self.batch_size          = batch_size
                 
-        self.exploreDecayType = exploreDecayType
-        self.epsilon_max = self.e_greedy  
-        self.epsilon_increment = e_greedy_increment 
-        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max       
-        self.exploreProb   = self.exploreInit
-        self.learn_step_counter = 0
+        self.exploreDecayType    = exploreDecayType
+        self.epsilon_max         = self.e_greedy  
+        self.epsilon_increment   = e_greedy_increment 
+        self.epsilon             = 0 if e_greedy_increment is not None else self.epsilon_max       
+        self.exploreProb         = self.exploreInit
+        self.learn_step_counter  = 0
 
         # initialize zero memory [s, a, r, s_]
         self.memory = np.zeros((self.memory_size, n_features * 2 + 2))  # tiny

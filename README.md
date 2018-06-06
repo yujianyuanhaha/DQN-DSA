@@ -71,3 +71,16 @@ python multiNodeLearning.py
 
 
 --------------------------------------------------------------------------
+# Notice
+When assign new number of channels and DQN node exist, need to restart the IPython console
+
+
+
+--------------------------------------------------------------------------
+# Bugs
+1. We assume all nodes detect and make decision at same time, hence the multiple dsaNode may collide  (T.B.D.).
+2. Unstable performance when multiple dqnNode works (T.B.D.).
+
+
+
+--------------------------------------------------------------------------
