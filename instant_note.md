@@ -14,14 +14,20 @@ Headline
 --------------------------------------------------------------------------------
 A. ToDoList
 1. Week
-[ ] Code Run Fri 
-[ ] Draft Report Fri
-
+[x] Code Run Fri 
+[x] Draft Report Fri
+[ ] 
 
 #Wed - GlobelComm Due XXX
 #Mon - slides w/ full figure XXXX
 
 2. Day
+
+
+Thur
+[ ] - debug multiple DQN node
+[ ] - scale up
+
 
 
 Tue
@@ -99,10 +105,10 @@ C. Debug
 
 4. channel utility
 
+5. the multiple DQN bug
 
 
-
-
+ 
 
 --------------------------------------------------------------------------------
 D. Miscellaneous

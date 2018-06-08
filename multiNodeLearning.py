@@ -115,14 +115,24 @@ imDutyCircleList  =  json.loads(Config.get('Networks', 'imDutyCircleList'))
 #                       5,5,5,5] )                    
 #legacyChanList = [3,4,5,6,8,9]
 #hoppingChanList = [ [11,12],[12,13]]  
+             
+numNodes = len(nodeTypes)
+print "nodeType list: %s"%nodeTypes
+print "num of channel: %s        num of nodes: %s"%(numChans, numNodes)
 
 noiseErrorProb = 0.00
-noiseFlipNum = 0
+noiseFlipNum = 1
+if noiseErrorProb > 0.00:
+    print "Additive Noise Enabled with Flip Num %s"%noiseFlipNum
 
-PartialObservation = 'False'
-         
-print(nodeTypes)                
-numNodes = len(nodeTypes)
+PartialObservation = 'rollWindowOver'
+poBlockNum = 5
+poWindowNum = 4
+if PartialObservation == 'rollOver':
+    print "rollOver Partial Observation Enabled with Blocked Num %s"%poBlockNum
+elif PartialObservation == 'rollWindowOver':   # window does not overlap
+    print "rollWindowOver Partial Observation Enabled with Window Size %s"%poWindowNum
+
 
 hiddenDuplexCollision = np.zeros((numNodes,numNodes))
 #hiddenDuplexCollision[2,3] = 1
@@ -229,7 +239,7 @@ dqnLearnTime = np.zeros(numSteps)
 tic = time.time()
 ticMdpAction = [ ]
 ticDqnAction = [ ]
-print("Starting Main Loop")
+print("--- Starting Main Loop ---")
 
 legacyNodeIndicies = []
 for n in range(0,numNodes):
@@ -308,9 +318,21 @@ for s in range(0,numSteps):
             observedStates[n,:] = temp
             # yes, it did effect on performance under e.g. [0,1,2,4]
             
-            if PartialObservation == 'True':
-                rollInd = int( math.fmod(s, numChans))
-                temp[rollInd] = 0
+            if PartialObservation == 'rollOver':
+                rollInd = s % numChans
+                for i in range(poBlockNum):
+                    temp[(rollInd+i)%numChans] = 0
+            elif PartialObservation == 'rollWindowOver':
+                rollBlockInd = s * poWindowNum % numChans
+                # rollBlockInd to rollBlockInd + poWindowNum visable, other blocked
+                if rollBlockInd + poWindowNum > numChans:
+                    temp[(rollBlockInd+poWindowNum)%numChans: rollBlockInd] = 0
+                else:
+                    temp[:rollBlockInd] = 0
+                    temp[rollBlockInd+poWindowNum:] = 0
+                    
+                    
+                    
             observedStates[n,:] = temp
             # 20% PER, unbearable    
             
@@ -337,7 +359,8 @@ for s in range(0,numSteps):
             temp = observedStates[n,:]
             if PartialObservation == 'True':
                 rollInd = int( math.fmod(s, numChans))
-                temp[rollInd] = 0
+                for i in range(poBlockNum):
+                    temp[(rollInd+i)%numChans] = 0
             observedStates[n,:] = temp
             observation_ = observedStates[n,:]
             # better than MDP, more rubost to partial observation
@@ -366,6 +389,8 @@ for s in range(0,numSteps):
     # show compeleted
     if s == numSteps * 0.1:
         print( "  10% completed")
+        toc =  time.time()
+        print( "--- cost %s seconds ---" %(toc - tic))        
     elif s == numSteps * 0.2:
         print( "  20% completed")
     elif s == numSteps * 0.3:
@@ -384,9 +409,9 @@ for s in range(0,numSteps):
         print( "  90% completed")
     
 print( " 100% completed"  )        
-print( "End Main Loop")
+print( "--- End Main Loop--- ")
 toc =  time.time()
-print( "--- %s seconds ---" %(toc - tic))
+print( "--- Totally %s seconds ---" %(toc - tic))
 
 
 ##################### PLOT ############################################ 

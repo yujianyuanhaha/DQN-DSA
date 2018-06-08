@@ -26,7 +26,7 @@ class dqn:
     
     exploreProb      = [ ]              # Current exploration probability
     exploreInit      = 1.0              # Initial exploration probability
-    exploreDecay     = 0.1              # Percentage reduction in exploration chance per policy calculation
+    exploreDecay     = 0.01              # Percentage reduction in exploration chance per policy calculation
     exploreProbMin   = 0.01  # avoid the risk to stuck
     exploreHist      = [ ]    
     exploreDecayType = 'expo'           # either 'expo', 'step' or 'perf'
@@ -144,6 +144,7 @@ class dqn:
             self.learn_step_counter += 1            
         else:
             action = random.randint(0, self.n_actions-1)      
+#        print action
         return action
 
 

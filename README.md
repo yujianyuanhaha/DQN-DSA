@@ -72,8 +72,8 @@ python multiNodeLearning.py
 
 --------------------------------------------------------------------------
 # Notice
-When assign new number of channels and DQN node exist, need to restart the IPython console
-
+1. When assign new number of channels and DQN node exist, need to restart the IPython console
+2. mdpNode would meet compuation constraint when number of channel over 10.
 
 
 --------------------------------------------------------------------------
