@@ -13,7 +13,7 @@ from radioNode import radioNode
 class imNode(radioNode):
     
     imDutyCircleCount = 0
-    imDutyPeriod      = 100
+    imDutyPeriod      = 1000
     
     def __init__(self, numChans, numSteps, imDutyCircle, imChanIndex):
         self.actions                  = np.zeros(numChans)  

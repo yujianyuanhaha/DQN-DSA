@@ -125,13 +125,11 @@ noiseFlipNum = 1
 if noiseErrorProb > 0.00:
     print "Additive Noise Enabled with Flip Num %s"%noiseFlipNum
 
-PartialObservation = 'rollWindowOver'
-poBlockNum = 5
-poWindowNum = 4
-if PartialObservation == 'rollOver':
-    print "rollOver Partial Observation Enabled with Blocked Num %s"%poBlockNum
-elif PartialObservation == 'rollWindowOver':   # window does not overlap
-    print "rollWindowOver Partial Observation Enabled with Window Size %s"%poWindowNum
+PartialObservation = 'False'
+poBlockNum = 2
+poStepNum = 3
+if PartialObservation == 'True':
+    print "rollOver Partial Observation Enabled with Blocked Num %s and Step Num %s "%(poBlockNum, poStepNum)
 
 
 hiddenDuplexCollision = np.zeros((numNodes,numNodes))
@@ -150,6 +148,10 @@ isWait = False  #default no imNode
 if any(nodeTypes==2) and len(nodeTypes) > numChans:
     isWait = True
     print("learn to occupy imNode")
+    
+
+   
+    
 # if need to learn imNode, enable isWait to change rewards 
     
 # The type of each node 
@@ -211,13 +213,19 @@ for k in range(0,numNodes):
         t = dqnNode(numChans,states,numSteps, nodeTypes[k])      
         # dqnNode, temporary asyn
         t.policyAdjustRate = random.randint(5, 9)
+        print "DQN node %s Parameters: learning_rate %s, reward_decay %s,\
+                replace_target_iter %s, memory_size %s,\
+                policyAdjustRate %s" %(k, t.dqn_.lr, t.dqn_.gamma,              
+                    t.dqn_.replace_target_iter, t.dqn_.memory_size, t.policyAdjustRate )
     else:
         pass
     t.hiddenDuplexCollision = hiddenDuplexCollision[k]
     t.exposedSpatialReuse   = exposedSpatialReuse[k]
 
     nodes.append(t)
-        
+
+confirmKey = raw_input("If setting is ready, press ENTER to continue, any other key to abort ... ") 
+assert confirmKey == '', "setting wrong, programs abort :("        
 #nodes[2].goodChans = np.array( [0,0,0,1] )        
 #nodes[1].goodChans = np.array( [0,1,1,0] )          
 #nodes[2].goodChans = np.array( [0,0,1,1] ) 
@@ -256,7 +264,7 @@ learnProbHist = [ ]
 observedStates = np.zeros((numNodes,numChans))
 for s in range(0,numSteps):
     
-    # Determination of next action for each node
+    ################ Determination of next action for each node ##############
     for n in range(0,numNodes):
         if isinstance(nodes[n],dqnNode):
             ticDqnAction  = time.time()
@@ -277,7 +285,7 @@ for s in range(0,numSteps):
     if simulationScenario.scenarioType != 'fixed':
          simulationScenario.updateScenario(nodes,legacyNodeIndicies, s)
 
-    # Determining observations, collisions, rewards, and policies (where applicable)
+    ################# Determining observations, collisions, rewards, and policies (where applicable)
     observedStates = np.zeros((numNodes,numChans))
     for n in range(0,numNodes):
         collisions[n] = 0
@@ -319,20 +327,9 @@ for s in range(0,numSteps):
             # yes, it did effect on performance under e.g. [0,1,2,4]
             
             if PartialObservation == 'rollOver':
-                rollInd = s % numChans
+                rollInd = s * poStepNum % numChans
                 for i in range(poBlockNum):
-                    temp[(rollInd+i)%numChans] = 0
-            elif PartialObservation == 'rollWindowOver':
-                rollBlockInd = s * poWindowNum % numChans
-                # rollBlockInd to rollBlockInd + poWindowNum visable, other blocked
-                if rollBlockInd + poWindowNum > numChans:
-                    temp[(rollBlockInd+poWindowNum)%numChans: rollBlockInd] = 0
-                else:
-                    temp[:rollBlockInd] = 0
-                    temp[rollBlockInd+poWindowNum:] = 0
-                    
-                    
-                    
+                    temp[(rollInd+i)%numChans] = 0       
             observedStates[n,:] = temp
             # 20% PER, unbearable    
             

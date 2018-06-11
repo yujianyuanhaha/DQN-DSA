@@ -54,6 +54,7 @@ Another repository[6] maintain by Yue would merge soon, and [7] is the technical
 # Configuration  
 We run codes on **Spyder** GUI under Anaconda, tensorflow is required as well as related tensorboard setup.  
 For batch test, we run codes on ARC VT.   
+1. Python version 2.7, tensorflow version 1.6.0. Notice tensorflow 1.5.0 is suggest on Linux OS else "keneral died, restart" error may appear.
 
 
 --------------------------------------------------------------------------

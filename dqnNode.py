@@ -92,7 +92,7 @@ class dqnNode(radioNode):
                             reward_decay=0.9,
                             exploreDecayType = 'expo',
                             replace_target_iter=200,
-                            memory_size=2000,
+                            memory_size=200,
                             e_greedy_increment=True,
                             double_q = True, 
                             )
@@ -106,7 +106,7 @@ class dqnNode(radioNode):
                             reward_decay=0.9,
                             exploreDecayType = 'expo',
                             replace_target_iter=200,
-                            memory_size=2000,
+                            memory_size=200,
                             e_greedy_increment=True,
                             prioritized=True,  
                             ) 
@@ -120,7 +120,7 @@ class dqnNode(radioNode):
                             reward_decay=0.9,
                              exploreDecayType = 'expo',
                             replace_target_iter=200,
-                            memory_size=2000,
+                            memory_size=200,
                             e_greedy_increment=True,
                             dueling=True, 
                             ) 
