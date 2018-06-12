@@ -20,6 +20,8 @@ class TigerModel(model.Model):
         self.num_states = 2
         self.num_actions = 3
         self.num_observations = 2
+        self.discount  = 0.9   #
+        self.save = 1
 
     def start_scenario(self):
         self.tiger_door = np.random.randint(0, self.num_doors) + 1

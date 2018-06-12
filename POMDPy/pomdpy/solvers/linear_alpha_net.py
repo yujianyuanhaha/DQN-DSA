@@ -29,7 +29,7 @@ class LinearAlphaNet(BaseTFSolver):
 
         self.build_linear_network()
 
-        with tf.variable_scope('step'):
+        with tf.variable_scope('step', reuse=tf.AUTO_REUSE):
             self.step_op = tf.Variable(0, trainable=False, name='step')
             self.step_input = tf.placeholder('int32', None, name='step_input')
             self.step_assign_op = self.step_op.assign(self.step_input)
@@ -141,7 +141,7 @@ class LinearAlphaNet(BaseTFSolver):
         return vector_set
 
     def build_linear_network(self):
-        with tf.variable_scope('linear_fa_prediction'):
+        with tf.variable_scope('linear_fa_prediction',reuse=tf.AUTO_REUSE):
             self.ops['belief'] = tf.placeholder('float32', [self.model.num_states], name='belief_input')
 
             with tf.name_scope('linear_layer'):
@@ -153,13 +153,13 @@ class LinearAlphaNet(BaseTFSolver):
                 self.ops['l1_out'] = tf.reshape(self.ops['l1_out'], [self.model.num_actions,
                                                                      self.model.num_states], name='output')
 
-            with tf.variable_scope('action_selection'):
+            with tf.variable_scope('action_selection',reuse=tf.AUTO_REUSE):
                 vector_set = set()
                 for i in range(self.model.num_actions):
                     vector_set.add(AlphaVector(a=i, v=self.ops['l1_out'][i, :]))
                 self.ops['a'], self.ops['v_b'] = select_action_tf(self.ops['belief'], vector_set)
 
-            with tf.variable_scope('epsilon_greedy'):
+            with tf.variable_scope('epsilon_greedy',reuse=tf.AUTO_REUSE):
                 self.ops['epsilon_step'] = tf.placeholder('int64', None, name='epsilon_step')
                 self.ops['epsilon_op'] = tf.maximum(self.model.epsilon_minimum,
                                                     tf.train.exponential_decay(
@@ -169,7 +169,7 @@ class LinearAlphaNet(BaseTFSolver):
                                                         self.model.epsilon_decay,
                                                         staircase=True))
 
-        with tf.variable_scope('linear_optimizer'):
+        with tf.variable_scope('linear_optimizer',reuse=tf.AUTO_REUSE):
             # MSE loss function
             self.ops['target_v'] = tf.placeholder('float32', [None], name='target_v')
 
@@ -194,7 +194,7 @@ class LinearAlphaNet(BaseTFSolver):
                                                                   name='Optimizer'). \
                 minimize(self.ops['loss'])
 
-        with tf.variable_scope('linear_fa_summary'):
+        with tf.variable_scope('linear_fa_summary',reuse=tf.AUTO_REUSE):
             scalar_summary_tags = ['average.reward', 'average.loss', 'average.v',
                                    'average.delta', 'training.learning_rate', 'training.epsilon']
 
@@ -228,7 +228,7 @@ class LinearAlphaNet(BaseTFSolver):
             save_pkl(self.w[name].eval(), os.path.join(self.model.weight_dir, "%s.pkl" % name))
 
     def load_weight_from_pkl(self):
-        with tf.variable_scope('load_pred_from_pkl'):
+        with tf.variable_scope('load_pred_from_pkl',reuse=tf.AUTO_REUSE):
             for name in self.w.keys():
                 self.w_input[name] = tf.placeholder('float32', self.w[name].get_shape().as_list(), name=name)
                 self.w_assign_op[name] = self.w[name].assign(self.w_input[name])
@@ -241,4 +241,4 @@ class LinearAlphaNet(BaseTFSolver):
             os.makedirs(self.model.weight_dir)
 
         av = self.alpha_vectors()
-        save_pkl(av, os.path.join(self.model.weight_dir, "linear_alpha_net_vectors.pkl"))
+#        save_pkl(av, os.path.join(self.model.weight_dir, "linear_alpha_net_vectors.pkl"))

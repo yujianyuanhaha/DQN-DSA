@@ -28,7 +28,7 @@ class Agent:
         self.results = Results()
         self.experiment_results = Results()
         self.histories = Histories()
-        self.action_pool = self.model.create_action_pool()
+        self.action_pool = self.model.create_action_pool()   #TODO:  
         self.observation_pool = self.model.create_observation_pool(self)
         self.solver_factory = solver.reset  # Factory method for generating instances of the solver
 
