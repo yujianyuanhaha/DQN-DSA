@@ -26,12 +26,12 @@ class dqn:
     
     exploreProb      = [ ]              # Current exploration probability
     exploreInit      = 1.0              # Initial exploration probability
-    exploreDecay     = 0.01              # Percentage reduction in exploration chance per policy calculation
-    exploreProbMin   = 0.1  # avoid the risk to stuck
+    exploreDecay     = 0.001              # Percentage reduction in exploration chance per policy calculation
+    exploreProbMin   = 0.01  # avoid the risk to stuck
     exploreHist      = [ ]    
     exploreDecayType = 'expo'           # either 'expo', 'step' or 'perf'
     exploreWindow    = 500              # only used with 'step'
-    exploreMin       = 0.01             # only used with 'step'    
+    exploreMin       = 0.1             # only used with 'step'    
     explorePerf      = 10               # only used with 'perf' 
     explorePerfWin   = 100
     e_greedy            = 0.9              
@@ -100,18 +100,30 @@ class dqn:
 
         # ------------------ build evaluate_net ------------------
         with tf.variable_scope('eval_net', reuse=tf.AUTO_REUSE):
-            e1 = tf.layers.dense(self.s, 20, tf.nn.relu, kernel_initializer=w_initializer,
+            e1 = tf.layers.dense(self.s, 50, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='e1')
-            self.q_eval = tf.layers.dense(e1, self.n_actions, kernel_initializer=w_initializer,
+            e2 = tf.layers.dense(e1,     50, tf.nn.relu, kernel_initializer=w_initializer,
+                                 bias_initializer=b_initializer, name='e2')
+#            e3 = tf.layers.dense(e2,     200, tf.nn.relu, kernel_initializer=w_initializer,
+#                                 bias_initializer=b_initializer, name='e3')
+#            e4 = tf.layers.dense(e3,     20, tf.nn.relu, kernel_initializer=w_initializer,
+#                                 bias_initializer=b_initializer, name='e4')
+            
+            self.q_eval = tf.layers.dense(e2, self.n_actions, kernel_initializer=w_initializer,
                                           bias_initializer=b_initializer, name='q')
 
         # ------------------ build target_net ------------------
         with tf.variable_scope('target_net',reuse=tf.AUTO_REUSE):
-            t1 = tf.layers.dense(self.s_, 20, tf.nn.relu, kernel_initializer=w_initializer,
+            t1 = tf.layers.dense(self.s_, 50, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='t1')
-            self.q_next = tf.layers.dense(t1, self.n_actions, kernel_initializer=w_initializer,
-                                          bias_initializer=b_initializer, name='t2')
-
+            t2 = tf.layers.dense(t1, 50, tf.nn.relu, kernel_initializer=w_initializer,
+                                 bias_initializer=b_initializer, name='t2')
+#            t3 = tf.layers.dense(t2, 200, tf.nn.relu, kernel_initializer=w_initializer,
+#                                 bias_initializer=b_initializer, name='t3')
+#            t4 = tf.layers.dense(t3, 20, tf.nn.relu, kernel_initializer=w_initializer,
+#                                 bias_initializer=b_initializer, name='t4')
+            self.q_next = tf.layers.dense(t2, self.n_actions, kernel_initializer=w_initializer,
+                                          bias_initializer=b_initializer, name='t5')
         with tf.variable_scope('q_target',reuse=tf.AUTO_REUSE):
             q_target = self.r + self.gamma * tf.reduce_max(self.q_next, axis=1, name='Qmax_s_')    # shape=(None, )
             self.q_target = tf.stop_gradient(q_target)

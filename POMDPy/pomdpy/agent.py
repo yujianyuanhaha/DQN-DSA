@@ -38,6 +38,7 @@ class Agent:
             solver = self.solver_factory(self)
 
             self.run_value_iteration(solver, 1)
+            #     def run_value_iteration(self, solver, epoch):
 
             if self.model.save:
                 save_pkl(solver.gamma,
@@ -70,7 +71,8 @@ class Agent:
         tf.set_random_seed(int(self.model.seed) + 1)
 
         with tf.Session() as sess:
-            solver = self.solver_factory(self, sess)
+      #      solver = self.solver_factory(self, sess)
+            solver = self.solver_factory
 
             for epoch in range(self.model.n_epochs + 1):
 
@@ -85,16 +87,18 @@ class Agent:
                     reward = 0.
                     discounted_reward = 0.
                     discount = 1.0
-                    belief = self.model.get_initial_belief_state()
+                    belief = self.model.get_initial_belief_state()  # generate belief(state)   # only for LinearAlphabelt method,not with POMDP
                     step = 0
                     while step < self.model.max_steps:
-                        action, v_b = solver.greedy_predict(belief)
+                        action, _ = solver.greedy_predict(belief)  #  generate action
                         step_result = self.model.generate_step(action)
 
                         if not step_result.is_terminal:
-                            belief = self.model.belief_update(belief, action, step_result.observation)
+                            belief = self.model.belief_update(belief, action, step_result.observation) # update belief(state)
+                            # b, a, o -> b_
+                            
 
-                        reward += step_result.reward
+                        reward += step_result.reward  # reward
                         discounted_reward += discount * step_result.reward
                         discount *= self.model.discount
 
@@ -111,10 +115,10 @@ class Agent:
                     self.experiment_results.discounted_return.add(discounted_reward)
 
                     summary = sess.run([solver.experiment_summary], feed_dict={
-                        solver.avg_undiscounted_return: self.experiment_results.undiscounted_return.mean,
-                        solver.avg_undiscounted_return_std_dev: self.experiment_results.undiscounted_return.std_dev(),
-                        solver.avg_discounted_return: self.experiment_results.discounted_return.mean,
-                        solver.avg_discounted_return_std_dev: self.experiment_results.discounted_return.std_dev()
+                        solver.avg_undiscounted_return         : self.experiment_results.undiscounted_return.mean,
+                        solver.avg_undiscounted_return_std_dev : self.experiment_results.undiscounted_return.std_dev(),
+                        solver.avg_discounted_return           : self.experiment_results.discounted_return.mean,
+                        solver.avg_discounted_return_std_dev   : self.experiment_results.discounted_return.std_dev()
                     })
                     for summary_str in summary:
                         solver.summary_ops['writer'].add_summary(summary_str, epoch)
@@ -131,6 +135,7 @@ class Agent:
 
     def multi_epoch(self):
         eps = self.model.epsilon_start
+        # input paramter epsilon_start = 1.0, decay para
 
         self.model.reset_for_epoch()
 
@@ -140,11 +145,12 @@ class Agent:
 
             if self.model.solver == 'POMCP':
                 eps = self.run_pomcp(i + 1, eps)
+                #  def run_pomcp(self, epoch, eps):
                 self.model.reset_for_epoch()
 
             if self.experiment_results.time.running_total > self.model.timeout:
-                console(2, module, 'Timed out after ' + str(i) + ' epochs in ' +
-                        self.experiment_results.time.running_total + ' seconds')
+#                console(2, module, 'Timed out after ' + str(i) + ' epochs in ' +
+ #                       self.experiment_results.time.running_total + ' seconds')
                 break
 
     def run_pomcp(self, epoch, eps):

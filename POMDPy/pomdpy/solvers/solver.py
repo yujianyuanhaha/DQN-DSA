@@ -13,7 +13,7 @@ class Solver(with_metaclass(abc.ABCMeta, object)):
 
     @staticmethod
     @abc.abstractmethod
-    def reset(agent):
+    def reset(self, agent):
         """
         Return a new instance of a concrete solver class
         :param agent:

@@ -34,6 +34,18 @@ class RSCellType:
 
 class RockModel(Model):
     def __init__(self, args):
+        
+        self.discount = 0.99 #
+        self.use_tf = 0 #
+        self.n_start_states = 8 #
+        self.ucb_coefficient = 0.9
+        self.action_selection_timeout = 0.5
+        self.max_depth = 4
+        self.max_particle_count = 4
+        self.epsilon_minimum = 0.01
+        self.timeout = 0.5
+        self.test = 2
+        
         super(RockModel, self).__init__(args)
         # logging utility
         self.logger = logging.getLogger('POMDPy.RockModel')

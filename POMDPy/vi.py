@@ -45,25 +45,43 @@ if __name__ == '__main__':
 #            "--beta 0.001", "--epsilon_start 0.2","--epsilon_minimum 0.02",
 #            "--epsilon_decay 0.99","--epsilon_decay_step 75","--seed 12157"]
 #    dict = {'a': 1, 'b': 2, 'b': '3'}
-    args = { 'env':'Tiger',
-             'solver':'LinearAlphaNet', 
-             'use_tf':1,
-             'n_epochs': 50,                  
-             'max_steps':50, 
-             'test': 5,
-             'learning_rate': 0.05,           
-             'learning_rate_decay' :0.996,
-             'learning_rate_minimum': 0.00025,
-             'learning_rate_decay_step': 50,
-             'beta': 0.001,                   
-             'epsilon_start': 0.2,
-             'epsilon_minimum': 0.02,
-             'epsilon_decay':0.99,            
-             'epsilon_decay_step': 75,
-             'seed': 12157           
-            }
 
-    init_logger()
+
+#    args = { 'env':'Tiger',
+#             'solver':'LinearAlphaNet', 
+#             'use_tf':1,
+#             'n_epochs': 50,                  
+#             'max_steps':50, 
+#             'test': 5,
+#             'learning_rate': 0.05,           
+#             'learning_rate_decay' :0.996,
+#             'learning_rate_minimum': 0.00025,
+#             'learning_rate_decay_step': 50,
+#             'beta': 0.001,                   
+#             'epsilon_start': 0.2,
+#             'epsilon_minimum': 0.02,
+#             'epsilon_decay':0.99,            
+#             'epsilon_decay_step': 75,
+#             'seed': 12157           
+#            }
+    
+    
+    args = { 'env':'Tiger',
+         'solver':'ValueIteration', 
+         'planning_horizon': 8,
+         'n_epochs': 1,                  
+         'max_steps':10, 
+         'seed': 123         
+        }
+    
+    
+    
+#    --env Tiger --solver ValueIteration --planning_horizon 8 --n_epochs 10 --max_steps 10 --seed 123
+    
+    
+    
+
+    init_logger()  # ?
 
     np.random.seed(int(args['seed']))
 

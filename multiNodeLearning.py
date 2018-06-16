@@ -18,6 +18,7 @@ Github url:
 
 
 
+
 ---------------------------
 File Achitecture:
 
@@ -213,6 +214,7 @@ for k in range(0,numNodes):
         t = dqnNode(numChans,states,numSteps, nodeTypes[k])      
         # dqnNode, temporary asyn
         t.policyAdjustRate = random.randint(5, 9)
+#        t.policyAdjustRate = 5
         print "DQN node %s Parameters: learning_rate %s, reward_decay %s,\
                 replace_target_iter %s, memory_size %s,\
                 policyAdjustRate %s" %(k, t.dqn_.lr, t.dqn_.gamma,              
@@ -341,7 +343,7 @@ for s in range(0,numSteps):
                                 
         if isinstance(nodes[n],dqnNode):
             ticDqnLearn = time.time()
-            reward = nodes[n].getReward(collisions[n],s, isWait)
+            reward = nodes[n].getReward(collisions[n] ,s, isWait)
             observation_ = observedStates[n,:]  # update already # full already
             # additive noise to observation_
             if random.random() < noiseErrorProb:
@@ -427,10 +429,11 @@ myPlotReward(nodes, cumulativeCollisions)
 plt.figure(4)
 myPlotAction(nodes, numChans) 
 plt.figure(5)   
-myPlotOccupiedEnd(nodes, numChans, plotPeriod = 100)
+myPlotOccupiedEnd(nodes, numChans, plotPeriod = 400)
 plt.figure(6)
 myPlotOccupiedAll(nodes, numChans)
 plt.figure(7)
-PLR = myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions) 
+PER, PLR = myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions) 
+print "Packet Error Rate: %s"%(PER[numSteps-1]*100)
 plt.figure(8)   
 myPlotPLR(nodes, PLR)    

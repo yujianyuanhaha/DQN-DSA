@@ -32,7 +32,7 @@ class dqnNode(radioNode):
     policyHist       = [ ]        
     # [Not transmitting, Good Channel no Interference, Good Channel Interference, 
     # Bad Channel no Interference, Bad Channel Interference]
-    rewards          = [-200, 100, -100, 50, -100]   
+    rewards          = [-200, 100, -200, 50, -100]   
     # different duty cycle need different rewards   
     rewardHist       = [ ]
     rewardTally      = [ ]        
@@ -79,7 +79,7 @@ class dqnNode(radioNode):
                             reward_decay=0.9,
                             exploreDecayType = 'expo',
                             replace_target_iter=200,
-                            memory_size=2000,
+                            memory_size=200,
                             e_greedy_increment=True,
                             ) 
         elif dqnType == 6 :
@@ -164,7 +164,12 @@ class dqnNode(radioNode):
                 if collision == 1:
                     reward = self.rewards[4]
                 else:
-                    reward = self.rewards[3]   
+                    reward = self.rewards[3]  
+                    
+#            if stepNum > 5000:
+#                reward *= stepNum*0.1   
+#            else:
+#                pass
  
             self.rewardTally[1:] += action * reward        
         self.rewardHist[stepNum] = reward   

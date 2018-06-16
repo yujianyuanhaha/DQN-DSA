@@ -40,6 +40,8 @@ The inspiration comes from SC2 competition, and some papers[2][3] have start som
 The project transfer Chris's code of MDP-DCA Matlab simulator as the starter with MDP python solver[4], and then adapot DQN python solver[5].  
 Another repository[6] maintain by Yue would merge soon, and [7] is the technical report.  
 
+
+
 # Reference:  
 [1] Mnih, Volodymyr, et al. "Human-level control through deep reinforcement learning." Nature 518.7540 (2015): 529-533.  
 [2] Wang, Shangxing, et al. "Deep Reinforcement Learning for Dynamic Multichannel Access in Wireless Networks." IEEE Transactions on Cognitive Communications and Networking (2018)  
@@ -49,12 +51,25 @@ Another repository[6] maintain by Yue would merge soon, and [7] is the technical
 [7] https://drive.google.com/open?id=1X-I2D4Dk_Z1IXAt19XUnlWHUvkxn42EB  
 
 
+# Tutorial of Deep Reinforcement Learning
+[1]. http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html  by Dr. Silver, lecturers video are in open access in  youtube as well
+[2]. https://icml.cc/2016/tutorials/deep_rl_tutorial.pdf  a brief tutorial by Dr. Silver 
+
+
+# Ongoing Work - POMDP
+[1] [the solver source code.](https://github.com/pemami4911/POMDPy)
+[2] Silver, David, and Joel Veness. "Monte-Carlo planning in large POMDPs." Advances in neural information processing systems. 2010.
+[3] L. Kocsis and C. Szepesvari. Bandit based Monte-Carlo planning. In 15th European Conference on Machine Learning, pages 282–293, 2006.
+[4] [slides of CMU](https://www.cs.cmu.edu/~ggordon/780-fall07/lectures/POMDP_lecture.pdf)  
+[5] [slides of techfak](https://www.techfak.uni-bielefeld.de/~skopp/Lehre/STdKI.../POMDP_tutorial.pdf) 
+[6] [website](http://www.pomdp.org/) 
+
 
 --------------------------------------------------------------------------
 # Configuration  
-We run codes on **Spyder** GUI under Anaconda, tensorflow is required as well as related tensorboard setup.  
+We run codes on **Spyder** GUI under Anaconda(**version 2**), **tensorflow** is required as well as related tensorboard setup.  
 For batch test, we run codes on ARC VT.   
-1. Python version 2.7, tensorflow version 1.6.0. Notice tensorflow 1.5.0 is suggest on Linux OS else "keneral died, restart" error may appear.
+1. Python version 2.7, tensorflow version **1.6.0**. Notice tensorflow 1.5.0 is suggest on Linux OS else "keneral died, restart" error may appear.
 
 
 --------------------------------------------------------------------------

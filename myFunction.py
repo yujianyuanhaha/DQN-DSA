@@ -255,23 +255,23 @@ def myPlotOccupiedEnd(nodes, numChans, plotPeriod):
             tempPeriod[m - (length-plotPeriod)] = temp[m]
         
         if isinstance(nodes[n],legacyNode):
-            plt.plot(  tempPeriod, x,'k.' ,fillstyle= 'full')
+            plt.plot(  tempPeriod, x,'ko' ,fillstyle= 'full')
             legendInfo.append('Legacy')
         elif isinstance(nodes[n],hoppingNode):
-            plt.plot(tempPeriod, x,'c.' ,fillstyle= 'full')
+            plt.plot(tempPeriod, x,'co' ,fillstyle= 'full')
             legendInfo.append('Hopping')
         elif isinstance(nodes[n],imNode):
-            plt.plot(tempPeriod, x,'m.' ,fillstyle= 'full')
+            plt.plot(tempPeriod, x,'mo' ,fillstyle= 'full')
             legendInfo.append('Intermittent')
         elif isinstance(nodes[n],dsaNode):
-            plt.plot( tempPeriod, x,'r.' ,fillstyle= 'full')
+            plt.plot( tempPeriod, x,'ro' ,fillstyle= 'full')
             legendInfo.append('DSA')
         elif isinstance(nodes[n],mdpNode):
-            plt.plot( tempPeriod, x,'g.' ,fillstyle= 'full')
+            plt.plot( tempPeriod, x,'go' ,fillstyle= 'full')
             legendInfo.append('MDP')
         else:
             if nodes[n].type == 'raw':
-                plt.plot(tempPeriod, x,'b.' ,fillstyle= 'full')
+                plt.plot(tempPeriod, x,'bo' ,fillstyle= 'full')
                 legendInfo.append('DQN')
             elif nodes[n].type == 'double':
                 plt.plot( tempPeriod,'b+' ,fillstyle= 'none') 
@@ -380,6 +380,7 @@ def myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions):
                 pass
         else:
             pass
+    
     plt.legend(legendInfo)
     plt.xlabel('Step Number')
     plt.ylabel('Cumulative Packet Error Rate')
@@ -387,7 +388,8 @@ def myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions):
     plt.grid(True)      
     plt.savefig('../dqnFig/PER.png')
     plt.savefig('../dqnFig/PER.pdf') 
-    return PLR
+
+    return PER, PLR
 
 
 def myPlotPLR(nodes, PLR):
