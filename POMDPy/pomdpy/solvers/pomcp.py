@@ -82,6 +82,7 @@ class POMCP(BeliefTreeSolver):
         :param belief_node:
         :return:
         """
+        # suck, eps hard set as 0
         return self.traverse(belief_node, 0, start_time)
 
     def traverse(self, belief_node, tree_depth, start_time):

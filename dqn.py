@@ -49,7 +49,7 @@ class dqn:
             memory_size=200,
             batch_size=32,
             e_greedy_increment=None,
-            output_graph=False                  
+            output_graph= True      # enable tensorboard                  
     ):    # allow dqnNode to call in its attribute
                 
         self.n_actions           = n_actions
@@ -79,14 +79,27 @@ class dqn:
         with tf.variable_scope('soft_replacement'):
             self.target_replace_op = [tf.assign(t, e) for t, e in zip(t_params, e_params)]
 
+        
+            
+        # tensorflow
+        with tf.variable_scope('eval_net', reuse=tf.AUTO_REUSE):
+            with tf.name_scope('weight'):
+                weight = t_params[0]
+                tf.summary.histogram('e1' + '/weight', weight)
+            with tf.name_scope('biases'):
+                biases = t_params[1]
+                tf.summary.histogram('e1' + '/biases', biases)
+            
         self.sess = tf.Session()
+        merged = tf.summary.merge_all()
 
-        if output_graph:
-            # $ tensorboard --logdir=logs
-            tf.summary.FileWriter("logs/", self.sess.graph)
-
+      #  self.sess.run(merged)   #stuck
         self.sess.run(tf.global_variables_initializer())
         self.cost_his = []
+        
+        if output_graph:
+            # $ tensorboard --logdir=logs
+            tf.summary.FileWriter("logs/", self.sess.graph)        
 
     def _build_net(self):
         # ------------------ all inputs ------------------------
@@ -111,6 +124,7 @@ class dqn:
             
             self.q_eval = tf.layers.dense(e2, self.n_actions, kernel_initializer=w_initializer,
                                           bias_initializer=b_initializer, name='q')
+
 
         # ------------------ build target_net ------------------
         with tf.variable_scope('target_net',reuse=tf.AUTO_REUSE):
@@ -202,6 +216,7 @@ class dqn:
         plt.ylabel('Cost')
         plt.xlabel('training steps')
         plt.show()
+        
 
 if __name__ == '__main__':
     DQN = dqn(dqnNode,3,4, output_graph=True)

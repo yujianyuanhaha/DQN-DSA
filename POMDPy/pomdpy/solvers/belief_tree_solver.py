@@ -38,6 +38,7 @@ class BeliefTreeSolver(Solver):
             self.belief_tree.root.state_particles.append(particle)
 
         self.belief_tree_index = self.belief_tree.root.copy()
+        # J pomdpy.pomdp.belief_tree.py BeliefTree class 
 
     def monte_carlo_approx(self, eps, start_time):
         """

@@ -4,37 +4,45 @@
 Created on Sun Apr  1 16:16:16 2018
 
 @author: Jet
+
+
+
+The arrival interval and service(occupied) interval follows possion distribution
+
+
 """
 
 import numpy as np
 import random
 from radioNode import radioNode
 
-class imNode(radioNode):
+class possionNode(radioNode):
     
-    imDutyCircleCount = 0
-    imDutyPeriod      = 1000
+    indexLastArrival = 1
+    indexLastService = 2  # hard-code starter, does not matter
     
-    def __init__(self, numChans, numSteps, imDutyCircle, imChanIndex):
+    def __init__(self, numChans, numSteps, possionChanIndex, arrivalRate, serviceRate):
         self.actions                  = np.zeros(numChans)  
-        self.actions[ imChanIndex ] = 1
+        self.actions[ possionChanIndex ] = 1
         self.numActions               = np.size(self.actions,0)  
         self.actionTally              = np.zeros(numChans+1)
         self.actionHist               = np.zeros((numSteps,numChans))
         self.actionHistInd            = np.zeros(numSteps)
-        self.imDutyCircle            = imDutyCircle
+        self.arrivalRate              = arrivalRate   # lamda
+        self.serviceRate              = serviceRate   #  miu
 
     
     def getAction(self, stepNum):             
-        
-        if self.imDutyCircleCount <= self.imDutyCircle * self.imDutyPeriod:
-            action = self.actions  
-        else:
-            action = np.zeros(len(self.actions))   # choose channel 0            
-            if self.imDutyCircleCount >= self.imDutyPeriod:
-                self.imDutyCircleCount = 0
-        self.imDutyCircleCount += 1
-            
+
+        if stepNum < self.indexLastArrival:
+            action = np.zeros(len(self.actions)) 
+        elif stepNum >= self.indexLastArrival and stepNum < self.indexLastService:
+            action = self.actions
+        elif stepNum >= self.indexLastService:
+            action = self.actions
+            self.indexLastArrival += np.random.poisson(self.arrivalRate, 1)
+            self.indexLastService += np.random.poisson(self.serviceRate, 1)
+   
         self.actionHist[stepNum,:] = action
         if not np.sum(action):
             self.actionHistInd[stepNum] = 0

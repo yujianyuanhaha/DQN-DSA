@@ -33,6 +33,8 @@ File Achitecture:
                                             -- dqnDouble.py
                                             -- dqnPriReplay.py
                                             -- dqnDuel.py 
+                                            
+                         -- possionNode.py
                          
                          -- stateSpaceCreate.py
                          -- scenario.py
@@ -41,6 +43,8 @@ File Achitecture:
 Main Configuration:  
 1. assignment of array "nodeTypes"  "legacyChanList"  "hoppingChanList"
                         
+
+
 
 
 
@@ -58,7 +62,8 @@ from mdpNode     import mdpNode
 from hoppingNode import hoppingNode
 from dqnNode     import dqnNode   #
 from dsaNode     import dsaNode 
-from imNode     import imNode 
+from imNode      import imNode 
+from possionNode import possionNode 
 
 from scenario    import scenario
 import matplotlib.pyplot as plt
@@ -68,7 +73,7 @@ from myFunction import channelAssignment, \
      myPlotProb,\
      myPlotCollision, myPlotReward, myPlotAction,\
      myPlotOccupiedEnd, myPlotOccupiedAll,\
-     myPlotPER, myPlotPLR
+     myPlotPER, myPlotPLR, myPlotCost
      
 
 
@@ -109,6 +114,10 @@ hopRate           =  json.loads( Config.get('Networks', 'hopRate'))
 hoppingWidth      =  json.loads( Config.get('Networks', 'hoppingWidth'))  
 imChanList        =  json.loads(Config.get('Networks', 'imChanList')) 
 imDutyCircleList  =  json.loads(Config.get('Networks', 'imDutyCircleList')) 
+
+possionChanList   =  json.loads(Config.get('Networks', 'possionChanList')) 
+arrivalRate        =  json.loads(Config.get('Networks', 'arrivalRate')) 
+serviceRate       =  json.loads(Config.get('Networks', 'serviceRate')) 
 
 #nodeTypes = np.array( [0,0,0,0,
 #                       0,0,1,1,
@@ -219,6 +228,8 @@ for k in range(0,numNodes):
                 replace_target_iter %s, memory_size %s,\
                 policyAdjustRate %s" %(k, t.dqn_.lr, t.dqn_.gamma,              
                     t.dqn_.replace_target_iter, t.dqn_.memory_size, t.policyAdjustRate )
+    elif nodeTypes[k] == 10:
+        t = possionNode( numChans, numSteps, possionChanList, arrivalRate, serviceRate)
     else:
         pass
     t.hiddenDuplexCollision = hiddenDuplexCollision[k]
@@ -365,6 +376,7 @@ for s in range(0,numSteps):
             # better than MDP, more rubost to partial observation
             
             
+            
             done = True            
             nodes[n].storeTransition(observation, actionScalar, 
                  reward, observation_)
@@ -417,9 +429,7 @@ print( "--- Totally %s seconds ---" %(toc - tic))
 import os
 if not os.path.exists('../dqnFig'):
    os.makedirs('../dqnFig') 
-    
-    
-#myPlot(nodes, numChans, numSteps, learnProbHist,cumulativeCollisions)
+        
 plt.figure(1)
 myPlotProb(learnProbHist)
 plt.figure(2)
@@ -429,11 +439,15 @@ myPlotReward(nodes, cumulativeCollisions)
 plt.figure(4)
 myPlotAction(nodes, numChans) 
 plt.figure(5)   
-myPlotOccupiedEnd(nodes, numChans, plotPeriod = 400)
+myPlotOccupiedEnd(nodes, numChans, plotPeriod = 1000)
 plt.figure(6)
 myPlotOccupiedAll(nodes, numChans)
 plt.figure(7)
 PER, PLR = myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions) 
-print "Packet Error Rate: %s"%(PER[numSteps-1]*100)
 plt.figure(8)   
-myPlotPLR(nodes, PLR)    
+myPlotPLR(nodes, PLR)
+plt.figure(9)
+myPlotCost(nodes)
+
+print "Packet Error Rate: %s"%(PER[numSteps-1]*100)
+    

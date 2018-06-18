@@ -153,14 +153,22 @@ class Agent:
  #                       self.experiment_results.time.running_total + ' seconds')
                 break
 
+
+######################################################################
+######################################################################
     def run_pomcp(self, epoch, eps):
+        # J epoch does not matter
         epoch_start = time.time()
 
         # Create a new solver
         solver = self.solver_factory(self)
+        # J solver.reset
 
         # Monte-Carlo start state
         state = solver.belief_tree_index.sample_particle()
+        #Todo the state(does not matter much in pomdp through XD)
+        # J solver/belief_tree_solver.py
+        # J belief_node.py .sample_particle - Randomly select a History Entry
 
         reward = 0
         discounted_reward = 0
@@ -172,12 +180,16 @@ class Agent:
 
             # action will be of type Discrete Action
             action = solver.select_eps_greedy_action(eps, start_time)
+            #Todo get action
+            # eps - kinda of prob, and tag, not used in fuction
 
             # update epsilon
             if eps > self.model.epsilon_minimum:
                 eps *= self.model.epsilon_decay
 
             step_result, is_legal = self.model.generate_step(state, action)
+            # J like tell collision
+            # env(s,a) -> r, s_
 
             reward += step_result.reward
             discounted_reward += discount * step_result.reward
@@ -190,9 +202,14 @@ class Agent:
 
             if not step_result.is_terminal or not is_legal:
                 solver.update(step_result)
+                # blief_tree_solver .update
 
             # Extend the history sequence
             new_hist_entry = solver.history.add_entry()
+            # J ? add_entry() from 
+            
+            # history.py add_entry
+            
             HistoryEntry.update_history_entry(new_hist_entry, step_result.reward,
                                               step_result.action, step_result.observation, step_result.next_state)
 
@@ -217,6 +234,14 @@ class Agent:
         self.experiment_results.discounted_return.add(self.results.discounted_return.running_total)
 
         return eps
+    
+    
+######################################################################
+######################################################################
+    
+    
+    
+    
 
     def run_value_iteration(self, solver, epoch):
         run_start_time = time.time()

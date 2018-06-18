@@ -15,7 +15,7 @@ import dqnDouble
 import dqnPriReplay
 import dqnDuel
 
-class dqnNode(radioNode):
+class pomcpNode(radioNode):
     goodChans     = [ ]    
     numStates     = [ ]
     states        = [ ]
@@ -69,63 +69,25 @@ class dqnNode(radioNode):
         self.n_actions     = numChans+1   
         self.n_features    = numChans 
         
-        self.type = "raw"        
-        if dqnType == 5 :
-            self.dqn_ = dqn(
-                            self,
-                            self.n_actions, 
-                            self.n_features,   
-                            learning_rate=0.01,
-                            reward_decay=0.9,
-                            exploreDecayType = 'expo',
-                            replace_target_iter=200,
-                            memory_size=200,
-                            e_greedy_increment=True,
-                            ) 
-        elif dqnType == 6 :
-            self.type = "double"
-            self.dqn_ = dqnDouble.DoubleDQN(
-                            self,
-                            self.n_actions, 
-                            self.n_features,   
-                            learning_rate=0.005,
-                            reward_decay=0.9,
-                            exploreDecayType = 'expo',
-                            replace_target_iter=200,
-                            memory_size=200,
-                            e_greedy_increment=True,
-                            double_q = True, 
-                            )
-        elif dqnType == 7 :
-            self.type = "priReplay"
-            self.dqn_ = dqnPriReplay.DQNPrioritizedReplay(
-                            self,
-                            self.n_actions, 
-                            self.n_features,   
-                            learning_rate=0.01,
-                            reward_decay=0.9,
-                            exploreDecayType = 'expo',
-                            replace_target_iter=200,
-                            memory_size=200,
-                            e_greedy_increment=True,
-                            prioritized=True,  
-                            ) 
-        elif dqnType == 8 :
-            self.type = "duel"
-            self.dqn_ = dqnDuel.DuelingDQN(
-                            self,
-                            self.n_actions, 
-                            self.n_features,   
-                            learning_rate=0.01,
-                            reward_decay=0.9,
-                             exploreDecayType = 'expo',
-                            replace_target_iter=200,
-                            memory_size=200,
-                            e_greedy_increment=True,
-                            dueling=True, 
-                            ) 
-        else:
-                pass
+
+        self.dqn_ = dqn(
+                        self,
+                        self.n_actions, 
+                        self.n_features,   
+                        learning_rate=0.01,
+                        reward_decay=0.9,
+                        exploreDecayType = 'expo',
+                        replace_target_iter=200,
+                        memory_size=200,
+                        e_greedy_increment=True,
+                        ) 
+
+    def getState(self, stepNum):
+        from POMDPy.pomdpy.pomdp.belief_tree import todo
+        
+        
+        return state = solver.belief_tree_index.sample_particle()
+        
 
         
     def getAction(self, stepNum ,observation):
