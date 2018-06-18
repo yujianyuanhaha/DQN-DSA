@@ -7,7 +7,7 @@ Created on Sun Apr  1 16:16:16 2018
 
 
 
-The arrival interval and service(occupied) interval follows possion distribution
+The arrival interval and service(occupied) interval follows poisson distribution
 
 
 """
@@ -16,14 +16,14 @@ import numpy as np
 import random
 from radioNode import radioNode
 
-class possionNode(radioNode):
+class poissonNode(radioNode):
     
     indexLastArrival = 1
     indexLastService = 2  # hard-code starter, does not matter
     
-    def __init__(self, numChans, numSteps, possionChanIndex, arrivalRate, serviceRate):
+    def __init__(self, numChans, numSteps, poissonChanIndex, arrivalRate, serviceRate):
         self.actions                  = np.zeros(numChans)  
-        self.actions[ possionChanIndex ] = 1
+        self.actions[ poissonChanIndex ] = 1
         self.numActions               = np.size(self.actions,0)  
         self.actionTally              = np.zeros(numChans+1)
         self.actionHist               = np.zeros((numSteps,numChans))
@@ -40,8 +40,10 @@ class possionNode(radioNode):
             action = self.actions
         elif stepNum >= self.indexLastService:
             action = self.actions
-            self.indexLastArrival += np.random.poisson(self.arrivalRate, 1)
-            self.indexLastService += np.random.poisson(self.serviceRate, 1)
+            self.indexLastArrival = self.indexLastService + np.random.poisson(self.arrivalRate, 1)
+            self.indexLastService = self.indexLastArrival + np.random.poisson(self.serviceRate, 1)
+            
+        # self check ?
    
         self.actionHist[stepNum,:] = action
         if not np.sum(action):

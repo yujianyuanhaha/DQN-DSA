@@ -34,7 +34,7 @@ File Achitecture:
                                             -- dqnPriReplay.py
                                             -- dqnDuel.py 
                                             
-                         -- possionNode.py
+                         -- poissonNode.py
                          
                          -- stateSpaceCreate.py
                          -- scenario.py
@@ -63,7 +63,7 @@ from hoppingNode import hoppingNode
 from dqnNode     import dqnNode   #
 from dsaNode     import dsaNode 
 from imNode      import imNode 
-from possionNode import possionNode 
+from poissonNode import poissonNode 
 
 from scenario    import scenario
 import matplotlib.pyplot as plt
@@ -115,7 +115,7 @@ hoppingWidth      =  json.loads( Config.get('Networks', 'hoppingWidth'))
 imChanList        =  json.loads(Config.get('Networks', 'imChanList')) 
 imDutyCircleList  =  json.loads(Config.get('Networks', 'imDutyCircleList')) 
 
-possionChanList   =  json.loads(Config.get('Networks', 'possionChanList')) 
+poissonChanList   =  json.loads(Config.get('Networks', 'poissonChanList')) 
 arrivalRate        =  json.loads(Config.get('Networks', 'arrivalRate')) 
 serviceRate       =  json.loads(Config.get('Networks', 'serviceRate')) 
 
@@ -229,7 +229,7 @@ for k in range(0,numNodes):
                 policyAdjustRate %s" %(k, t.dqn_.lr, t.dqn_.gamma,              
                     t.dqn_.replace_target_iter, t.dqn_.memory_size, t.policyAdjustRate )
     elif nodeTypes[k] == 10:
-        t = possionNode( numChans, numSteps, possionChanList, arrivalRate, serviceRate)
+        t = poissonNode( numChans, numSteps, poissonChanList, arrivalRate, serviceRate)
     else:
         pass
     t.hiddenDuplexCollision = hiddenDuplexCollision[k]

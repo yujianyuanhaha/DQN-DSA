@@ -99,7 +99,7 @@ class dqn:
         
         if output_graph:
             # $ tensorboard --logdir=logs
-            tf.summary.FileWriter("logs/", self.sess.graph)        
+            tf.summary.FileWriter("../logs/", self.sess.graph)        
 
     def _build_net(self):
         # ------------------ all inputs ------------------------

@@ -14,7 +14,7 @@ from hoppingNode import hoppingNode
 #from dqnNode     import dqnNode   #
 from dsaNode     import dsaNode 
 from imNode     import imNode 
-from possionNode     import possionNode  
+from poissonNode     import poissonNode  
 
 
 
@@ -143,8 +143,8 @@ def myPlotCollision(nodes, cumulativeCollisions):
             legendInfo.append( 'Node %d (Hopping)'%(n) )
         elif isinstance(nodes[n],imNode):
             legendInfo.append( 'Node %d (Intermittent)'%(n) )
-        elif isinstance(nodes[n],possionNode):
-            legendInfo.append( 'Node %d (Possion)'%(n) )
+        elif isinstance(nodes[n],poissonNode):
+            legendInfo.append( 'Node %d (poisson)'%(n) )
         elif isinstance(nodes[n],dsaNode):
             legendInfo.append( 'Node %d (DSA)'%(n) )
         elif isinstance(nodes[n],mdpNode):
@@ -224,8 +224,8 @@ def myPlotAction(nodes, numChans):
             titleLabel = 'Action Taken by Node %d (Hopping)'%(n)
         elif   isinstance(nodes[n],imNode):
             titleLabel = 'Action Taken by Node %d (Intermittent)'%(n)
-        elif   isinstance(nodes[n],possionNode):
-            titleLabel = 'Action Taken by Node %d (Possion)'%(n)
+        elif   isinstance(nodes[n],poissonNode):
+            titleLabel = 'Action Taken by Node %d (poisson)'%(n)
         elif isinstance(nodes[n],dsaNode):
             titleLabel = 'Action Taken by Node %d (DSA)'%(n)
         elif isinstance(nodes[n],mdpNode):
@@ -268,9 +268,9 @@ def myPlotOccupiedEnd(nodes, numChans, plotPeriod):
         elif isinstance(nodes[n],imNode):
             plt.plot(tempPeriod, x,'mo' ,fillstyle= 'full')
             legendInfo.append('Intermittent')
-        elif isinstance(nodes[n],possionNode):
+        elif isinstance(nodes[n],poissonNode):
             plt.plot(tempPeriod, x,'mo' ,fillstyle= 'full')
-            legendInfo.append('Possion')
+            legendInfo.append('poisson')
         elif isinstance(nodes[n],dsaNode):
             plt.plot( tempPeriod, x,'ro' ,fillstyle= 'full')
             legendInfo.append('DSA')
@@ -317,9 +317,9 @@ def myPlotOccupiedAll(nodes, numChans):
         elif isinstance(nodes[n],imNode):
             plt.plot(temp, x,'m.' ,fillstyle= 'full')
             legendInfo.append('Intermittent')
-        elif isinstance(nodes[n],possionNode):
+        elif isinstance(nodes[n],poissonNode):
             plt.plot(temp, x,'m.' ,fillstyle= 'full')
-            legendInfo.append('Possion')
+            legendInfo.append('poisson')
         elif isinstance(nodes[n],dsaNode):
             plt.plot(temp, x,'r.' ,fillstyle= 'full')
             legendInfo.append('DSA')
@@ -368,9 +368,9 @@ def myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions):
         elif isinstance(nodes[i],imNode):
             plt.semilogy( PER[:,i] )
             legendInfo.append( 'Node %d (Intermittent)'%(i) )
-        elif isinstance(nodes[i],possionNode):
+        elif isinstance(nodes[i],poissonNode):
             plt.semilogy( PER[:,i] )
-            legendInfo.append( 'Node %d (Possion)'%(i) )
+            legendInfo.append( 'Node %d (poisson)'%(i) )
         elif isinstance(nodes[i],dsaNode):
             plt.semilogy( PER[:,i] )
             legendInfo.append( 'Node %d (DSA)'%(i) )

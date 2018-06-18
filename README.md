@@ -28,6 +28,7 @@ To be exact, we look into following aspects:
 * hopping  
 * intermittent(duty cycle)  
 * dsa (able to wait)  
+* poission (the arrival interval & service interval follow poisson distribution, i.e. M/M/1 queue model)
 * mdp   
 * dqn  
 2. learn to wait
