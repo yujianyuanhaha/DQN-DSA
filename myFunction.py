@@ -150,14 +150,16 @@ def myPlotCollision(nodes, cumulativeCollisions):
         elif isinstance(nodes[n],mdpNode):
             legendInfo.append( 'Node %d (MDP)'%(n) )
         if isinstance(nodes[n],dqnNode):
-            if nodes[n].type == 'raw':
+            if nodes[n].type == 'dqn':
                 legendInfo.append( 'Node %d (DQN)'%(n) )
-            elif nodes[n].type == 'double':
+            elif nodes[n].type == 'dqnDouble':
                 legendInfo.append( 'Node %d (DQN-double)'%(n) )
-            elif nodes[n].type == 'priReplay':
+            elif nodes[n].type == 'dqnPriReplay':
                 legendInfo.append( 'Node %d (DQN-pr)'%(n) )
-            elif nodes[n].type == 'duel':
+            elif nodes[n].type == 'dqnDuel':
                 legendInfo.append( 'Node %d (DQN-duel)'%(n) )
+            elif nodes[n].type == 'dqnRef':
+                legendInfo.append( 'Node %d (DQN-Ref)'%(n) )
             elif nodes[n].type == 'dpg':
                 legendInfo.append( 'Node %d (DPG)'%(n) )
             else:
@@ -185,18 +187,21 @@ def myPlotReward(nodes, cumulativeCollisions):
             plt.plot(nodes[n].cumulativeReward)
             legendInfo.append('Node %d (MDP)'%(n) )
         elif isinstance(nodes[n],dqnNode):
-            if nodes[n].type == 'raw':
+            if nodes[n].type == 'dqn':
                 plt.plot(nodes[n].cumulativeReward)
                 legendInfo.append('Node %d (DQN)'%(n) )
-            elif nodes[n].type == 'double':
+            elif nodes[n].type == 'dqnDouble':
                 plt.plot(nodes[n].cumulativeReward)
                 legendInfo.append('Node %d (DQN-double)'%(n) )
-            elif nodes[n].type == 'priReplay':
+            elif nodes[n].type == 'dqnPriReplay':
                 plt.plot(nodes[n].cumulativeReward)
                 legendInfo.append('Node %d (DQN-pr)'%(n) )
-            elif nodes[n].type == 'duel':
+            elif nodes[n].type == 'dqnDuel':
                 plt.plot(nodes[n].cumulativeReward)
                 legendInfo.append('Node %d (DQN-duel)'%(n) )
+            elif nodes[n].type == 'dqnRef':
+                plt.plot(nodes[n].cumulativeReward)
+                legendInfo.append('Node %d (DQN-Ref)'%(n) )
             elif nodes[n].type == 'dpg':
                 plt.plot(nodes[n].cumulativeReward)
                 legendInfo.append('Node %d (DPG)'%(n) )
@@ -236,14 +241,16 @@ def myPlotAction(nodes, numChans):
         elif isinstance(nodes[n],mdpNode):
             titleLabel = 'Action Taken by Node %d (MDP)'%(n)
         else:
-            if nodes[n].type == 'raw':
+            if nodes[n].type == 'dqn':
                 titleLabel = 'Action Taken by Node %d (DQN)'%(n) 
-            elif nodes[n].type == 'double':
+            elif nodes[n].type == 'dqnDouble':
                 titleLabel = 'Action Taken by Node %d (DQN-double)'%(n) 
-            elif nodes[n].type == 'pr':
+            elif nodes[n].type == 'dqnPriReply':
                 titleLabel = 'Action Taken by Node %d (DQN-pr)'%(n) 
-            elif nodes[n].type == 'duel':
+            elif nodes[n].type == 'dqnDuel':
                 titleLabel = 'Action Taken by Node %d (DQN-duel)'%(n) 
+            elif nodes[n].type == 'dqnRef':
+                titleLabel = 'Action Taken by Node %d (DQN-Ref)'%(n) 
             elif nodes[n].type == 'dpg':
                 titleLabel = 'Action Taken by Node %d (DPG)'%(n) 
             else:
@@ -285,14 +292,16 @@ def myPlotOccupiedEnd(nodes, numChans, plotPeriod):
             plt.plot( tempPeriod, x,'go' ,fillstyle= 'full')
             legendInfo.append('MDP')
         else:
-            if nodes[n].type == 'raw':
+            if nodes[n].type == 'dqn':
                 plt.plot(tempPeriod, x,'bo' ,fillstyle= 'full')
                 legendInfo.append('DQN')
-            elif nodes[n].type == 'double':
+            elif nodes[n].type == 'dqnDouble':
                 plt.plot( tempPeriod,'b+' ,fillstyle= 'none') 
-            elif nodes[n].type == 'pr':
+            elif nodes[n].type == 'dqnPriReply':
                 plt.plot( tempPeriod,'b^' ,fillstyle= 'none') 
-            elif nodes[n].type == 'duel':
+            elif nodes[n].type == 'dqnDuel':
+                plt.plot( tempPeriod,'bx' ,fillstyle= 'none') 
+            elif nodes[n].type == 'dqnRef':
                 plt.plot( tempPeriod,'bx' ,fillstyle= 'none') 
             elif nodes[n].type == 'dpg':
                 plt.plot( tempPeriod,'bx' ,fillstyle= 'none') 
@@ -303,7 +312,7 @@ def myPlotOccupiedEnd(nodes, numChans, plotPeriod):
     plt.ylim(length-plotPeriod,length)
     plt.xlabel('channel selection')
     plt.ylabel('time slot')
-    plt.title('Channel occupation of last 100 steps')
+    plt.title('Channel occupation of last %s steps'%(plotPeriod))
     plt.savefig('../dqnFig/Occupied.png')
     plt.savefig('../dqnFig/Occupied.pdf')
 
@@ -336,17 +345,24 @@ def myPlotOccupiedAll(nodes, numChans):
             plt.plot( temp, x,'g.' ,fillstyle= 'full')
             legendInfo.append('MDP')
         else:
-            if nodes[n].type == 'raw':
+            if nodes[n].type == 'dqn':
                 plt.plot(temp, x,'b.' ,fillstyle= 'full')
                 legendInfo.append('DQN')
-            elif nodes[n].type == 'double':
+            elif nodes[n].type == 'dqnDouble':
                 plt.plot( temp,'b+' ,fillstyle= 'none') 
-            elif nodes[n].type == 'pr':
-                plt.plot( temp,'b^' ,fillstyle= 'none') 
-            elif nodes[n].type == 'duel':
+                legendInfo.append('DQN-double')
+            elif nodes[n].type == 'dqnPriReply':
+                plt.plot( temp,'b^' ,fillstyle= 'none')
+                legendInfo.append('DQN-PR')
+            elif nodes[n].type == 'dqnDuel':
                 plt.plot( temp,'bx' ,fillstyle= 'none') 
+                legendInfo.append('DQN-Duel')
+            elif nodes[n].type == 'dqnRef':
+                plt.plot( temp,'bx' ,fillstyle= 'none') 
+                legendInfo.append('DQN-Ref')
             elif nodes[n].type == 'dpg':
                 plt.plot( temp,'bx' ,fillstyle= 'none') 
+                legendInfo.append('DPG')
             else:
                 pass
             
@@ -389,23 +405,27 @@ def myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions):
             plt.semilogy( PER[:,i] )
             legendInfo.append( 'Node %d (MDP)'%(i) )
         elif isinstance(nodes[i],dqnNode):
-            if nodes[i].type == 'raw':
+            if nodes[i].type == 'dqn':
                 plt.semilogy( PER[:,i] )
                 legendInfo.append( 'Node %d (DQN)'%(i) )
-            elif nodes[i].type == 'double':
+            elif nodes[i].type == 'dqnDouble':
                 plt.semilogy( PER[:,i] )
                 legendInfo.append( 'Node %d (DQN-double)'%(i) )
-            elif nodes[i].type == 'priReplay':
+            elif nodes[i].type == 'dqnPriReplay':
                 plt.semilogy( PER[:,i] )
                 legendInfo.append( 'Node %d (DQN-pr)'%(i) )
-            elif nodes[i].type == 'duel':
+            elif nodes[i].type == 'dqnDuel':
                 plt.semilogy( PER[:,i] )
                 legendInfo.append( 'Node %d (DQN-duel)'%(i) )
+            elif nodes[i].type == 'dqnRef':
+                plt.semilogy( PER[:,i] )
+                legendInfo.append( 'Node %d (DQN-Ref)'%(i) )
             elif nodes[i].type == 'dpg':
                 plt.semilogy( PER[:,i] )
                 legendInfo.append( 'Node %d (DPG)'%(i) )
             else:
-                pass
+                plt.semilogy( PER[:,i] )
+                legendInfo.append( 'Node %d (undefined)'%(i) )
         else:
             pass
     

@@ -34,6 +34,7 @@ File Achitecture:
                                             -- dqnDouble.py
                                             -- dqnPriReplay.py
                                             -- dqnDuel.py 
+                                            -- dqnR.py
                                             -- dpq.py                                                                     
                          -- stateSpaceCreate.py
                          -- scenario.py
@@ -165,18 +166,22 @@ if any(nodeTypes==2) and len(nodeTypes) > numChans:
 # if need to learn imNode, enable isWait to change rewards 
     
 # The type of each node 
-# 0 - Legacy (Dumb) Node 
-# 1 - Hopping Node
-# 2 - Intermittent Node/ im Node
-# 3 - DSA node (just avoids)  
-# 4 - possion Node
+# 0 'legacy'  - Legacy (Dumb) Node 
+# 1 'hopping' - Hopping Node
+# 2 'im'      - Intermittent Node/ im Node
+# 3 'dsa'     - DSA node (just avoids)  
+# 4 'possion' - possion Node
     
-# 5 - MDP Node
-# 6 - a. DQN Node
-# 7 - b. DQN-DoubleQ
-# 8 - c. DQN-PriReplay
-# 9 - d. DQN-Duel     
-# 10 - e. policy gradient tf
+# 10 'mdp'          - MDP Node
+# 11 'dqn'          - a. DQN Node
+# 12 'dqnDouble'    - b. DQN-DoubleQ
+# 13 'dqnPriReplay' - c. DQN-PriReplay
+# 14 'dqnDuel'      - d. DQN-Duel   
+# 15 'dqnRef'       - e. DQ-Refined
+# 16 'dpg'          - DPG policy gredient
+    
+# 20 - pomcp
+    
 
 # todo - Adv. MDP Node
 
@@ -210,22 +215,26 @@ CountHoppingChanIndex = 0
 CountIm = 0
 ##################### Construct diff Type of Nodes #######################################
 for k in range(0,numNodes):
-    if   nodeTypes[k] == 0:
+    if   nodeTypes[k] == 0 or nodeTypes[k] == 'legacy':
         t = legacyNode(numChans,numSteps, txProbability[CountLegacyChanIndex], legacyChanList[CountLegacyChanIndex]) 
         CountLegacyChanIndex += 1               
-    elif nodeTypes[k] == 1:
+    elif nodeTypes[k] == 1  or nodeTypes[k] == 'hopping':
         t = hoppingNode(numChans,numSteps,hoppingChanList[CountHoppingChanIndex],hopRate)
         CountHoppingChanIndex += 1
-    elif nodeTypes[k] == 2:
+    elif nodeTypes[k] == 2 or nodeTypes[k] == 'im':
         t = imNode(numChans,numSteps,imDutyCircleList[CountIm], imChanList[CountIm])
         CountIm += 1
-    elif nodeTypes[k] == 3:
+    elif nodeTypes[k] == 3  or nodeTypes[k] == 'dsa':
         t = dsaNode(numChans,numSteps,txProbability)    
-    elif nodeTypes[k] == 4:
+    elif nodeTypes[k] == 4  or nodeTypes[k] == 'possion':
         t = poissonNode( numChans, numSteps, poissonChanList, arrivalRate, serviceRate)
-    elif nodeTypes[k] == 5:
+    elif nodeTypes[k] == 10:
         t = mdpNode(numChans,states,numSteps)   
-    elif nodeTypes[k] >= 6 and nodeTypes[k] <= 10:
+    elif nodeTypes[k] >= 11  \
+                    or nodeTypes[k] == 'dqn'          or nodeTypes[k] == 'dqnDouble' \
+                    or nodeTypes[k] == 'dqnPriReplay' or nodeTypes[k] == 'dqnDuel'   \
+                    or nodeTypes[k] == 'dqnRef'       or nodeTypes[k] == 'dpg':
+                    
         t = dqnNode(numChans,states,numSteps, nodeTypes[k])      
         # dqnNode, temporary asyn
         t.policyAdjustRate = random.randint(5, 9)
@@ -241,6 +250,8 @@ for k in range(0,numNodes):
     t.exposedSpatialReuse   = exposedSpatialReuse[k]
 
     nodes.append(t)
+    
+print nodes
 
 #confirmKey = raw_input("If setting is ready, press ENTER to continue, any other key to abort ... ") 
 #assert confirmKey == '', "setting wrong, programs abort :("
@@ -445,7 +456,7 @@ myPlotReward(nodes, cumulativeCollisions)
 plt.figure(4)
 myPlotAction(nodes, numChans) 
 plt.figure(5)   
-myPlotOccupiedEnd(nodes, numChans, plotPeriod = 1000)
+myPlotOccupiedEnd(nodes, numChans, plotPeriod = 100)
 plt.figure(6)
 myPlotOccupiedAll(nodes, numChans)
 plt.figure(7)

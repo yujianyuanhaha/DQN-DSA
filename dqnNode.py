@@ -15,6 +15,7 @@ import dqnDouble
 import dqnPriReplay
 import dqnDuel
 import dpg
+import dqnR
 
 
 class dqnNode(radioNode):
@@ -68,12 +69,12 @@ class dqnNode(radioNode):
         
         self.policy = np.zeros(numChans)
                
-        self.n_actions     = numChans+1   
+        self.n_actions     = numChans + 1   
         self.n_features    = numChans 
         
-        self.type = "raw"        
-        if dqnType == 6 :
-            self.dqn_ = dqn(
+        self.type = "dqn"        
+        if dqnType == 11 :
+            self.dqn_ = dqnR.dqnR(
                             self,
                             self.n_actions, 
                             self.n_features,   
@@ -84,8 +85,8 @@ class dqnNode(radioNode):
                             memory_size=200,
                             e_greedy_increment=True,
                             ) 
-        elif dqnType == 7 :
-            self.type = "double"
+        elif dqnType == 12 :
+            self.type = "dqnDouble"
             self.dqn_ = dqnDouble.DoubleDQN(
                             self,
                             self.n_actions, 
@@ -98,8 +99,8 @@ class dqnNode(radioNode):
                             e_greedy_increment=True,
                             double_q = True, 
                             )
-        elif dqnType == 8 :
-            self.type = "priReplay"
+        elif dqnType == 13 :
+            self.type = "dqnPriReplay"
             self.dqn_ = dqnPriReplay.DQNPrioritizedReplay(
                             self,
                             self.n_actions, 
@@ -112,8 +113,8 @@ class dqnNode(radioNode):
                             e_greedy_increment=True,
                             prioritized=True,  
                             ) 
-        elif dqnType == 9 :
-            self.type = "duel"
+        elif dqnType == 14 :
+            self.type = "dqnDuel"
             self.dqn_ = dqnDuel.DuelingDQN(
                             self,
                             self.n_actions, 
@@ -126,7 +127,20 @@ class dqnNode(radioNode):
                             e_greedy_increment=True,
                             dueling=True, 
                             ) 
-        elif dqnType == 10 :
+        elif dqnType == 15 :
+            self.type = "dqnRef"
+            self.dqn_ = dqnR.dqnR(
+                            self,
+                            self.n_actions, 
+                            self.n_features,   
+                            learning_rate=0.01,
+                            reward_decay=0.9,
+                            exploreDecayType = 'expo',
+                            replace_target_iter=200,
+                            memory_size=200,
+                            e_greedy_increment=True,
+                            )                         
+        elif dqnType == 16 :
             self.type = "dpg"
             # still use .dqn_ 
             self.dqn_ = dpg.dpg(

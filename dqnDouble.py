@@ -74,6 +74,7 @@ class DoubleDQN:
         self.cost_his = []
 
     def _build_net(self):
+        
         def build_layers(s, c_names, n_l1, w_initializer, b_initializer):
             with tf.variable_scope('l1', reuse=tf.AUTO_REUSE):
                 w1 = tf.get_variable('w1', [self.n_features, n_l1], initializer=w_initializer, collections=c_names)
@@ -91,7 +92,7 @@ class DoubleDQN:
 
         with tf.variable_scope('eval_net',reuse=tf.AUTO_REUSE):
             c_names, n_l1, w_initializer, b_initializer = \
-                ['eval_net_params', tf.GraphKeys.GLOBAL_VARIABLES], 20, \
+                ['eval_net_params', tf.GraphKeys.GLOBAL_VARIABLES], 10, \
                 tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)  # config of layers
 
             self.q_eval = build_layers(self.s, c_names, n_l1, w_initializer, b_initializer)

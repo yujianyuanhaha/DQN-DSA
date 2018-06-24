@@ -34,7 +34,7 @@ class dqn:
     exploreMin       = 0.1             # only used with 'step'    
     explorePerf      = 10               # only used with 'perf' 
     explorePerfWin   = 100
-    e_greedy            = 0.9              
+    e_greedy         = 0.9              
     # triggers jump in explore prob to 1 if reward is below this over last explorePerfWin epoch   
         
     def __init__(
@@ -81,7 +81,7 @@ class dqn:
 
         
             
-        # tensorflow
+        # tensorboard
         with tf.variable_scope('eval_net', reuse=tf.AUTO_REUSE):
             with tf.name_scope('weight'):
                 weight = t_params[0]
@@ -161,9 +161,7 @@ class dqn:
     def choose_action(self, observation):
         # to have batch dimension when feed into tf placeholder
         observation = observation[np.newaxis, :]
-        #observation = observation[1:]  # the size of observation matter, or tf grammer
-        
-
+        #observation = observation[1:]  # the size of observation matter, or tf grammer        
         if np.random.uniform() < 1.0 - self.exploreProb:   #
             # forward feed the observation and get q value for every actions
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation})
@@ -205,11 +203,13 @@ class dqn:
                 np.exp(-self.exploreDecay * self.learn_step_counter )
             if self.exploreProb <= self.exploreProbMin:
                 self.exploreProb = self.exploreProbMin                
-            self.learn_step_counter += 1
+            
         elif self.exploreDecayType == 'incre':
             self.epsilon = self.epsilon + self.epsilon_increment \
                     if self.epsilon < self.epsilon_max else self.epsilon_max            
-            self.exploreProb  = 1 -  self.epsilon
+            self.exploreProb  = 1 -  self.epsilon            
+            
+        self.learn_step_counter += 1
 
 
     def plot_cost(self):
