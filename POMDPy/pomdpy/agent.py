@@ -177,11 +177,14 @@ class Agent:
         for i in range(self.model.max_steps):
 
             start_time = time.time()
-
+            print("######### enter notice zone #########")
             # action will be of type Discrete Action
             action = solver.select_eps_greedy_action(eps, start_time)
             #Todo get action
             # eps - kinda of prob, and tag, not used in fuction
+            
+            if type(action) is int:
+                print('~~~~~~~~~ int action ~~~~~~~') 
 
             # update epsilon
             if eps > self.model.epsilon_minimum:
@@ -190,6 +193,7 @@ class Agent:
             step_result, is_legal = self.model.generate_step(state, action)
             # J like tell collision
             # env(s,a) -> r, s_
+            # action 'Translate' here within model.generate_step( )
 
             reward += step_result.reward
             discounted_reward += discount * step_result.reward
@@ -202,7 +206,7 @@ class Agent:
 
             if not step_result.is_terminal or not is_legal:
                 solver.update(step_result)
-                # blief_tree_solver .update
+                # J - blief_tree_solver .update, tree stuff
 
             # Extend the history sequence
             new_hist_entry = solver.history.add_entry()

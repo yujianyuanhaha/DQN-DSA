@@ -103,11 +103,11 @@ class dqn:
 
     def _build_net(self):
         # ------------------ all inputs ------------------------
-        self.s = tf.placeholder(tf.float32, [None, self.n_features], name='s')  # input State
+        self.s = tf.placeholder(tf.float32,  [None, self.n_features], name='s')  # input State
         # !!! the cal of n_features, the length of state is the size of n_feature        
         self.s_ = tf.placeholder(tf.float32, [None, self.n_features], name='s_')  # input Next State
-        self.r = tf.placeholder(tf.float32, [None, ], name='r')  # input Reward
-        self.a = tf.placeholder(tf.int32, [None, ], name='a')  # input Action
+        self.r = tf.placeholder(tf.float32,  [None, ],                name='r')  # input Reward
+        self.a = tf.placeholder(tf.int32,    [None, ],                name='a')  # input Action
 
         w_initializer, b_initializer = tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)
 
@@ -161,6 +161,8 @@ class dqn:
     def choose_action(self, observation):
         # to have batch dimension when feed into tf placeholder
         observation = observation[np.newaxis, :]
+        #observation = observation[1:]  # the size of observation matter, or tf grammer
+        
 
         if np.random.uniform() < 1.0 - self.exploreProb:   #
             # forward feed the observation and get q value for every actions
@@ -219,5 +221,10 @@ class dqn:
         
 
 if __name__ == '__main__':
-    DQN = dqn(dqnNode,3,4, output_graph=True)
-    "order matters"
+    from dqnNode import dqnNode
+    # dqnNode_ = dqnNode(2,[[0,0],[0,1],[1,0],[1,1]],1000,5)
+    # t = dqnNode(numChans,states,numSteps, nodeTypes[k])
+    # dqnNode_ = None
+    dqn_ = dqn(None, 3,2, output_graph=True)
+    dqn_2 = dqn(0, 3,2, output_graph=True)
+    print "order matters"

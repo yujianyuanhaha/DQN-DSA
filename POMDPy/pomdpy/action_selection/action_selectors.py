@@ -35,6 +35,8 @@ def ucb_action(mcts, current_node, greedy):
     assert best_actions.__len__() is not 0
 
     return random.choice(best_actions)
+    # BeliefTree -> belief_tree.root -> BeliefTreeSolver.belief_tree_index -> current_node
+    # current_node -> mapping -> actions -> action_entry -> output
 
 
 def e_greedy(current_node, epsilon):

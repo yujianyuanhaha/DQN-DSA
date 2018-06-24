@@ -14,6 +14,8 @@ from dqn import dqn
 import dqnDouble
 import dqnPriReplay
 import dqnDuel
+import dpg
+
 
 class dqnNode(radioNode):
     goodChans     = [ ]    
@@ -70,7 +72,7 @@ class dqnNode(radioNode):
         self.n_features    = numChans 
         
         self.type = "raw"        
-        if dqnType == 5 :
+        if dqnType == 6 :
             self.dqn_ = dqn(
                             self,
                             self.n_actions, 
@@ -82,7 +84,7 @@ class dqnNode(radioNode):
                             memory_size=200,
                             e_greedy_increment=True,
                             ) 
-        elif dqnType == 6 :
+        elif dqnType == 7 :
             self.type = "double"
             self.dqn_ = dqnDouble.DoubleDQN(
                             self,
@@ -96,7 +98,7 @@ class dqnNode(radioNode):
                             e_greedy_increment=True,
                             double_q = True, 
                             )
-        elif dqnType == 7 :
+        elif dqnType == 8 :
             self.type = "priReplay"
             self.dqn_ = dqnPriReplay.DQNPrioritizedReplay(
                             self,
@@ -110,7 +112,7 @@ class dqnNode(radioNode):
                             e_greedy_increment=True,
                             prioritized=True,  
                             ) 
-        elif dqnType == 8 :
+        elif dqnType == 9 :
             self.type = "duel"
             self.dqn_ = dqnDuel.DuelingDQN(
                             self,
@@ -124,6 +126,17 @@ class dqnNode(radioNode):
                             e_greedy_increment=True,
                             dueling=True, 
                             ) 
+        elif dqnType == 10 :
+            self.type = "dpg"
+            # still use .dqn_ 
+            self.dqn_ = dpg.dpg(
+                            self,
+                            self.n_actions,
+                            self.n_features,
+                            learning_rate=0.02,
+                            reward_decay=0.995,
+                            # output_graph=True,
+                        )
         else:
                 pass
 

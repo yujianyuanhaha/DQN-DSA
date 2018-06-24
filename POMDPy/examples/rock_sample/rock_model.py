@@ -466,6 +466,7 @@ class RockModel(Model):
             return None
         elif type(action) is int:
             action = RockAction(action)
+            "##### action = RockAction(action) execute"
 
         result = StepResult()
         result.next_state, is_legal = self.make_next_state(state, action)

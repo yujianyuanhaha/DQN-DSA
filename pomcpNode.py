@@ -70,24 +70,24 @@ class pomcpNode(radioNode):
         self.n_features    = numChans 
         
 
-        self.dqn_ = dqn(
-                        self,
-                        self.n_actions, 
-                        self.n_features,   
-                        learning_rate=0.01,
-                        reward_decay=0.9,
-                        exploreDecayType = 'expo',
-                        replace_target_iter=200,
-                        memory_size=200,
-                        e_greedy_increment=True,
-                        ) 
+#        self.dqn_ = dqn(
+#                        self,
+#                        self.n_actions, 
+#                        self.n_features,   
+#                        learning_rate=0.01,
+#                        reward_decay=0.9,
+#                        exploreDecayType = 'expo',
+#                        replace_target_iter=200,
+#                        memory_size=200,
+#                        e_greedy_increment=True,
+#                        ) 
 
-    def getState(self, stepNum):
-        from POMDPy.pomdpy.pomdp.belief_tree import todo
-        
-        
-        return state = solver.belief_tree_index.sample_particle()
-        
+#    def getState(self, stepNum):
+#        from POMDPy.pomdpy.pomdp.belief_tree import todo
+#        
+#        
+#        return state = solver.belief_tree_index.sample_particle()
+#        
 
         
     def getAction(self, stepNum ,observation):

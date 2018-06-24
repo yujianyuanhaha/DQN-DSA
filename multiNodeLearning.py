@@ -28,14 +28,13 @@ File Achitecture:
                          -- hoppingNode.py
                          -- imNode.py
                          -- dsaNode.py
+                         -- poissonNode.py
                          -- mdpNode.py      -- mdp.py
                          -- dqnNode.py      -- dqn.py
                                             -- dqnDouble.py
                                             -- dqnPriReplay.py
                                             -- dqnDuel.py 
-                                            
-                         -- poissonNode.py
-                         
+                                            -- dpq.py                                                                     
                          -- stateSpaceCreate.py
                          -- scenario.py
                      
@@ -43,6 +42,7 @@ File Achitecture:
 Main Configuration:  
 1. assignment of array "nodeTypes"  "legacyChanList"  "hoppingChanList"
                         
+
 
 
 
@@ -169,12 +169,17 @@ if any(nodeTypes==2) and len(nodeTypes) > numChans:
 # 1 - Hopping Node
 # 2 - Intermittent Node/ im Node
 # 3 - DSA node (just avoids)  
-# 4 - MDP Node
-# 5 - a. DQN Node
-# 6 - b. DQN-DoubleQ
-# 7 - c. DQN-PriReplay
-# 8 - d. DQN-Duel     
-# 6 - Adv. MDP Node
+# 4 - possion Node
+    
+# 5 - MDP Node
+# 6 - a. DQN Node
+# 7 - b. DQN-DoubleQ
+# 8 - c. DQN-PriReplay
+# 9 - d. DQN-Duel     
+# 10 - e. policy gradient tf
+
+# todo - Adv. MDP Node
+
 
 # the order does not matter for dsa, dqn, mdp make action
 # we even allow several DSA coexsit
@@ -200,7 +205,6 @@ else:
 # Initializing Nodes, Observable States, and Possible Actions
 nodes =  []
 states = stateSpaceCreate(numChans)
-numStates = np.shape(states)[0]
 CountLegacyChanIndex = 0
 CountHoppingChanIndex = 0
 CountIm = 0
@@ -218,18 +222,19 @@ for k in range(0,numNodes):
     elif nodeTypes[k] == 3:
         t = dsaNode(numChans,numSteps,txProbability)    
     elif nodeTypes[k] == 4:
+        t = poissonNode( numChans, numSteps, poissonChanList, arrivalRate, serviceRate)
+    elif nodeTypes[k] == 5:
         t = mdpNode(numChans,states,numSteps)   
-    elif nodeTypes[k] >= 5 and nodeTypes[k] <= 8:
+    elif nodeTypes[k] >= 6 and nodeTypes[k] <= 10:
         t = dqnNode(numChans,states,numSteps, nodeTypes[k])      
         # dqnNode, temporary asyn
         t.policyAdjustRate = random.randint(5, 9)
 #        t.policyAdjustRate = 5
-        print "DQN node %s Parameters: learning_rate %s, reward_decay %s,\
-                replace_target_iter %s, memory_size %s,\
-                policyAdjustRate %s" %(k, t.dqn_.lr, t.dqn_.gamma,              
-                    t.dqn_.replace_target_iter, t.dqn_.memory_size, t.policyAdjustRate )
-    elif nodeTypes[k] == 10:
-        t = poissonNode( numChans, numSteps, poissonChanList, arrivalRate, serviceRate)
+#        print "DQN node %s Parameters: learning_rate %s, reward_decay %s,\
+#                replace_target_iter %s, memory_size %s,\
+#                policyAdjustRate %s" %(k, t.dqn_.lr, t.dqn_.gamma,              
+#                    t.dqn_.replace_target_iter, t.dqn_.memory_size, t.policyAdjustRate )
+
     else:
         pass
     t.hiddenDuplexCollision = hiddenDuplexCollision[k]
@@ -237,8 +242,9 @@ for k in range(0,numNodes):
 
     nodes.append(t)
 
-confirmKey = raw_input("If setting is ready, press ENTER to continue, any other key to abort ... ") 
-assert confirmKey == '', "setting wrong, programs abort :("        
+#confirmKey = raw_input("If setting is ready, press ENTER to continue, any other key to abort ... ") 
+#assert confirmKey == '', "setting wrong, programs abort :("
+        
 #nodes[2].goodChans = np.array( [0,0,0,1] )        
 #nodes[1].goodChans = np.array( [0,1,1,0] )          
 #nodes[2].goodChans = np.array( [0,0,1,1] ) 
@@ -382,7 +388,7 @@ for s in range(0,numSteps):
                  reward, observation_)
             if s % nodes[n].policyAdjustRate == 0:    
                 nodes[n].learn()
-                learnProbHist.append( nodes[n].dqn_.exploreProb)
+ #               learnProbHist.append( nodes[n].dqn_.exploreProb)
             tocDqnLearn = time.time()
             # original  action -> step() -> observation_, reward, done
             # 1. action -> collisions
