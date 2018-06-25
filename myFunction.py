@@ -149,7 +149,7 @@ def myPlotCollision(nodes, cumulativeCollisions):
             legendInfo.append( 'Node %d (DSA)'%(n) )
         elif isinstance(nodes[n],mdpNode):
             legendInfo.append( 'Node %d (MDP)'%(n) )
-        if isinstance(nodes[n],dqnNode):
+        elif isinstance(nodes[n],dqnNode):
             if nodes[n].type == 'dqn':
                 legendInfo.append( 'Node %d (DQN)'%(n) )
             elif nodes[n].type == 'dqnDouble':
@@ -165,7 +165,7 @@ def myPlotCollision(nodes, cumulativeCollisions):
             else:
                 pass
         else:
-            pass       
+            legendInfo.append( 'Node %d (undefined)'%(n) )     
         txPackets.append( np.cumsum(np.sum(nodes[n].actionHist.T , axis=0).T ) )
         
     plt.legend(legendInfo)
@@ -181,6 +181,7 @@ def myPlotCollision(nodes, cumulativeCollisions):
 def myPlotReward(nodes, cumulativeCollisions):
     from dqnNode     import dqnNode
     from mdpNode     import mdpNode
+    from acNode      import acNode
     legendInfo = [ ]
     for n in range(0,len(nodes)):
         if isinstance(nodes[n],mdpNode):
@@ -207,6 +208,13 @@ def myPlotReward(nodes, cumulativeCollisions):
                 legendInfo.append('Node %d (DPG)'%(n) )
             else:
                 pass
+        elif isinstance(nodes[n], acNode):
+            plt.plot(nodes[n].cumulativeReward)
+            legendInfo.append('Node %d (ac)'%(n) )
+        else:
+            pass
+
+                
     if legendInfo:
         plt.legend(legendInfo)
         plt.xlabel('Step Number')
@@ -240,7 +248,7 @@ def myPlotAction(nodes, numChans):
             titleLabel = 'Action Taken by Node %d (DSA)'%(n)
         elif isinstance(nodes[n],mdpNode):
             titleLabel = 'Action Taken by Node %d (MDP)'%(n)
-        else:
+        elif isinstance(nodes[n],dqnNode):
             if nodes[n].type == 'dqn':
                 titleLabel = 'Action Taken by Node %d (DQN)'%(n) 
             elif nodes[n].type == 'dqnDouble':
@@ -255,6 +263,8 @@ def myPlotAction(nodes, numChans):
                 titleLabel = 'Action Taken by Node %d (DPG)'%(n) 
             else:
                 pass
+        else:
+            titleLabel = 'Action Taken by Node %d (undefined)'%(n) 
             
         plt.title(titleLabel)
     plt.savefig('../dqnFig/Actions.png')
@@ -291,7 +301,7 @@ def myPlotOccupiedEnd(nodes, numChans, plotPeriod):
         elif isinstance(nodes[n],mdpNode):
             plt.plot( tempPeriod, x,'go' ,fillstyle= 'full')
             legendInfo.append('MDP')
-        else:
+        elif isinstance(nodes[n],dqnNode):
             if nodes[n].type == 'dqn':
                 plt.plot(tempPeriod, x,'bo' ,fillstyle= 'full')
                 legendInfo.append('DQN')
@@ -307,6 +317,10 @@ def myPlotOccupiedEnd(nodes, numChans, plotPeriod):
                 plt.plot( tempPeriod,'bx' ,fillstyle= 'none') 
             else:
                 pass
+        else:
+            plt.plot( tempPeriod, x,'bo' ,fillstyle= 'full')
+            legendInfo.append('undefined')
+                
     plt.legend(legendInfo,loc='upper right', prop={'size': 9})
     plt.xlim(0, numChans+1)   # -1 for WAIT
     plt.ylim(length-plotPeriod,length)
@@ -344,7 +358,7 @@ def myPlotOccupiedAll(nodes, numChans):
         elif isinstance(nodes[n],mdpNode):
             plt.plot( temp, x,'g.' ,fillstyle= 'full')
             legendInfo.append('MDP')
-        else:
+        elif isinstance(nodes[n],dqnNode):
             if nodes[n].type == 'dqn':
                 plt.plot(temp, x,'b.' ,fillstyle= 'full')
                 legendInfo.append('DQN')
@@ -365,6 +379,9 @@ def myPlotOccupiedAll(nodes, numChans):
                 legendInfo.append('DPG')
             else:
                 pass
+        else:
+             plt.plot( temp,'bx' ,fillstyle= 'none') 
+             legendInfo.append('undefined')
             
     plt.legend(legendInfo,loc='upper right', prop={'size': 9})
     plt.xlim(0, numChans+1)   # -1 for WAIT
@@ -424,10 +441,10 @@ def myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions):
                 plt.semilogy( PER[:,i] )
                 legendInfo.append( 'Node %d (DPG)'%(i) )
             else:
-                plt.semilogy( PER[:,i] )
-                legendInfo.append( 'Node %d (undefined)'%(i) )
+                pass
         else:
-            pass
+             plt.semilogy( PER[:,i] )
+             legendInfo.append( 'Node %d (undefined)'%(i) )
     
     plt.legend(legendInfo)
     plt.xlabel('Step Number')

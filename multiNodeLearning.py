@@ -35,7 +35,9 @@ File Achitecture:
                                             -- dqnPriReplay.py
                                             -- dqnDuel.py 
                                             -- dqnR.py
-                                            -- dpq.py                                                                     
+                                            -- dpq.py 
+                         -- acNode.py       -- actor.py
+                                            -- critic.py
                          -- stateSpaceCreate.py
                          -- scenario.py
                      
@@ -64,7 +66,8 @@ from hoppingNode import hoppingNode
 from dqnNode     import dqnNode   #
 from dsaNode     import dsaNode 
 from imNode      import imNode 
-from poissonNode import poissonNode 
+from poissonNode import poissonNode
+from acNode      import acNode 
 
 from scenario    import scenario
 import matplotlib.pyplot as plt
@@ -179,6 +182,7 @@ if any(nodeTypes==2) and len(nodeTypes) > numChans:
 # 14 'dqnDuel'      - d. DQN-Duel   
 # 15 'dqnRef'       - e. DQ-Refined
 # 16 'dpg'          - DPG policy gredient
+# 17 'ac'           - Actor Critic
     
 # 20 - pomcp
     
@@ -230,7 +234,7 @@ for k in range(0,numNodes):
         t = poissonNode( numChans, numSteps, poissonChanList, arrivalRate, serviceRate)
     elif nodeTypes[k] == 10:
         t = mdpNode(numChans,states,numSteps)   
-    elif nodeTypes[k] >= 11  \
+    elif (nodeTypes[k] >= 11 and nodeTypes[k] <= 16) \
                     or nodeTypes[k] == 'dqn'          or nodeTypes[k] == 'dqnDouble' \
                     or nodeTypes[k] == 'dqnPriReplay' or nodeTypes[k] == 'dqnDuel'   \
                     or nodeTypes[k] == 'dqnRef'       or nodeTypes[k] == 'dpg':
@@ -243,6 +247,8 @@ for k in range(0,numNodes):
 #                replace_target_iter %s, memory_size %s,\
 #                policyAdjustRate %s" %(k, t.dqn_.lr, t.dqn_.gamma,              
 #                    t.dqn_.replace_target_iter, t.dqn_.memory_size, t.policyAdjustRate )
+    elif nodeTypes[k] == 17 or nodeTypes[k] == 'ac':
+        t = acNode(numChans,states,numSteps) 
 
     else:
         pass
@@ -296,7 +302,7 @@ for s in range(0,numSteps):
     
     ################ Determination of next action for each node ##############
     for n in range(0,numNodes):
-        if isinstance(nodes[n],dqnNode):
+        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) :
             ticDqnAction  = time.time()
             observation = observedStates[n,:]
             actions[n,:], actionScalar = nodes[n].getAction(s, observation)  ###########
@@ -369,7 +375,7 @@ for s in range(0,numSteps):
                 nodes[n].updatePolicy(s)
             tocMdpLearn = time.time()
                                 
-        if isinstance(nodes[n],dqnNode):
+        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode):
             ticDqnLearn = time.time()
             reward = nodes[n].getReward(collisions[n] ,s, isWait)
             observation_ = observedStates[n,:]  # update already # full already
@@ -394,11 +400,18 @@ for s in range(0,numSteps):
             
             
             
-            done = True            
-            nodes[n].storeTransition(observation, actionScalar, 
-                 reward, observation_)
-            if s % nodes[n].policyAdjustRate == 0:    
-                nodes[n].learn()
+            done = True  
+            if isinstance(nodes[n],dqnNode):
+                nodes[n].storeTransition(observation, actionScalar, 
+                     reward, observation_)
+                if s % nodes[n].policyAdjustRate == 0:    
+                    nodes[n].learn()
+            elif isinstance(nodes[n],acNode):
+                 nodes[n].learn(observation, actionScalar, 
+                     reward, observation_)
+            else:
+                pass
+                    
  #               learnProbHist.append( nodes[n].dqn_.exploreProb)
             tocDqnLearn = time.time()
             # original  action -> step() -> observation_, reward, done

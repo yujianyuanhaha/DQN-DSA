@@ -1,8 +1,11 @@
+![Build](https://travis-ci.org/pemami4911/POMDPy.svg?branch=master) ![Python27](https://img.shields.io/badge/python-2.7-blue.svg) ![Tensorflow16](https://img.shields.io/badge/tensorflow-1.6-blue.svg)
+
 README FILE  
 Author: Jianyuan (Jet) Yu  
 Affiliation: Wireless, ECE, Virginia Tech  
 Email : *jianyuan@vt.edu*  
-Date  : April, 2018  
+Date  : April, 2018 
+ 
 
 -------------------------------------------------------------------------
 # News
@@ -31,7 +34,7 @@ Date  : April, 2018
 
 --------------------------------------------------------------------------
 # Notice
-1. When assign new number of channels and DQN node exist, need to restart the IPython console
+1. When assign new number of channels and DQN node exist, need to restart the IPython console, exist pop size umatch error. While would not happen in raw terminal.
 2. mdpNode would meet compuation constraint when number of channel over 10.
 
 
@@ -132,8 +135,26 @@ For batch test, we run codes on ARC VT.
 
 --------------------------------------------------------------------------
 # How to run the codes?  
-Paramter all configurable at header part of **multiNodeLearning.py** OR **setup.config** file 
-in terminal run:  
+Paramter all configurable at header part of ```multiNodeLearning.py``` OR ```setup.config``` file. Table below provide a quick view. 
+| string name | numeric  | file(.py) | description | parameters  |
+|---|---|---|---|---|
+| legacy  | 0 | legacyNode  | always occupy one channel         |  txProb|
+| hopping | 1 | hoppingNode | hopping bettween several channels | hopRate hopWidth HoppingChanIndex |
+| im      | 2 | imNode      | interminient                      | imPeriod dutyCycle |
+| dsa     | 3 | dsaNode     | dynamic channel access alway occupy first avaiable channel   |  |
+| poisson | 4 | poissonNode | arrival and service interval follow poisson distribution  | arrivalRate serviceRate |
+| | | | | |
+| mpd          | 10 | mdpNode mdp          | MDP full obervation  |  |
+| dqn          | 11 | dqnNode dqn          | Deep Q network  |  |
+| dqnDouble    | 12 | dqnNode dqnDouble    | double  DQN  |  |
+| dqnPriReplay | 13 | dqnNode dqnPriReplay | Priority with Exprience Replay  DQN  |  |
+| dqnDuel      | 14 | dqnNode dqnDuel      | Duel  DQN  |  |
+| dqnRef       | 15 | dqnNode dqnRef       | Refined  DQN  |  |
+| dpg          | 16 | dqnNode dpg          | deep policy gradient  |  |
+
+
+
+In terminal run:  
 ```
 python multiNodeLearning.py
 ```
