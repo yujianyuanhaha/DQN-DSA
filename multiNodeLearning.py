@@ -29,15 +29,22 @@ File Achitecture:
                          -- imNode.py
                          -- dsaNode.py
                          -- poissonNode.py
+                         
                          -- mdpNode.py      -- mdp.py
+                         
                          -- dqnNode.py      -- dqn.py
                                             -- dqnDouble.py
                                             -- dqnPriReplay.py
                                             -- dqnDuel.py 
                                             -- dqnR.py
                                             -- dpq.py 
-                         -- acNode.py       -- actor.py
+                                            
+                         -- acNode.py       -- actor.py                         
                                             -- critic.py
+                                            
+                         -- ddpgNode.py     -- ddpg.py
+                                            
+                                            
                          -- stateSpaceCreate.py
                          -- scenario.py
                      
@@ -67,7 +74,8 @@ from dqnNode     import dqnNode   #
 from dsaNode     import dsaNode 
 from imNode      import imNode 
 from poissonNode import poissonNode
-from acNode      import acNode 
+from acNode      import acNode
+from ddpgNode    import ddpgNode 
 
 from scenario    import scenario
 import matplotlib.pyplot as plt
@@ -183,6 +191,7 @@ if any(nodeTypes==2) and len(nodeTypes) > numChans:
 # 15 'dqnRef'       - e. DQ-Refined
 # 16 'dpg'          - DPG policy gredient
 # 17 'ac'           - Actor Critic
+# 18 'ddpg'         - Distributed Proximal Policy Optimization
     
 # 20 - pomcp
     
@@ -249,6 +258,10 @@ for k in range(0,numNodes):
 #                    t.dqn_.replace_target_iter, t.dqn_.memory_size, t.policyAdjustRate )
     elif nodeTypes[k] == 17 or nodeTypes[k] == 'ac':
         t = acNode(numChans,states,numSteps) 
+        
+    elif nodeTypes[k] == 18 or nodeTypes[k] == 'ddpg':
+        t = ddpgNode(numChans,states,numSteps)     
+        
 
     else:
         pass
@@ -302,7 +315,7 @@ for s in range(0,numSteps):
     
     ################ Determination of next action for each node ##############
     for n in range(0,numNodes):
-        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) :
+        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) or isinstance(nodes[n],ddpgNode) :
             ticDqnAction  = time.time()
             observation = observedStates[n,:]
             actions[n,:], actionScalar = nodes[n].getAction(s, observation)  ###########
@@ -368,14 +381,14 @@ for s in range(0,numSteps):
                     temp[(rollInd+i)%numChans] = 0       
             observedStates[n,:] = temp
             # 20% PER, unbearable    
-            
-            
+                        
             nodes[n].updateTrans(observedStates[n,:],s)
             if s % nodes[n].policyAdjustRate == 0:
                 nodes[n].updatePolicy(s)
             tocMdpLearn = time.time()
                                 
-        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode):
+        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) \
+                                        or isinstance(nodes[n],ddpgNode):
             ticDqnLearn = time.time()
             reward = nodes[n].getReward(collisions[n] ,s, isWait)
             observation_ = observedStates[n,:]  # update already # full already
@@ -398,17 +411,24 @@ for s in range(0,numSteps):
             observation_ = observedStates[n,:]
             # better than MDP, more rubost to partial observation
             
-            
-            
             done = True  
             if isinstance(nodes[n],dqnNode):
                 nodes[n].storeTransition(observation, actionScalar, 
                      reward, observation_)
                 if s % nodes[n].policyAdjustRate == 0:    
                     nodes[n].learn()
+                    
             elif isinstance(nodes[n],acNode):
                  nodes[n].learn(observation, actionScalar, 
                      reward, observation_)
+                 
+            elif isinstance(nodes[n],ddpgNode):
+                 nodes[n].storeTransition(observation, actionScalar, 
+                 reward, observation_)
+                 if nodes[n].ddpg_.pointer > nodes[n].ddpg_.MEMORY_CAPACITY:
+                     nodes[n].var *= .9995    # decay the action randomness
+                     nodes[n].ddpg_.learn()
+                 
             else:
                 pass
                     
