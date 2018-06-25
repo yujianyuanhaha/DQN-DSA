@@ -5,6 +5,45 @@ Email : *jianyuan@vt.edu*
 Date  : April, 2018  
 
 -------------------------------------------------------------------------
+# News
+* (Sun Jun 24) some new features 
+    * add in possion node, model under M/M/1 theory, with arrival rate & service rate configurable 
+    * add in policy gradient learning node, namely deep policy gradient (dpg) node 
+    * rename, adapt string name, dumb node under 9, learning node start with 10 or more 
+
+
+
+
+--------------------------------------------------------------------------
+# To Do List
+* Capacity & Robust
+    * learn possion node  
+    * learn legacy node with fixed baised tx prob 
+    * learn long im node under limited memory and steps 
+    * dynamic environment 
+    * learn to greedy occupied all available channel 
+    * efficient multiple dsa node coexist 
+    * multiple dqn node coexist 
+    * merge yue's guess item & eligiable trace dqn node  
+* POMDP 
+
+
+
+--------------------------------------------------------------------------
+# Notice
+1. When assign new number of channels and DQN node exist, need to restart the IPython console
+2. mdpNode would meet compuation constraint when number of channel over 10.
+
+
+--------------------------------------------------------------------------
+# Bugs
+1. We assume all nodes detect and make decision at same time, hence the multiple dsaNode may collide  (T.B.D.).
+2. Unstable performance when multiple dqnNode works (T.B.D.).
+
+
+
+
+--------------------------------------------------------------------------
 # Related Files:
 1. The [Result Demo of DQN-DCA](https://drive.google.com/open?id=1Tl5y8Ov_P_Fwqt1SpoRLuaAqaTlG20mImVx5o15VUsY) of Google Slides, 
 and figure come from VT Google Folder [qdnFig](https://drive.google.com/open?id=1hQxplvCs_hSfgr9rrJ-rywutUkHWwnxP) of .png .pdf 
@@ -13,29 +52,27 @@ figure autosave by python, notice we SEPERATE figure from github to avoid too fr
 the [latex folder](https://drive.google.com/open?id=1GeqjxzAroWrWHcM8LnwumbAo0h-ZYItX).
 3. A backup of Chris(Dr. Headley) MDP codes of [MDP solver](https://drive.google.com/open?id=1rddetimeRR8MECEsv0KRfdV1uLvd-4ZQ).
 
-
-
-
-# Overview  
+# Overview
 This project work around applying **deep Q network**[1] in **dynamic channel access**.
 It validate the performance of intelligent node acess channel without information exchange 
 with other nodes(legacy, hopping, intermittent, dsa etc). It mainly concerns about convergency speed
  and scale issues.  
 To be exact, we look into following aspects:  
-1. coexsitence with other type of nodes    
-* legacy  
-* legacy with tx prob  
-* hopping  
-* intermittent(duty cycle)  
-* dsa (able to wait)  
-* poission (the arrival interval & service interval follow poisson distribution, i.e. M/M/1 queue model)
-* mdp   
-* dqn  
+1. coexsitence with other type of nodes
+    * legacy
+    * legacy with tx prob  
+    * hopping  
+    * intermittent(duty cycle)  
+    * dsa (able to wait)  
+    * poission (the arrival interval & service interval follow poisson distribution, i.e. M/M/1 queue model)
+    * mdp
+    * dqn  
 2. learn to wait
 3. learn to occupy more than one channels
 4. learn to avoid hidden nodes
 5. learn to utilize spatial reuse (exposed nodes)
 6. select good channels (when several channel available, some low quality channel bring low reward).  
+
 The inspiration comes from SC2 competition, and some papers[2][3] have start some work around it.  
   
 The project transfer Chris's code of MDP-DCA Matlab simulator as the starter with MDP python solver[4], and then adapot DQN python solver[5].  
@@ -69,8 +106,28 @@ Another repository[6] maintain by Yue would merge soon, and [7] is the technical
 --------------------------------------------------------------------------
 # Configuration  
 We run codes on **Spyder** GUI under Anaconda(**version 2**), **tensorflow** is required as well as related tensorboard setup.  
-For batch test, we run codes on ARC VT.   
+For batch test, we run codes on ARC VT. 
 1. Python version 2.7, tensorflow version **1.6.0**. Notice tensorflow 1.5.0 is suggest on Linux OS else "keneral died, restart" error may appear.
+
+
+--------------------------------------------------------------------------
+# File Topology
+    multiNodeLearning.py -- setup.config
+                         -- myFunction.py
+                         -- legacyNode.py
+                         -- hoppingNode.py
+                         -- imNode.py
+                         -- dsaNode.py
+                         -- poissonNode.py
+                         -- mdpNode.py      -- mdp.py
+                         -- dqnNode.py      -- dqn.py
+                                            -- dqnDouble.py
+                                            -- dqnPriReplay.py
+                                            -- dqnDuel.py 
+                                            -- dqnR.py
+                                            -- dpq.py                                                                     
+                         -- stateSpaceCreate.py
+                         -- scenario.py 
 
 
 --------------------------------------------------------------------------
@@ -86,18 +143,3 @@ python multiNodeLearning.py
 
 
 
-
---------------------------------------------------------------------------
-# Notice
-1. When assign new number of channels and DQN node exist, need to restart the IPython console
-2. mdpNode would meet compuation constraint when number of channel over 10.
-
-
---------------------------------------------------------------------------
-# Bugs
-1. We assume all nodes detect and make decision at same time, hence the multiple dsaNode may collide  (T.B.D.).
-2. Unstable performance when multiple dqnNode works (T.B.D.).
-
-
-
---------------------------------------------------------------------------
