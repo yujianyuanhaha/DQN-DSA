@@ -291,28 +291,34 @@ learnProbHist = [ ]
 
 #countLearnHist = np.zeros(numSteps);
 observedStates = np.zeros((numNodes,numChans))
-for s in range(0,numSteps):
+
+
+
+
+
+
+for t in range(0,numSteps):
     
     ################ Determination of next action for each node ##############
     for n in range(0,numNodes):
         if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode): #or isinstance(nodes[n],ddpgNode) :
             ticDqnAction  = time.time()
             observation = observedStates[n,:]
-            actions[n,:], actionScalar = nodes[n].getAction(s, observation)  ###########
+            actions[n,:], actionScalar = nodes[n].getAction(t, observation)  ###########
 #            if not np.sum(actions[n,:] ):
 #                print "dqnNode WAIT"
             tocDqnAction  = time.time()
         elif isinstance(nodes[n],mdpNode):
             ticMdpAction  = time.time()
-            actions[n,:] = nodes[n].getAction(s)
+            actions[n,:] = nodes[n].getAction(t)
             tocMdpAction  = time.time()
         else:    
-            actions[n,:] = nodes[n].getAction(s)
+            actions[n,:] = nodes[n].getAction(t)
         assert not any(np.isnan(actions[n,:])), "ERROR! action is Nan"
 
 
     if simulationScenario.scenarioType != 'fixed':
-         simulationScenario.updateScenario(nodes,legacyNodeIndicies, s)
+         simulationScenario.updateScenario(nodes,legacyNodeIndicies, t)
 
     ################# Determining observations, collisions, rewards, and policies (where applicable)
     observedStates = np.zeros((numNodes,numChans))
@@ -341,11 +347,11 @@ for s in range(0,numSteps):
                       
                     
         if isinstance(nodes[n],dsaNode):
-            nodes[n].updateState(observedStates[n,:],s)
+            nodes[n].updateState(observedStates[n,:],t)
                     
         if isinstance(nodes[n],mdpNode):
             ticMdpLearn = time.time()
-            reward = nodes[n].getReward(collisions[n],s,isWait)
+            reward = nodes[n].getReward(collisions[n],t,isWait)
             # additive noise to flip certain bit of observation
             temp = observedStates[n,:]
             if random.random() < noiseErrorProb:
@@ -356,21 +362,21 @@ for s in range(0,numSteps):
             # yes, it did effect on performance under e.g. [0,1,2,4]
             
             if PartialObservation == 'rollOver':
-                rollInd = s * poStepNum % numChans
+                rollInd = t * poStepNum % numChans
                 for i in range(poBlockNum):
                     temp[(rollInd+i)%numChans] = 0       
             observedStates[n,:] = temp
             # 20% PER, unbearable    
                         
-            nodes[n].updateTrans(observedStates[n,:],s)
-            if s % nodes[n].policyAdjustRate == 0:
-                nodes[n].updatePolicy(s)
+            nodes[n].updateTrans(observedStates[n,:],t)
+            if t % nodes[n].policyAdjustRate == 0:
+                nodes[n].updatePolicy(t)
             tocMdpLearn = time.time()
                                 
         if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) :
                                        # or isinstance(nodes[n],ddpgNode):
             ticDqnLearn = time.time()
-            reward = nodes[n].getReward(collisions[n] ,s, isWait)
+            reward = nodes[n].getReward(collisions[n] ,t, isWait)
             observation_ = observedStates[n,:]  # update already # full already
             # additive noise to observation_
             if random.random() < noiseErrorProb:
@@ -384,7 +390,7 @@ for s in range(0,numSteps):
             
             temp = observedStates[n,:]
             if PartialObservation == 'True':
-                rollInd = int( math.fmod(s, numChans))
+                rollInd = int( math.fmod(t, numChans))
                 for i in range(poBlockNum):
                     temp[(rollInd+i)%numChans] = 0
             observedStates[n,:] = temp
@@ -395,19 +401,19 @@ for s in range(0,numSteps):
             if isinstance(nodes[n],dqnNode):
                 nodes[n].storeTransition(observation, actionScalar, 
                      reward, observation_)
-                if s % nodes[n].policyAdjustRate == 0:    
+                if t % nodes[n].policyAdjustRate == 0:    
                     nodes[n].learn()
                     
             elif isinstance(nodes[n],acNode):
                  nodes[n].learn(observation, actionScalar, 
                      reward, observation_)
                  
-            elif isinstance(nodes[n],ddpgNode):
-                 nodes[n].storeTransition(observation, actionScalar, 
-                 reward, observation_)
-                 if nodes[n].ddpg_.pointer > nodes[n].ddpg_.MEMORY_CAPACITY:
-                     nodes[n].var *= .9995    # decay the action randomness
-                     nodes[n].ddpg_.learn()
+#            elif isinstance(nodes[n],ddpgNode):
+#                 nodes[n].storeTransition(observation, actionScalar, 
+#                 reward, observation_)
+#                 if nodes[n].ddpg_.pointer > nodes[n].ddpg_.MEMORY_CAPACITY:
+#                     nodes[n].var *= .9995    # decay the action randomness
+#                     nodes[n].ddpg_.learn()
                  
             else:
                 pass
@@ -417,42 +423,46 @@ for s in range(0,numSteps):
             # original  action -> step() -> observation_, reward, done
             # 1. action -> collisions
             # 2. collisions -> getReward() -> observation_, reward, done
-    collisionHist[s,:]        = collisions
-    cumulativeCollisions[s,:] = collisions
-    if s != 0:
-        cumulativeCollisions[s,:] +=  cumulativeCollisions[s-1,:]
+    collisionHist[t,:]        = collisions
+    cumulativeCollisions[t,:] = collisions
+    if t != 0:
+        cumulativeCollisions[t,:] +=  cumulativeCollisions[t-1,:]
     
     if ticMdpAction:
-        mdpLearnTime[s] = tocMdpAction - ticMdpAction + tocMdpLearn - ticMdpLearn
+        mdpLearnTime[t] = tocMdpAction - ticMdpAction + tocMdpLearn - ticMdpLearn
     if ticDqnAction:
-        dqnLearnTime[s] = tocDqnAction - ticDqnAction + tocDqnLearn - ticDqnLearn
+        dqnLearnTime[t] = tocDqnAction - ticDqnAction + tocDqnLearn - ticDqnLearn
         
     # show compeleted
-    if s == numSteps * 0.1:
+    if t == numSteps * 0.1:
         print( "  10% completed")
         toc =  time.time()
         print( "--- cost %s seconds ---" %(toc - tic))        
-    elif s == numSteps * 0.2:
+    elif t == numSteps * 0.2:
         print( "  20% completed")
-    elif s == numSteps * 0.3:
+    elif t == numSteps * 0.3:
         print( "  30% completed")
-    elif s == numSteps * 0.4:
+    elif t == numSteps * 0.4:
         print( "  40% completed")
-    elif s == numSteps * 0.5:
+    elif t == numSteps * 0.5:
         print( "  50% completed")
-    elif s == numSteps * 0.6:
+    elif t == numSteps * 0.6:
         print ("  60% completed")
-    elif s == numSteps * 0.7:
+    elif t == numSteps * 0.7:
         print( "  70% completed")
-    elif s == numSteps * 0.8:
+    elif t == numSteps * 0.8:
         print( "  80% completed")
-    elif s == numSteps * 0.9:
+    elif t == numSteps * 0.9:
         print( "  90% completed")
     
 print( " 100% completed"  )        
 print( "--- End Main Loop--- ")
 toc =  time.time()
 print( "--- Totally %s seconds ---" %(toc - tic))
+
+
+
+
 
 
 ##################### PLOT ############################################ 
