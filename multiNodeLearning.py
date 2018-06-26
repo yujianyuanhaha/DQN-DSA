@@ -51,6 +51,7 @@ File Achitecture:
 ----------------------------                     
 Main Configuration:  
 1. assignment of array "nodeTypes"  "legacyChanList"  "hoppingChanList"
+2. description seen in setup.config file
                         
 
 
@@ -67,15 +68,16 @@ import random
 
 from stateSpaceCreate import stateSpaceCreate
 #from radioNode   import radioNode
-from legacyNode  import legacyNode
-from mdpNode     import mdpNode
-from hoppingNode import hoppingNode
-from dqnNode     import dqnNode   #
-from dsaNode     import dsaNode 
-from imNode      import imNode 
-from poissonNode import poissonNode
-from acNode      import acNode
-from ddpgNode    import ddpgNode 
+from dumbNodes.legacyNode  import legacyNode
+from dumbNodes.hoppingNode import hoppingNode
+from dumbNodes.imNode      import imNode 
+from dumbNodes.dsaNode     import dsaNode 
+from dumbNodes.poissonNode import poissonNode
+
+from learningNodes.mdpNode     import mdpNode
+from learningNodes.dqnNode     import dqnNode   #
+from learningNodes.acNode      import acNode
+#from learningNodes.ddpgNode    import ddpgNode 
 
 from scenario    import scenario
 import matplotlib.pyplot as plt
@@ -175,28 +177,6 @@ if any(nodeTypes==2) and len(nodeTypes) > numChans:
    
     
 # if need to learn imNode, enable isWait to change rewards 
-    
-# The type of each node 
-# 0 'legacy'  - Legacy (Dumb) Node 
-# 1 'hopping' - Hopping Node
-# 2 'im'      - Intermittent Node/ im Node
-# 3 'dsa'     - DSA node (just avoids)  
-# 4 'possion' - possion Node
-    
-# 10 'mdp'          - MDP Node
-# 11 'dqn'          - a. DQN Node
-# 12 'dqnDouble'    - b. DQN-DoubleQ
-# 13 'dqnPriReplay' - c. DQN-PriReplay
-# 14 'dqnDuel'      - d. DQN-Duel   
-# 15 'dqnRef'       - e. DQ-Refined
-# 16 'dpg'          - DPG policy gredient
-# 17 'ac'           - Actor Critic
-# 18 'ddpg'         - Distributed Proximal Policy Optimization
-    
-# 20 - pomcp
-    
-
-# todo - Adv. MDP Node
 
 
 # the order does not matter for dsa, dqn, mdp make action
@@ -259,8 +239,8 @@ for k in range(0,numNodes):
     elif nodeTypes[k] == 17 or nodeTypes[k] == 'ac':
         t = acNode(numChans,states,numSteps) 
         
-    elif nodeTypes[k] == 18 or nodeTypes[k] == 'ddpg':
-        t = ddpgNode(numChans,states,numSteps)     
+    #ßelif nodeTypes[k] == 18 or nodeTypes[k] == 'ddpg':
+    #    t = ddpgNode(numChans,states,numSteps)     
         
 
     else:
@@ -315,7 +295,7 @@ for s in range(0,numSteps):
     
     ################ Determination of next action for each node ##############
     for n in range(0,numNodes):
-        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) or isinstance(nodes[n],ddpgNode) :
+        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode): #or isinstance(nodes[n],ddpgNode) :
             ticDqnAction  = time.time()
             observation = observedStates[n,:]
             actions[n,:], actionScalar = nodes[n].getAction(s, observation)  ###########
@@ -387,8 +367,8 @@ for s in range(0,numSteps):
                 nodes[n].updatePolicy(s)
             tocMdpLearn = time.time()
                                 
-        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) \
-                                        or isinstance(nodes[n],ddpgNode):
+        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) :
+                                       # or isinstance(nodes[n],ddpgNode):
             ticDqnLearn = time.time()
             reward = nodes[n].getReward(collisions[n] ,s, isWait)
             observation_ = observedStates[n,:]  # update already # full already

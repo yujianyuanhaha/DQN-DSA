@@ -35,7 +35,7 @@ Date  : April, 2018
 --------------------------------------------------------------------------
 # Notice
 1. When assign new number of channels and DQN node exist, need to restart the IPython console, exist pop size umatch error. While would not happen in raw terminal.
-2. mdpNode would meet compuation constraint when number of channel over 10.
+2. mdpNode would meet compuation constraint when number of channel over 10, result in dead loop (stuck at stateSpaceCreate).
 
 
 --------------------------------------------------------------------------

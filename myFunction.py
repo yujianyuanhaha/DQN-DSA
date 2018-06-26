@@ -8,13 +8,11 @@ Created on Mon Apr  2 02:57:37 2018
 
 # functions
 import numpy as np
-from legacyNode  import legacyNode
-#from mdpNode     import mdpNode
-from hoppingNode import hoppingNode
-#from dqnNode     import dqnNode   #
-from dsaNode     import dsaNode 
-from imNode     import imNode 
-from poissonNode     import poissonNode  
+from dumbNodes.legacyNode  import legacyNode
+from dumbNodes.hoppingNode import hoppingNode
+from dumbNodes.dsaNode     import dsaNode 
+from dumbNodes.imNode      import imNode 
+from dumbNodes.poissonNode import poissonNode  
 
 
 
@@ -130,8 +128,8 @@ def myPlotProb(learnProbHist):
 
     
 def myPlotCollision(nodes, cumulativeCollisions):
-    from dqnNode     import dqnNode
-    from mdpNode     import mdpNode
+    from learningNodes.dqnNode     import dqnNode
+    from learningNodes.mdpNode     import mdpNode
     txPackets = [ ] 
     legendInfo = [ ]
     
@@ -179,9 +177,9 @@ def myPlotCollision(nodes, cumulativeCollisions):
 
 
 def myPlotReward(nodes, cumulativeCollisions):
-    from dqnNode     import dqnNode
-    from mdpNode     import mdpNode
-    from acNode      import acNode
+    from learningNodes.dqnNode     import dqnNode
+    from learningNodes.mdpNode     import mdpNode
+    from learningNodes.acNode      import acNode
     legendInfo = [ ]
     for n in range(0,len(nodes)):
         if isinstance(nodes[n],mdpNode):
@@ -226,8 +224,8 @@ def myPlotReward(nodes, cumulativeCollisions):
     
     
 def myPlotAction(nodes, numChans):
-    from dqnNode     import dqnNode
-    from mdpNode     import mdpNode
+    from learningNodes.dqnNode     import dqnNode
+    from learningNodes.mdpNode     import mdpNode
     split = np.ceil( len(nodes)*1.0/2 )    
     for n in range(0,len(nodes)):      
         plt.subplot(split,2,n+1)        
@@ -272,8 +270,8 @@ def myPlotAction(nodes, numChans):
  
     
 def myPlotOccupiedEnd(nodes, numChans, plotPeriod):
-    from dqnNode     import dqnNode
-    from mdpNode     import mdpNode
+    from learningNodes.dqnNode     import dqnNode
+    from learningNodes.mdpNode     import mdpNode
     legendInfo = [ ]
     for n in range(0,len(nodes)):
         temp = nodes[n].actionHistInd-1
@@ -332,8 +330,8 @@ def myPlotOccupiedEnd(nodes, numChans, plotPeriod):
 
 
 def myPlotOccupiedAll(nodes, numChans):
-    from dqnNode     import dqnNode
-    from mdpNode     import mdpNode
+    from learningNodes.dqnNode     import dqnNode
+    from learningNodes.mdpNode     import mdpNode
     legendInfo = [ ]
     for n in range(0,len(nodes)):
         temp = nodes[n].actionHistInd-1
@@ -394,8 +392,8 @@ def myPlotOccupiedAll(nodes, numChans):
 
     
 def myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions):
-    from dqnNode     import dqnNode
-    from mdpNode     import mdpNode
+    from learningNodes.dqnNode     import dqnNode
+    from learningNodes.mdpNode     import mdpNode
     timeSlots = np.matlib.repmat( np.arange(1,numSteps+1)[np.newaxis].T  ,
                                  1,len(nodes) )  
     txPackets = np.array(txPackets).T
@@ -458,8 +456,8 @@ def myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions):
 
 
 def myPlotPLR(nodes, PLR):
-    from dqnNode     import dqnNode
-    from mdpNode     import mdpNode
+    from learningNodes.dqnNode     import dqnNode
+    from learningNodes.mdpNode     import mdpNode
     legendInfo = [ ]
     for i in range(len(nodes)):
         if isinstance(nodes[i],mdpNode):
@@ -479,7 +477,7 @@ def myPlotPLR(nodes, PLR):
     
     
 def myPlotCost(nodes):
-    from dqnNode     import dqnNode
+    from learningNodes.dqnNode     import dqnNode
     legendInfo = [ ]
     for i in range(len(nodes)):
         if isinstance(nodes[i],dqnNode): 
