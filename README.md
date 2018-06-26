@@ -137,7 +137,7 @@ For batch test, we run codes on ARC VT.
 # How to run the codes?  
 Paramter all configurable at header part of ```multiNodeLearning.py``` OR ```setup.config``` file. Table below provide a quick view. 
 | string name | numeric  | file(.py) | description | parameters  |
-|---|---|---|---|---|
+|----------|----------|----------|----------|----------|
 | legacy  | 0 | legacyNode  | always occupy one channel         |  txProb|
 | hopping | 1 | hoppingNode | hopping bettween several channels | hopRate hopWidth HoppingChanIndex |
 | im      | 2 | imNode      | interminient                      | imPeriod dutyCycle |

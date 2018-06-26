@@ -121,7 +121,9 @@ numChans          =  json.loads( Config.get('Networks', 'numChans'))
 ChannelAssignType =  Config.get('Networks', 'ChannelAssignType')    
 nodeTypes         =  np.asarray(  json.loads(Config.get('Networks', 'nodeTypes')))
 
-legacyChanList    =  json.loads(Config.get('Networks', 'legacyChanList'))  
+
+legacyChanList    =  json.loads(Config.get('Networks', 'legacyChanList')) 
+#legacyChanList1    =  json.loads(Config.get('dumbNodes.legacy', 'legacyChanList2'))  
 txProbability     =  json.loads(Config.get('Networks', 'txProbability'))  
 hoppingChanList   =  json.loads(Config.get('Networks', 'hoppingChanList'))
 hopRate           =  json.loads( Config.get('Networks', 'hopRate'))  
