@@ -116,24 +116,26 @@ import ConfigParser
 import json
 Config = ConfigParser.ConfigParser()
 Config.read("setup.config")     
-numSteps          =  json.loads( Config.get('Networks', 'numSteps'))                  
-numChans          =  json.loads( Config.get('Networks', 'numChans'))  
-ChannelAssignType =  Config.get('Networks', 'ChannelAssignType')    
-nodeTypes         =  np.asarray(  json.loads(Config.get('Networks', 'nodeTypes')))
+numSteps          =  json.loads( Config.get('Global', 'numSteps'))                  
+numChans          =  json.loads( Config.get('Global', 'numChans'))  
+ChannelAssignType =  Config.get('Global', 'ChannelAssignType')    
+nodeTypes         =  np.asarray(  json.loads(Config.get('Global', 'nodeTypes')))
 
 
-legacyChanList    =  json.loads(Config.get('Networks', 'legacyChanList')) 
-#legacyChanList1    =  json.loads(Config.get('dumbNodes.legacy', 'legacyChanList2'))  
-txProbability     =  json.loads(Config.get('Networks', 'txProbability'))  
-hoppingChanList   =  json.loads(Config.get('Networks', 'hoppingChanList'))
-hopRate           =  json.loads( Config.get('Networks', 'hopRate'))  
-hoppingWidth      =  json.loads( Config.get('Networks', 'hoppingWidth'))  
-imChanList        =  json.loads(Config.get('Networks', 'imChanList')) 
-imDutyCircleList  =  json.loads(Config.get('Networks', 'imDutyCircleList')) 
+legacyChanList    =  json.loads(Config.get('legacyNode', 'legacyChanList')) 
+txProbability     =  json.loads(Config.get('legacyNode', 'txProbability'))  
 
-poissonChanList   =  json.loads(Config.get('Networks', 'poissonChanList')) 
-arrivalRate        =  json.loads(Config.get('Networks', 'arrivalRate')) 
-serviceRate       =  json.loads(Config.get('Networks', 'serviceRate')) 
+hoppingChanList   =  json.loads(Config.get('hoppingNode', 'hoppingChanList'))
+hopRate           =  json.loads( Config.get('hoppingNode', 'hopRate'))  
+hoppingWidth      =  json.loads( Config.get('hoppingNode', 'hoppingWidth'))  
+
+imPeriod          =  json.loads(Config.get('imNode', 'imPeriod')) 
+imChanList        =  json.loads(Config.get('imNode', 'imChanList')) 
+imDutyCircleList  =  json.loads(Config.get('imNode', 'imDutyCircleList')) 
+
+poissonChanList   =  json.loads(Config.get('poissonNode', 'poissonChanList')) 
+arrivalRate       =  json.loads(Config.get('poissonNode', 'arrivalRate')) 
+serviceRate       =  json.loads(Config.get('poissonNode', 'serviceRate')) 
 
 #nodeTypes = np.array( [0,0,0,0,
 #                       0,0,1,1,
@@ -217,7 +219,7 @@ for k in range(0,numNodes):
         t = hoppingNode(numChans,numSteps,hoppingChanList[CountHoppingChanIndex],hopRate)
         CountHoppingChanIndex += 1
     elif nodeTypes[k] == 2 or nodeTypes[k] == 'im':
-        t = imNode(numChans,numSteps,imDutyCircleList[CountIm], imChanList[CountIm])
+        t = imNode(numChans,numSteps,imPeriod, imDutyCircleList[CountIm], imChanList[CountIm])
         CountIm += 1
     elif nodeTypes[k] == 3  or nodeTypes[k] == 'dsa':
         t = dsaNode(numChans,numSteps,txProbability)    

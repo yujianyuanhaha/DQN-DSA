@@ -1,0 +1,9 @@
+.DS_STORE
+*.pyc
+.idea*
+*.log
+build
+POMDPy.egg-info
+dist
+experiments/tensorboard
+experiments/logs
