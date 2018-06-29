@@ -195,6 +195,7 @@ class dqn:
                 self.r: batch_memory[:, self.n_features + 1],
                 self.s_: batch_memory[:, -self.n_features:],
             })   # be sharp, man
+            # size match error 
 
         self.cost_his.append(cost)
 

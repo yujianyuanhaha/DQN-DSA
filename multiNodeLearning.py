@@ -87,7 +87,8 @@ from myFunction import channelAssignment, \
      myPlotProb,\
      myPlotCollision, myPlotReward, myPlotAction,\
      myPlotOccupiedEnd, myPlotOccupiedAll,\
-     myPlotPER, myPlotPLR, myPlotCost
+     myPlotPER, myPlotPLR, myPlotCost, \
+     noise, updateStack, partialPad
      
 
 
@@ -98,8 +99,10 @@ from myFunction import channelAssignment, \
 # when change numChans(related to neural network), REMEMBER TO SHUT OFF AND OPEN A NEW terminal
 # it would not happen in raw terminal 
 
-###############################################################################
-#######################     Network Setup & Simulation Parameters  ############
+
+''' ===================================================================  '''
+'''      Network Setup & Simulation Parameters                          '''
+''' ===================================================================  '''
 
 # recommend to load configuration from "setup.config" file
 
@@ -137,6 +140,14 @@ poissonChanList   =  json.loads(Config.get('poissonNode', 'poissonChanList'))
 arrivalRate       =  json.loads(Config.get('poissonNode', 'arrivalRate')) 
 serviceRate       =  json.loads(Config.get('poissonNode', 'serviceRate')) 
 
+noiseErrorProb    =  json.loads(Config.get('noise', 'noiseErrorProb')) 
+noiseFlipNum      =  json.loads(Config.get('noise', 'noiseFlipNum')) 
+
+poBlockNum        =  json.loads(Config.get('partialObservation', 'poBlockNum')) 
+poStepNum         =  json.loads(Config.get('partialObservation', 'poStepNum')) 
+padEnable         =  json.loads(Config.get('partialObservation', 'padEnable')) 
+padValue          =  json.loads(Config.get('partialObservation', 'padValue')) 
+stackNum          =  json.loads(Config.get('partialObservation', 'stackNum')) 
 #nodeTypes = np.array( [0,0,0,0,
 #                       0,0,1,1,
 #                       2,2,3,3,
@@ -148,16 +159,14 @@ numNodes = len(nodeTypes)
 print "nodeType list: %s"%nodeTypes
 print "num of channel: %s        num of nodes: %s"%(numChans, numNodes)
 
-noiseErrorProb = 0.00
-noiseFlipNum = 1
-if noiseErrorProb > 0.00:
-    print "Additive Noise Enabled with Flip Num %s"%noiseFlipNum
 
-PartialObservation = 'False'
-poBlockNum = 2
-poStepNum = 3
-if PartialObservation == 'True':
-    print "rollOver Partial Observation Enabled with Blocked Num %s and Step Num %s "%(poBlockNum, poStepNum)
+if noiseErrorProb > 0.00:
+    print "-------- Additive Noise Enabled -------------"
+    print "--------- with Flip Num %s ------------------"%noiseFlipNum
+
+if padEnable == 'True':
+    print "----------rollOver Partial Observation Enabled --------"
+    print "--------  with Blocked Num %s and Step Num %s ----------"%(poBlockNum, poStepNum)
 
 
 hiddenDuplexCollision = np.zeros((numNodes,numNodes))
@@ -186,8 +195,7 @@ if any(nodeTypes==2) and len(nodeTypes) > numChans:
 # the order does not matter for dsa, dqn, mdp make action
 # we even allow several DSA coexsit
                                 
-################################################################
-################################################################
+
 if ChannelAssignType == 'random':
     legacyChanList, imChanList, hoppingChanList, utilization =\
         channelAssignment(nodeTypes, hoppingWidth, numChans)
@@ -210,7 +218,11 @@ states = stateSpaceCreate(numChans)
 CountLegacyChanIndex = 0
 CountHoppingChanIndex = 0
 CountIm = 0
-##################### Construct diff Type of Nodes #######################################
+
+''' ===================================================================  '''
+'''          Construct diff Type of Nodes                                '''
+''' ===================================================================  '''
+
 for k in range(0,numNodes):
     if   nodeTypes[k] == 0 or nodeTypes[k] == 'legacy':
         t = legacyNode(numChans,numSteps, txProbability[CountLegacyChanIndex], legacyChanList[CountLegacyChanIndex]) 
@@ -276,7 +288,11 @@ cumulativeCollisions = np.zeros((numSteps,numNodes))
 
 mdpLearnTime = np.zeros(numSteps)
 dqnLearnTime = np.zeros(numSteps)
-##################### MAIN LOOP BEGIN ############################################
+
+''' ===================================================================  '''
+'''                 MAIN LOOP BEGIN                               '''
+''' ===================================================================  '''
+
 tic = time.time()
 ticMdpAction = [ ]
 ticDqnAction = [ ]
@@ -296,21 +312,26 @@ learnProbHist = [ ]
 #countLearnHist = np.zeros(numSteps);
 observedStates = np.zeros((numNodes,numChans))
 
-
-
-
+stackNum = 4
+observationS = np.zeros( stackNum * numChans)
+observationS_ = np.zeros( stackNum * numChans)
 
 
 for t in range(0,numSteps):
-    
-    ################ Determination of next action for each node ##############
+    ''' ===================================================================  '''
+    '''    Determination of next action for each node                       '''
+    ''' ===================================================================  '''
+
     for n in range(0,numNodes):
         if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode): #or isinstance(nodes[n],ddpgNode) :
             ticDqnAction  = time.time()
             observation = observedStates[n,:]
-            actions[n,:], actionScalar = nodes[n].getAction(t, observation)  ###########
-#            if not np.sum(actions[n,:] ):
-#                print "dqnNode WAIT"
+            
+
+            observationS = updateStack(observationS, observation)
+            
+            actions[n,:], actionScalar = nodes[n].getAction(t, observationS)  ###########
+
             tocDqnAction  = time.time()
         elif isinstance(nodes[n],mdpNode):
             ticMdpAction  = time.time()
@@ -324,7 +345,10 @@ for t in range(0,numSteps):
     if simulationScenario.scenarioType != 'fixed':
          simulationScenario.updateScenario(nodes,legacyNodeIndicies, t)
 
-    ################# Determining observations, collisions, rewards, and policies (where applicable)
+    ''' ===================================================================  '''
+    ''' Determining observations, collisions, rewards, and policies          '''
+    ''' ===================================================================  '''
+
     observedStates = np.zeros((numNodes,numChans))
     for n in range(0,numNodes):
         collisions[n] = 0
@@ -350,6 +374,9 @@ for t in range(0,numSteps):
                     collisionTally[n,nn] += 1
                       
                     
+
+
+            
         if isinstance(nodes[n],dsaNode):
             nodes[n].updateState(observedStates[n,:],t)
                     
@@ -358,19 +385,12 @@ for t in range(0,numSteps):
             reward = nodes[n].getReward(collisions[n],t,isWait)
             # additive noise to flip certain bit of observation
             temp = observedStates[n,:]
-            if random.random() < noiseErrorProb:
-                for k in range(noiseFlipNum):   # 0, 1
-                    ind =  random.randint(0, numChans-1)
-                    temp[ind] = 1- temp[ind]
-            observedStates[n,:] = temp
-            # yes, it did effect on performance under e.g. [0,1,2,4]
-            
-            if PartialObservation == 'rollOver':
-                rollInd = t * poStepNum % numChans
-                for i in range(poBlockNum):
-                    temp[(rollInd+i)%numChans] = 0       
-            observedStates[n,:] = temp
-            # 20% PER, unbearable    
+
+            if  noiseErrorProb > 0:
+                observedStates[n,:]  = noise(observedStates[n,:] , noiseErrorProb, noiseFlipNum)            
+            if padEnable == 'True':
+                observedStates[n,:] = partialPad(observedStates[n,:], t, poStepNum, poBlockNum, padValue)
+  
                         
             nodes[n].updateTrans(observedStates[n,:],t)
             if t % nodes[n].policyAdjustRate == 0:
@@ -381,30 +401,26 @@ for t in range(0,numSteps):
                                        # or isinstance(nodes[n],ddpgNode):
             ticDqnLearn = time.time()
             reward = nodes[n].getReward(collisions[n] ,t, isWait)
-            observation_ = observedStates[n,:]  # update already # full already
+            observation_ = observedStates[n,:]  
             # additive noise to observation_
-            if random.random() < noiseErrorProb:
-                for k in range(noiseFlipNum):
-                    ind =  random.randint(0, numChans-1)
-                    observation_[ind] = 1- observation_[ind]
-            observedStates[n,:] = observation_                        
-            # Todo - rolling partially observation            
-            # mdp seems for robust under same noise
-            # Conclusion - robust to certain level of additive noise, e.g under [0,1,2,5]
             
+
+            observationS_ = updateStack(observationS_, observation)
+
+            if  noiseErrorProb > 0:           
+                observation_  = noise(observation_ , noiseErrorProb, noiseFlipNum)
+
+            observedStates[n,:] = observation_                        
             temp = observedStates[n,:]
-            if PartialObservation == 'True':
-                rollInd = int( math.fmod(t, numChans))
-                for i in range(poBlockNum):
-                    temp[(rollInd+i)%numChans] = 0
-            observedStates[n,:] = temp
+            if padEnable == 'True':
+                observedStates[n,:] = partialPad(observedStates[n,:], t, poStepNum, poBlockNum, padValue)
+       
             observation_ = observedStates[n,:]
-            # better than MDP, more rubost to partial observation
             
             done = True  
             if isinstance(nodes[n],dqnNode):
-                nodes[n].storeTransition(observation, actionScalar, 
-                     reward, observation_)
+                nodes[n].storeTransition(observationS, actionScalar, 
+                     reward, observationS_)
                 if t % nodes[n].policyAdjustRate == 0:    
                     nodes[n].learn()
                     
@@ -424,9 +440,7 @@ for t in range(0,numSteps):
                     
  #               learnProbHist.append( nodes[n].dqn_.exploreProb)
             tocDqnLearn = time.time()
-            # original  action -> step() -> observation_, reward, done
-            # 1. action -> collisions
-            # 2. collisions -> getReward() -> observation_, reward, done
+
     collisionHist[t,:]        = collisions
     cumulativeCollisions[t,:] = collisions
     if t != 0:
@@ -468,8 +482,10 @@ print( "--- Totally %s seconds ---" %(toc - tic))
 
 
 
+''' ===================================================================  '''
+'''                             PLOT                                     '''
+''' ===================================================================  '''
 
-##################### PLOT ############################################ 
 import os
 if not os.path.exists('../dqnFig'):
    os.makedirs('../dqnFig') 

@@ -77,7 +77,7 @@ class dqnNode(radioNode):
             self.dqn_ = dqn.dqn(
                             self,
                             self.n_actions, 
-                            self.n_features,   
+                            self.n_features * 4,   
                             learning_rate=0.01,
                             reward_decay=0.9,
                             exploreDecayType = 'expo',

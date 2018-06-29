@@ -17,6 +17,49 @@ from dumbNodes.poissonNode import poissonNode
 
 
 
+
+
+# noise to random flip bit of observation
+def noise(observation, noiseErrorProb, noiseFlipNum):
+    
+    temp = observation
+    if random.random() < noiseErrorProb:
+        for k in range(noiseFlipNum):   # 0, 1
+            ind =  random.randint(0, len(observation)-1)
+            temp[ind] = 1- temp[ind]
+    observation = temp
+    
+    return observation
+
+
+# FIFO, blend new observation into observations
+def updateStack(observationS, observation):
+    
+    temp = observationS
+    numChans = len(observation)
+    M = len(observationS)/ len(observation)
+    observationS[ (M-1)*numChans: ] = observation
+    observationS[ :(M-1)*numChans ] = temp[ :(M-1)*numChans ]
+    
+    return observationS
+
+
+def partialPad(observation, t, poStepNum, poBlockNum, padValue):
+    
+    temp = observation
+    numChans = len(observation)
+    rollInd = t * poStepNum % numChans
+    for i in range(poBlockNum):
+        temp[(rollInd+i)%numChans] = padValue       
+    observation = temp
+    
+    return observation
+            
+
+
+
+
+
 # [~,stateIndex] = ismember(self.stateHist[stepNum-1,:], self.states,'rows') 
 
 def ismember(a,B):

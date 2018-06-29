@@ -98,9 +98,9 @@ Another repository[6] maintain by Yue would merge soon, and [7] is the technical
 
 
 # Ongoing Work - POMDP
-[1] [the solver source code.](https://github.com/pemami4911/POMDPy)
-[2] Silver, David, and Joel Veness. "Monte-Carlo planning in large POMDPs." Advances in neural information processing systems. 2010.
-[3] L. Kocsis and C. Szepesvari. Bandit based Monte-Carlo planning. In 15th European Conference on Machine Learning, pages 282–293, 2006.
+[1] [the solver source code.](https://github.com/pemami4911/POMDPy) 
+[2] Silver, David, and Joel Veness. "Monte-Carlo planning in large POMDPs." Advances in neural information processing systems. 2010. 
+[3] L. Kocsis and C. Szepesvari. Bandit based Monte-Carlo planning.  In 15th European Conference on Machine Learning, pages 282–293, 2006.
 [4] [slides of CMU](https://www.cs.cmu.edu/~ggordon/780-fall07/lectures/POMDP_lecture.pdf)  
 [5] [slides of techfak](https://www.techfak.uni-bielefeld.de/~skopp/Lehre/STdKI.../POMDP_tutorial.pdf) 
 [6] [website](http://www.pomdp.org/) 

@@ -72,6 +72,8 @@ class Agent:
 
         with tf.Session() as sess:
       #      solver = self.solver_factory(self, sess)
+      
+      # no neural network involved!
             solver = self.solver_factory
 
             for epoch in range(self.model.n_epochs + 1):
