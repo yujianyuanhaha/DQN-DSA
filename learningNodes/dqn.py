@@ -112,7 +112,7 @@ class dqn:
         w_initializer, b_initializer = tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)
 
         # ------------------ build evaluate_net ------------------
-        with tf.variable_scope('eval_net', reuse=tf.AUTO_REUSE):
+        with tf.variable_scope('eval_net', reuse=tf.AUTO_REUSE):   #, reuse=tf.AUTO_REUSE
             e1 = tf.layers.dense(self.s, 50, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='e1')
             e2 = tf.layers.dense(e1,     50, tf.nn.relu, kernel_initializer=w_initializer,
@@ -127,7 +127,7 @@ class dqn:
 
 
         # ------------------ build target_net ------------------
-        with tf.variable_scope('target_net',reuse=tf.AUTO_REUSE):
+        with tf.variable_scope('target_net', reuse=tf.AUTO_REUSE):  #,reuse=tf.AUTO_REUSE
             t1 = tf.layers.dense(self.s_, 50, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='t1')
             t2 = tf.layers.dense(t1, 50, tf.nn.relu, kernel_initializer=w_initializer,

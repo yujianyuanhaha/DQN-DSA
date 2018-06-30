@@ -87,14 +87,14 @@ from myFunction import channelAssignment, \
      myPlotProb,\
      myPlotCollision, myPlotReward, myPlotAction,\
      myPlotOccupiedEnd, myPlotOccupiedAll,\
-     myPlotPER, myPlotPLR, myPlotCost, \
-     noise, updateStack, partialPad
+     myPlotPER, myPlotPLR, myPlotThroughput, myPlotCost, \
+     noise, updateStack, partialPad, partialObserve
      
 
 
 
 
-
+# Notice:
 # for unknown reason, terminal of Spyder would keep the old tensorflow neural network data
 # when change numChans(related to neural network), REMEMBER TO SHUT OFF AND OPEN A NEW terminal
 # it would not happen in raw terminal 
@@ -105,15 +105,6 @@ from myFunction import channelAssignment, \
 ''' ===================================================================  '''
 
 # recommend to load configuration from "setup.config" file
-
-
-#numSteps = 30000
-#numChans = 4 
-#ChannelAssignType = 'typeIn'  
-
-#nodeTypes = np.array( [0 ,1 ,0 ,5])
-#legacyChanList = [0,1]
-#hoppingChanList = [ [2,3]]
 
 import ConfigParser
 import json
@@ -144,28 +135,22 @@ noiseErrorProb    =  json.loads(Config.get('noise', 'noiseErrorProb'))
 noiseFlipNum      =  json.loads(Config.get('noise', 'noiseFlipNum')) 
 
 poBlockNum        =  json.loads(Config.get('partialObservation', 'poBlockNum')) 
+poSeeNum          =  json.loads(Config.get('partialObservation', 'poSeeNum')) 
 poStepNum         =  json.loads(Config.get('partialObservation', 'poStepNum')) 
 padEnable         =  json.loads(Config.get('partialObservation', 'padEnable')) 
 padValue          =  json.loads(Config.get('partialObservation', 'padValue')) 
 stackNum          =  json.loads(Config.get('partialObservation', 'stackNum')) 
-#nodeTypes = np.array( [0,0,0,0,
-#                       0,0,1,1,
-#                       2,2,3,3,
-#                       5,5,5,5] )                    
-#legacyChanList = [3,4,5,6,8,9]
-#hoppingChanList = [ [11,12],[12,13]]  
              
 numNodes = len(nodeTypes)
 print "nodeType list: %s"%nodeTypes
 print "num of channel: %s        num of nodes: %s"%(numChans, numNodes)
-
 
 if noiseErrorProb > 0.00:
     print "-------- Additive Noise Enabled -------------"
     print "--------- with Flip Num %s ------------------"%noiseFlipNum
 
 if padEnable == 'True':
-    print "----------rollOver Partial Observation Enabled --------"
+    print "----rollOver Partial Observation Padding Enabled --------"
     print "--------  with Blocked Num %s and Step Num %s ----------"%(poBlockNum, poStepNum)
 
 
@@ -239,10 +224,13 @@ for k in range(0,numNodes):
         t = poissonNode( numChans, numSteps, poissonChanList, arrivalRate, serviceRate)
     elif nodeTypes[k] == 10:
         t = mdpNode(numChans,states,numSteps)   
-    elif (nodeTypes[k] >= 11 and nodeTypes[k] <= 16) \
+    elif (nodeTypes[k] >= 11 and nodeTypes[k] <= 16)  \
+         or (nodeTypes[k] >= 30 and nodeTypes[k] <= 32)  \
                     or nodeTypes[k] == 'dqn'          or nodeTypes[k] == 'dqnDouble' \
                     or nodeTypes[k] == 'dqnPriReplay' or nodeTypes[k] == 'dqnDuel'   \
-                    or nodeTypes[k] == 'dqnRef'       or nodeTypes[k] == 'dpg':
+                    or nodeTypes[k] == 'dqnRef'       or nodeTypes[k] == 'dpg'       \
+                    or nodeTypes[k] == 'dqnPo'        or nodeTypes[k] == 'dqnPad'    \
+                    or nodeTypes[k] == 'dqnStack':
                     
         t = dqnNode(numChans,states,numSteps, nodeTypes[k])      
         # dqnNode, temporary asyn
@@ -312,9 +300,9 @@ learnProbHist = [ ]
 #countLearnHist = np.zeros(numSteps);
 observedStates = np.zeros((numNodes,numChans))
 
-stackNum = 4
-observationS = np.zeros( stackNum * numChans)
-observationS_ = np.zeros( stackNum * numChans)
+
+observationS  = np.zeros( stackNum * poSeeNum)
+observationS_ = np.zeros( stackNum * poSeeNum)
 
 
 for t in range(0,numSteps):
@@ -325,12 +313,23 @@ for t in range(0,numSteps):
     for n in range(0,numNodes):
         if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode): #or isinstance(nodes[n],ddpgNode) :
             ticDqnAction  = time.time()
-            observation = observedStates[n,:]
+            temp = observedStates[n,:]
             
-
-            observationS = updateStack(observationS, observation)
+            if   nodes[n].type == 'dqnPo':
+                observation                = partialObserve( temp, t, poStepNum, poSeeNum)
+                actions[n,:], actionScalar = nodes[n].getAction(t, observation)
+            elif nodes[n].type == 'dqnPad':
+                observation                = partialPad( temp, t, poStepNum, poBlockNum, padValue)
+                actions[n,:], actionScalar = nodes[n].getAction(t, observation)                
+            elif nodes[n].type == 'dqnStack':
+                temp2 = partialObserve( temp, t, poStepNum, poSeeNum)
+                observationS               = updateStack(observationS, temp2)
+                actions[n,:], actionScalar = nodes[n].getAction(t, observationS)
+            else:
+                observation                = temp
+                actions[n,:], actionScalar = nodes[n].getAction(t, observation)
             
-            actions[n,:], actionScalar = nodes[n].getAction(t, observationS)  ###########
+             
 
             tocDqnAction  = time.time()
         elif isinstance(nodes[n],mdpNode):
@@ -401,26 +400,32 @@ for t in range(0,numSteps):
                                        # or isinstance(nodes[n],ddpgNode):
             ticDqnLearn = time.time()
             reward = nodes[n].getReward(collisions[n] ,t, isWait)
-            observation_ = observedStates[n,:]  
-            # additive noise to observation_
-            
+            temp = observedStates[n,:]  #  observation_
 
-            observationS_ = updateStack(observationS_, observation)
+            if   nodes[n].type == 'dqnPo':
+                observation_                = partialObserve( temp, t, poStepNum, poSeeNum)
+                nodes[n].storeTransition(observation, actionScalar, 
+                     reward, observation_)
+            elif nodes[n].type == 'dqnPad':
+                observation_                = partialPad( temp, t, poStepNum, poBlockNum, padValue)
+                nodes[n].storeTransition(observation, actionScalar, 
+                     reward, observation_)             
+            elif nodes[n].type == 'dqnStack':
+                temp2 = partialObserve( temp, t, poStepNum, poSeeNum)
+                observationS_               = updateStack(observationS, temp2)
+                nodes[n].storeTransition(observationS, actionScalar, 
+                     reward, observationS_) 
+            else:
+                observation_ = temp
+                nodes[n].storeTransition(observation, actionScalar, 
+                     reward, observation_)
+                
 
             if  noiseErrorProb > 0:           
                 observation_  = noise(observation_ , noiseErrorProb, noiseFlipNum)
-
-            observedStates[n,:] = observation_                        
-            temp = observedStates[n,:]
-            if padEnable == 'True':
-                observedStates[n,:] = partialPad(observedStates[n,:], t, poStepNum, poBlockNum, padValue)
-       
-            observation_ = observedStates[n,:]
             
             done = True  
             if isinstance(nodes[n],dqnNode):
-                nodes[n].storeTransition(observationS, actionScalar, 
-                     reward, observationS_)
                 if t % nodes[n].policyAdjustRate == 0:    
                     nodes[n].learn()
                     
@@ -506,7 +511,9 @@ plt.figure(7)
 PER, PLR = myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions) 
 plt.figure(8)   
 myPlotPLR(nodes, PLR)
-plt.figure(9)
+plt.figure(9)   
+myPlotThroughput(nodes, PLR)
+plt.figure(10)
 myPlotCost(nodes)
 
 print "Packet Error Rate: %s"%(PER[numSteps-1]*100)

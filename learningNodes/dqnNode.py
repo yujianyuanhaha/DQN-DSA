@@ -42,6 +42,10 @@ class dqnNode(radioNode):
     rewardTrans      = [ ]
     cumulativeReward = [ ]
     
+    # hard core so far
+    poNum = 3
+    poStackSize = 3 * 4
+    
     def __init__(self,numChans,states,numSteps, dqnType):
         self.actions = np.zeros((numChans+1,numChans))
         for k in range(0,numChans):
@@ -72,12 +76,15 @@ class dqnNode(radioNode):
         self.n_actions     = numChans + 1   
         self.n_features    = numChans 
         
-        self.type = "dqn"        
+        self.type = "dqn" 
+        
+        
+        
         if dqnType == 11 :
             self.dqn_ = dqn.dqn(
                             self,
                             self.n_actions, 
-                            self.n_features * 4,   
+                            self.n_features,   
                             learning_rate=0.01,
                             reward_decay=0.9,
                             exploreDecayType = 'expo',
@@ -151,6 +158,46 @@ class dqnNode(radioNode):
                             reward_decay=0.995,
                             # output_graph=True,
                         )
+        elif dqnType == 30 :
+            self.type = "dqnPad" 
+            self.dqn_ = dqn.dqn(
+                            self,
+                            self.n_actions, 
+                            self.n_features,   
+                            learning_rate=0.01,
+                            reward_decay=0.9,
+                            exploreDecayType = 'expo',
+                            replace_target_iter=200,
+                            memory_size=200,
+                            e_greedy_increment=True,
+                            ) 
+        elif dqnType == 31 :
+            self.type = "dqnPo" 
+            self.dqn_ = dqn.dqn(
+                            self,
+                            self.n_actions, 
+                            self.poNum,   #
+                            learning_rate=0.01,
+                            reward_decay=0.9,
+                            exploreDecayType = 'expo',
+                            replace_target_iter=200,
+                            memory_size=200,
+                            e_greedy_increment=True,
+                            )   
+        elif dqnType == 32 :
+            self.type = "dqnStack" 
+            self.dqn_ = dqn.dqn(
+                            self,
+                            self.n_actions, 
+                            self.poStackSize, #
+                            learning_rate=0.01,
+                            reward_decay=0.9,
+                            exploreDecayType = 'expo',
+                            replace_target_iter=200,
+                            memory_size=200,
+                            e_greedy_increment=True,
+                            ) 
+            
         else:
                 pass
 

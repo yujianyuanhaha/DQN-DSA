@@ -36,10 +36,10 @@ def noise(observation, noiseErrorProb, noiseFlipNum):
 def updateStack(observationS, observation):
     
     temp = observationS
-    numChans = len(observation)
+    temp2 = len(observation)
     M = len(observationS)/ len(observation)
-    observationS[ (M-1)*numChans: ] = observation
-    observationS[ :(M-1)*numChans ] = temp[ :(M-1)*numChans ]
+    observationS[ (M-1)*temp2 : ] = observation
+    observationS[ : (M-1)*temp2 ] = temp[ : (M-1)*temp2 ]
     
     return observationS
 
@@ -57,6 +57,16 @@ def partialPad(observation, t, poStepNum, poBlockNum, padValue):
             
 
 
+def partialObserve(observation, t, poStepNum, poSeeNum):
+    import numpy as np
+    temp = np.zeros(poSeeNum)
+    numChans = len(observation)
+    rollInd = t * poStepNum % numChans
+    for i in range(poSeeNum):
+        temp[i] = observation[(rollInd+i)%numChans]       
+    partialObservation = temp
+    
+    return partialObservation
 
 
 
@@ -204,7 +214,7 @@ def myPlotCollision(nodes, cumulativeCollisions):
             elif nodes[n].type == 'dpg':
                 legendInfo.append( 'Node %d (DPG)'%(n) )
             else:
-                pass
+                legendInfo.append( 'Node %d (undefined)'%(n) ) 
         else:
             legendInfo.append( 'Node %d (undefined)'%(n) )     
         txPackets.append( np.cumsum(np.sum(nodes[n].actionHist.T , axis=0).T ) )
@@ -303,7 +313,7 @@ def myPlotAction(nodes, numChans):
             elif nodes[n].type == 'dpg':
                 titleLabel = 'Action Taken by Node %d (DPG)'%(n) 
             else:
-                pass
+                titleLabel = 'Action Taken by Node %d (undefined)'%(n) 
         else:
             titleLabel = 'Action Taken by Node %d (undefined)'%(n) 
             
@@ -357,7 +367,8 @@ def myPlotOccupiedEnd(nodes, numChans, plotPeriod):
             elif nodes[n].type == 'dpg':
                 plt.plot( tempPeriod,'bx' ,fillstyle= 'none') 
             else:
-                pass
+                plt.plot( tempPeriod, x,'bo' ,fillstyle= 'full')
+                legendInfo.append('undefined')
         else:
             plt.plot( tempPeriod, x,'bo' ,fillstyle= 'full')
             legendInfo.append('undefined')
@@ -419,7 +430,8 @@ def myPlotOccupiedAll(nodes, numChans):
                 plt.plot( temp,'bx' ,fillstyle= 'none') 
                 legendInfo.append('DPG')
             else:
-                pass
+                plt.plot( temp,'bx' ,fillstyle= 'none') 
+                legendInfo.append('undefined')
         else:
              plt.plot( temp,'bx' ,fillstyle= 'none') 
              legendInfo.append('undefined')
@@ -482,7 +494,8 @@ def myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions):
                 plt.semilogy( PER[:,i] )
                 legendInfo.append( 'Node %d (DPG)'%(i) )
             else:
-                pass
+                plt.semilogy( PER[:,i] )
+                legendInfo.append( 'Node %d (undefined)'%(i) )
         else:
              plt.semilogy( PER[:,i] )
              legendInfo.append( 'Node %d (undefined)'%(i) )
@@ -516,7 +529,28 @@ def myPlotPLR(nodes, PLR):
         plt.grid(True)                     
         plt.show() 
     plt.savefig('../dqnFig/PLR.png')
-    plt.savefig('../dqnFig/PLR.pdf')   
+    plt.savefig('../dqnFig/PLR.pdf')  
+    
+    
+def myPlotThroughput(nodes, PLR):
+    from learningNodes.dqnNode     import dqnNode
+    from learningNodes.mdpNode     import mdpNode
+    legendInfo = [ ]
+    for i in range(len(nodes)):
+        if isinstance(nodes[i],mdpNode):
+            plt.semilogy( 1- PLR[:,i] )
+            legendInfo.append( 'Node %d (MDP)'%(i) )
+        elif isinstance(nodes[i],dqnNode):
+            plt.semilogy( 1- PLR[:,i] )
+            legendInfo.append( 'Node %d (DQN)'%(i) )
+    if legendInfo:
+        plt.xlabel('Step Number')
+        plt.ylabel('Cumulative Througput')
+        plt.title( 'Cumulative Throughput') 
+        plt.grid(True)                     
+        plt.show() 
+    plt.savefig('../dqnFig/TP.png')
+    plt.savefig('../dqnFig/TP.pdf')  
     
     
 def myPlotCost(nodes):
@@ -537,7 +571,7 @@ def myPlotCost(nodes):
     
     
 
-####################### Test Unit ############################################
+'''####################### Test Unit ############################################ '''
 if __name__ == '__main__':
 #    t = generateHopPattern([3,8,4,5], 2)
 #    print t
