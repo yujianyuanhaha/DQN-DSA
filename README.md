@@ -9,6 +9,10 @@ Date  : April, 2018
 
 -------------------------------------------------------------------------
 # News
+* (Fri Jun 29) stack-DQN
+    * add partial observation node with shorten observation as state
+    * add partial observation node with shorten observation plus padding with zero/one as full state
+    * add partial observation node with stacked partial observation together as state
 * (Sun Jun 24) some new features 
     * add in possion node, model under M/M/1 theory, with arrival rate & service rate configurable 
     * add in policy gradient learning node, namely deep policy gradient (dpg) node 
@@ -98,20 +102,30 @@ Another repository[6] maintain by Yue would merge soon, and [7] is the technical
 
 
 # Ongoing Work - POMDP
-[1] [the solver source code.](https://github.com/pemami4911/POMDPy) 
-[2] Silver, David, and Joel Veness. "Monte-Carlo planning in large POMDPs." Advances in neural information processing systems. 2010. 
-[3] L. Kocsis and C. Szepesvari. Bandit based Monte-Carlo planning.  In 15th European Conference on Machine Learning, pages 282–293, 2006.
-[4] [slides of CMU](https://www.cs.cmu.edu/~ggordon/780-fall07/lectures/POMDP_lecture.pdf)  
-[5] [slides of techfak](https://www.techfak.uni-bielefeld.de/~skopp/Lehre/STdKI.../POMDP_tutorial.pdf) 
-[6] [website](http://www.pomdp.org/) 
+We are attempt to implement four method as solver
+* stack-DQN
+* Vaule Itervation
+* POMCP
+* Deep Recurrent Q network (DRQN)  
 
+[1] [summary of current POMDP solver](https://bayesgroup.github.io/bmml_sem/2018/Shvechikov_Partially%20Observable%20Markov%20Decision%20Process%20in%20Reinforcement%20Learning.pdf)  
+[2] [the vi+pomcp solver source code.](https://github.com/pemami4911/POMDPy)  
+[3] POMCP - Silver, David, and Joel Veness. "Monte-Carlo planning in large POMDPs." Advances in neural information processing systems. 2010.  
+[4] UCT, kenerl of POMCP - L. Kocsis and C. Szepesvari. Bandit based Monte-Carlo planning.  In 15th European Conference on Machine Learning, pages 282–293, 2006.  
+[5] [slides of CMU](https://www.cs.cmu.edu/~ggordon/780-fall07/lectures/POMDP_lecture.pdf)  
+[6] [slides of techfak](https://www.techfak.uni-bielefeld.de/~skopp/Lehre/STdKI.../POMDP_tutorial.pdf)   
+[7] [pomdp alg website](http://www.pomdp.org/)  
+[8] [DRQN blog](https://medium.com/emergent-future/simple-reinforcement-learning-with-tensorflow-part-6-partial-observability-and-deep-recurrent-q-68463e9aeefc)  
+[9] DRQN paper - Hausknecht, Matthew, and Peter Stone. "Deep recurrent q-learning for partially observable mdps." CoRR, abs/1507.06527 (2015).  
 
 --------------------------------------------------------------------------
 # Configuration  
 We run codes on **Spyder** GUI under Anaconda(**version 2**), **tensorflow** is required as well as related tensorboard setup.  
 For batch test, we run codes on ARC VT. 
-1. Python version 2.7, tensorflow version **1.6.0**. Notice tensorflow 1.5.0 is suggest on Linux OS else "keneral died, restart" error may appear.
-
+1. Python version 2.7, tensorflow version **1.6.0**. Notice tensorflow 1.5.0 is suggest on Linux OS else "keneral died, restart" error may appear. If the version would not fit, run command 
+```
+conda install -c conda-forge tensorflow=1.1.0
+```
 
 --------------------------------------------------------------------------
 # File Topology
