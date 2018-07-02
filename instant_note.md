@@ -8,7 +8,13 @@ Created on Mon Apr  2 14:12:55 2018
 --------------------------------------------------------------------------------
 Headline
 1. BE IN LAB 10am-1am 5pm-7pm breaks
-2. less turnover time
+2. ***  less turnover time  ***
+
+
+--------------------------------------------------------------------------------
+reflection:
+1. two eye model - rely on clear cut of obervation, may not fit for node like hopping
+2. how Q(s,a) with a out of current observation range calculated, how Q(a) is stored and calculate.
 
 
 --------------------------------------------------------------------------------

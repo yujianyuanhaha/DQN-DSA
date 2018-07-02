@@ -13,7 +13,8 @@ class DiscreteActionPool(ActionPool):
         """
         :param model:
         """
-        self.all_actions = [0,1,2,3,4]
+        self.all_actions = [1,2,3,4]
+        # [0,1,2,3,4]   # that matters
 
     def create_action_mapping(self, belief_node):
         return DiscreteActionMapping(belief_node, self, self.create_bin_sequence(belief_node))

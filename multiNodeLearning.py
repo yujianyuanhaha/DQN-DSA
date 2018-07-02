@@ -428,6 +428,7 @@ for t in range(0,numSteps):
             if isinstance(nodes[n],dqnNode):
                 if t % nodes[n].policyAdjustRate == 0:    
                     nodes[n].learn()
+                learnProbHist.append( nodes[n].dqn_.exploreProb)
                     
             elif isinstance(nodes[n],acNode):
                  nodes[n].learn(observation, actionScalar, 
@@ -443,7 +444,7 @@ for t in range(0,numSteps):
             else:
                 pass
                     
- #               learnProbHist.append( nodes[n].dqn_.exploreProb)
+                
             tocDqnLearn = time.time()
 
     collisionHist[t,:]        = collisions

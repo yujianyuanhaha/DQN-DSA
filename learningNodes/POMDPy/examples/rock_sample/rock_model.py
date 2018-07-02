@@ -309,7 +309,7 @@ class RockModel(Model):
         return all_actions
 
     def create_action_pool(self):
-        return DiscreteActionPool()
+        return DiscreteActionPool(self)
 
     def create_root_historical_data(self, solver):
         self.create_new_rock_data()
