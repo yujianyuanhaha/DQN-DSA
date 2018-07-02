@@ -174,10 +174,8 @@ In terminal run:
 python multiNodeLearning.py
 ```
 
-![ ](https://github.com/yujianyuanhaha/DQN-DSA/vt_logo.png " ")
 
-
-<img align="right" width="100" height="100" src="https://github.com/yujianyuanhaha/DQN-DSA/vt_logo.png">
+<img align="right" width="100" height="100" src="https://github.com/yujianyuanhaha/DQN-DSA/blob/master/vt_logo.png">
 
 
 
