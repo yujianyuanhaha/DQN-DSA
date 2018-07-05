@@ -6,7 +6,7 @@ from past.utils import old_div
 from builtins import object
 import numpy as np
 from pomdpy.pomdp import HistoricalData
-from .DSA_action import ActionType
+from .dsa_action import ActionType
 import itertools
 
 
@@ -41,17 +41,22 @@ class PositionAndDSAData(HistoricalData):
     explicitly calculated probabilities of goodness for each DSA.
     """
 
-    def __init__(self, model, dsa_grid_position, all_DSA_data, solver):
+    def __init__(self, model, solver):
         self.model = model
         self.solver = solver
-        self.grid_position = dsa_grid_position
+       # self.grid_position = dsa_grid_position
 
         # List of DSAData indexed by the DSA number
-        self.all_DSA_data = all_DSA_data
+       #            self.all_DSA_data = all_DSA_data
 
         # Holds reference to the function for generating legal actions
         if self.model.preferred_actions:
-            self.legal_actions = self.generate_smart_actions
+            self.le         
+            
+            
+            
+            
+            gal_actions = self.generate_smart_actions
         else:
             self.legal_actions = self.generate_legal_actions
 

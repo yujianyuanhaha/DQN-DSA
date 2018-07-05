@@ -159,13 +159,31 @@ Paramter all configurable at header part of ```multiNodeLearning.py``` OR ```set
 | dsa     | 3 | dsaNode     | dynamic channel access alway occupy first avaiable channel   |  |
 | poisson | 4 | poissonNode | arrival and service interval follow poisson distribution  | arrivalRate serviceRate |
 | | | | | |
-| mpd          | 10 | mdpNode mdp          | MDP full obervation  |  |
+| mdp         | 10 | mdpNode mdp          | MDP(policy iteration) full obervation  |  |
+| mdp(TODO)         | 101 | mdpNode mdp          | MDP(value iteration) full obervation  |  |
 | dqn          | 11 | dqnNode dqn          | Deep Q network  |  |
 | dqnDouble    | 12 | dqnNode dqnDouble    | double  DQN  |  |
 | dqnPriReplay | 13 | dqnNode dqnPriReplay | Priority with Exprience Replay  DQN  |  |
 | dqnDuel      | 14 | dqnNode dqnDuel      | Duel  DQN  |  |
 | dqnRef       | 15 | dqnNode dqnRef       | Refined  DQN  |  |
 | dpg          | 16 | dqnNode dpg          | deep policy gradient  |  |
+| ac           | 17 | dqnNode ac          | action-critic  |  |
+| ddpg(TODO)           | 18 | dqnNode ddpg          | Distributed Proximal Policy Optimization  |  |
+| a3cDiscrete(TODO)    | 19 | dqnNode           | A3C discrete action  |  |
+| a3cDistribute (TODO) | 20 | dqnNode          |   |  |
+| a3cRNN (TODO)        | 21 | dqnNode           |   |  |
+| dqnDynamic (TODO)    | 22 | dqnNode           |Dynamic DQN  |  |
+| dppo (TODO)          | 23 | dqnNode           | Proximal Policy Optimal  |  |
+| et (Yue, TODO)       | 24 | dqnNode           | eligiable trace  |  |
+| guess (Yue, TODO)    | 25 | dqnNode           | memory with guess sample  |  |
+| | | | | |
+| dqnPad             | 30 | dqnNode dpg          | partial observation with unkown padding with 1/0  |  |
+| dqnPo              | 31 | dqnNode dpg          | partial observation  |  |
+| dqnStack           | 32 | dqnNode dpg          | stacked   partial observation|  |
+| dqnVI (TODO)       | 33 | dqnNode dpg          | Vaule Iteration  |  |
+| dqnPomcp (TODO)    | 34 | dqnNode dpg          | Partial Observation Monte-Carlo Planning   |  |
+| drqn (Yue, TODO)   | 35 | dqnNode dpg          | deep recurrent policy gradient  |  |
+
 
 
 
@@ -175,7 +193,7 @@ python multiNodeLearning.py
 ```
 
 
-<img align="right" width="100" height="100" src="https://github.com/yujianyuanhaha/DQN-DSA/blob/master/vt_logo.png">
+<img align="right" width="150" height="150" src="https://github.com/yujianyuanhaha/DQN-DSA/blob/master/vt_logo.png">
 
 
 

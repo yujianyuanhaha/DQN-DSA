@@ -9,6 +9,9 @@ class GridPosition(object):
     Supported Constructors - GripPosition(i,j) or GridPosition() - defaults to 0,0
     """
     def __init__(self, i=0, j=0):
+        pass
+    
+
 #        if i is None and j is None:
 #            self.i = 0
 #            self.j = 0

@@ -1394,7 +1394,9 @@ class ValueIteration(MDP):
         # p 202, Theorem 6.6.6
         # k =    max     [1 - S min[ P(j|s,a), p(j|s',a')] ]
         #     s,a,s',a'       j
+
         k = 0
+        
         h = _np.zeros(self.S)
 
         for ss in range(self.S):
@@ -1412,11 +1414,21 @@ class ValueIteration(MDP):
         null, value = self._bellmanOperator()
         # p 201, Proposition 6.6.5
         span = _util.getSpan(value - Vprev)
-        max_iter = (_math.log((epsilon * (1 - self.discount) / self.discount) /
-                    span) / _math.log(self.discount * k))
-        # self.V = Vprev
-
-        self.max_iter = int(_math.ceil(max_iter))
+        
+        if k == 0:
+            self.max_iter = 400
+        else:
+            
+            max_iter = (_math.log((epsilon * (1 - self.discount) / self.discount) /
+                        span) / _math.log(self.discount * k))
+            
+            # k = 0 result in math domain error
+            
+            # self.V = Vprev
+            if max_iter > 1000 or max_iter <= 0:
+                self.max_iter = 400
+            else:    
+                self.max_iter = int(_math.ceil(max_iter))
 
     def run(self):
         # Run the value iteration algorithm.

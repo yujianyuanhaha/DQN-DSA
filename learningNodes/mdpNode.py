@@ -10,7 +10,7 @@ from dumbNodes.radioNode import radioNode
 from myFunction import ismember   #
 import random
 import numpy as np
-from mdp import PolicyIteration  #
+from mdp import PolicyIteration, ValueIteration  #
 
 
 class mdpNode(radioNode):
@@ -47,7 +47,7 @@ class mdpNode(radioNode):
     rewardTrans      = [ ]
     cumulativeReward = [ ]
     
-    def __init__(self,numChans,states,numSteps):
+    def __init__(self,numChans,states,numSteps, iterationMethod):
         
         self.actions = np.zeros((numChans+1,numChans))
         for k in range(0,numChans):
@@ -78,6 +78,8 @@ class mdpNode(radioNode):
         self.exploreHist   = []
         
         self.policy = np.zeros(numChans)
+        
+        self.iterationMethod = iterationMethod
     
       
         
@@ -164,8 +166,18 @@ class mdpNode(radioNode):
         #[~,self.policy] = mdp_policy_iteration(self.avgStateTrans,self.rewardTrans,self.discountFactor)
         # here we are
         # python input (self, transitions, reward, discount, policy0=None, max_iter=1000, eval_type=0, skip_check=False)
-        mdp_ = PolicyIteration(self.avgStateTrans, self.rewardTrans, 
+       
+        if self.iterationMethod == 'PI':
+            mdp_ = PolicyIteration(self.avgStateTrans, self.rewardTrans, 
                                 self.discountFactor, skip_check=True)
+        elif self.iterationMethod == 'VI':
+            mdp_ = ValueIteration(self.avgStateTrans, self.rewardTrans, 
+                                self.discountFactor, skip_check=True)
+        else:
+            print "error"
+        
+        
+        
         mdp_.run()  # a inner loop in .run() function, 10000 iteration
         self.policy = mdp_.policy
         temp = np.array( mdp_.policy )[np.newaxis].T # 1D array transpose

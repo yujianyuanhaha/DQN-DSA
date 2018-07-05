@@ -28,9 +28,13 @@ class Agent:
         self.results = Results()
         self.experiment_results = Results()
         self.histories = Histories()
-        self.action_pool = self.model.create_action_pool()   #TODO: 
+        self.action_pool = self.model.create_action_pool 
+        # remove (), else TypeError: 'NoneType'
+        #TODO: 
         # self.action_pool = [-1,0,1,2,3]
-        self.observation_pool = self.model.create_observation_pool(self)
+        # Agent work like dqnNode, a helper class between ENV and SOLVER
+        #
+        self.observation_pool = self.model.create_observation_pool(solver)
         self.solver_factory = solver.reset  # Factory method for generating instances of the solver
 
     def discounted_return(self):
@@ -140,7 +144,8 @@ class Agent:
         eps = self.model.epsilon_start
         # input paramter epsilon_start = 1.0, decay para
 
-        self.model.reset_for_epoch()
+       # self.model.reset_for_epoch()
+       # SKIP TODO
 
         for i in range(self.model.n_epochs):
             # Reset the epoch stats
@@ -166,6 +171,8 @@ class Agent:
         # Create a new solver
         solver = self.solver_factory(self)
         # J solver.reset
+        
+        # reach nearer and nearer
 
         # Monte-Carlo start state
         state = solver.belief_tree_index.sample_particle()
@@ -200,6 +207,8 @@ class Agent:
 
             reward += step_result.reward
             discounted_reward += discount * step_result.reward
+            
+            # debug show reward is scalar
 
             discount *= self.model.discount
             state = step_result.next_state
@@ -263,16 +272,20 @@ class Agent:
                                self.model.planning_horizon)
 
         b = self.model.get_initial_belief_state()
+        # TODO belief state
 
         for i in range(self.model.max_steps):
 
             # TODO: record average V(b) per epoch
             action, v_b = solver.select_action(b, solver.gamma)
+            # select action
 
             step_result = self.model.generate_step(action)
+            # update env
 
             if not step_result.is_terminal:
                 b = self.model.belief_update(b, action, step_result.observation)
+                # update inner
 
             reward += step_result.reward
             discounted_reward += discount * step_result.reward
@@ -286,6 +299,10 @@ class Agent:
                 break
 
             # TODO: add belief state History sequence
+
+
+        # these in function stuff -> in main run
+        # hyper class
 
         self.results.time.add(time.time() - run_start_time)
         self.results.update_reward_results(reward, discounted_reward)

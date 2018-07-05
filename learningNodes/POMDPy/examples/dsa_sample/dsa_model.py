@@ -9,14 +9,14 @@ from past.utils import old_div
 import logging
 import json
 import numpy as np
-from pomdpy.util import console, config_parser
-from .grid_position import GridPosition
-from .DSA_state import DSAState
-from .DSA_action import DSAAction, ActionType
-from .DSA_observation import DSAObservation
+#from pomdpy.util import console, config_parser
+#from .grid_position import GridPosition
+from .dsa_state import DSAState
+from .dsa_action import DSAAction, ActionType
+from .dsa_observation import DSAObservation
 from pomdpy.discrete_pomdp import DiscreteActionPool, DiscreteObservationPool
 from pomdpy.pomdp import Model, StepResult
-from .DSA_position_history import DSAData, PositionAndDSAData
+from .dsa_position_history import DSAData, PositionAndDSAData
 
 module = "DSAModel"
 
@@ -32,7 +32,7 @@ class RSCellType:
     OBSTACLE = -3
 
 
-class DSAModel(Model):
+class DSAModel:
     def __init__(self, args):
         
         self.discount = 0.99 #
@@ -46,23 +46,24 @@ class DSAModel(Model):
         self.timeout = 0.5
         self.test = 2
         
-        super(DSAModel, self).__init__(args)
+        # super(DSAModel, self).__init__(args)
+        # super of DSAModel is Model with lots of empty function
         # logging utility
         self.logger = logging.getLogger('POMDPy.DSAModel')
-        self.DSA_config = json.load(open(config_parser.DSA_cfg, "r"))
+  #      self.DSA_config = json.load(open(config_parser.DSA_cfg, "r"))
 
         # -------- Model configurations -------- #
 
         # The reward for sampling a good DSA
-        self.good_DSA_reward = self.DSA_config['good_DSA_reward']
+#        self.good_DSA_reward = self.DSA_config['good_DSA_reward']
         # The penalty for sampling a bad DSA.
-        self.bad_DSA_penalty = self.DSA_config['bad_DSA_penalty']
+   #     self.bad_DSA_penalty = self.DSA_config['bad_DSA_penalty']
         # The reward for exiting the map
-        self.exit_reward = self.DSA_config['exit_reward']
+     #   self.exit_reward = self.DSA_config['exit_reward']
         # The penalty for an illegal move.
-        self.illegal_move_penalty = self.DSA_config['illegal_move_penalty']
+     #   self.illegal_move_penalty = self.DSA_config['illegal_move_penalty']
         # penalty for finishing without sampling a DSA
-        self.half_efficiency_distance = self.DSA_config['half_efficiency_distance']
+      #  self.half_efficiency_distance = self.DSA_config['half_efficiency_distance']
 
         # ------------- Flags --------------- #
         # Flag that checks whether the agent has yet to successfully sample a DSA
@@ -90,7 +91,7 @@ class DSAModel(Model):
         self.min_val = 0
         self.max_val = 0
 
-        self.start_position = GridPosition()
+  #      self.start_position = GridPosition()
 
         # The coordinates of the DSAs.
         self.DSA_positions = []
@@ -112,18 +113,40 @@ class DSAModel(Model):
         self.actual_DSA_states = []
 
         # The environment map in text form.
-        self.map_text, dimensions = config_parser.parse_map(self.DSA_config['map_file'])
-        self.n_rows = int(dimensions[0])
-        self.n_cols = int(dimensions[1])
+   #     self.map_text, dimensions = config_parser.parse_map(self.DSA_config['map_file'])
+    #    self.n_rows = int(dimensions[0])
+   #     self.n_cols = int(dimensions[1])
 
 #        self.initialize()
+   
+   
+   
+        self.solver = "POMCP"
         
+        self.epsilon_start = 0.99
+   
+        # hand input - due to miss the args for paras
+        
+        self.n_epochs = 20
+        
+        self.n_dsa = 4    # num of chans
         
     def create_action_pool(self):
         return DiscreteActionPool(self)
     
     def create_observation_pool(self, solver):
         return DiscreteObservationPool(solver)
+    
+    
+    
+    def create_root_historical_data(self, solver):
+        self.create_new_dsa_data()
+        return PositionAndDSAData(self, solver)
+
+    def create_new_dsa_data(self):
+        self.all_dsa_data = []
+        for i in range(0, self.n_dsa):
+            self.all_dsa_data.append(DSAData())
 
 #    # initialize the maps of the grid
 #    def initialize(self):

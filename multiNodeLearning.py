@@ -223,7 +223,7 @@ for k in range(0,numNodes):
     elif nodeTypes[k] == 4  or nodeTypes[k] == 'possion':
         t = poissonNode( numChans, numSteps, poissonChanList, arrivalRate, serviceRate)
     elif nodeTypes[k] == 10:
-        t = mdpNode(numChans,states,numSteps)   
+        t = mdpNode(numChans,states,numSteps,'VI')   
     elif (nodeTypes[k] >= 11 and nodeTypes[k] <= 16)  \
          or (nodeTypes[k] >= 30 and nodeTypes[k] <= 32)  \
                     or nodeTypes[k] == 'dqn'          or nodeTypes[k] == 'dqnDouble' \

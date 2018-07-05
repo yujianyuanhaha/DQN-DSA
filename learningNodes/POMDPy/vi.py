@@ -2,15 +2,15 @@
 from __future__ import print_function
 from pomdpy import Agent
 from pomdpy.solvers import ValueIteration
-from pomdpy.log import init_logger
-from examples.tiger import TigerModel
+#from pomdpy.log import init_logger
+from examples.dca import DCAModel
 import argparse
 import numpy as np
 
 if __name__ == '__main__':
 
 #    parser = argparse.ArgumentParser(description='Set the run parameters.')
-#    parser.add_argument('--env', type=str, help='Specify the env to solve {Tiger}')
+#    parser.add_argument('--env', type=str, help='Specify the env to solve {DCA}')
 #    parser.add_argument('--solver', type=str,
 #                        help='Specify the solver to use {ValueIteration|LinearAlphaNet|VI-Baseline}')
 #    parser.add_argument('--seed', default=1993, type=int, help='Specify the random seed for numpy.random')
@@ -38,7 +38,7 @@ if __name__ == '__main__':
 #    parser.set_defaults(save=False)
 
 #    args = vars(parser.parse_args())
-#    args = ["--env Tiger","--solver LinearAlphaNet","--use_tf", 
+#    args = ["--env DCA","--solver LinearAlphaNet","--use_tf", 
 #            "--n_epochs 50", "--max_steps 50","--test 5",
 #            "--learning_rate 0.05","--learning_rate_decay 0.996",
 #            "--learning_rate_minimum 0.00025","--learning_rate_decay_step 50",
@@ -47,7 +47,7 @@ if __name__ == '__main__':
 #    dict = {'a': 1, 'b': 2, 'b': '3'}
 
 
-#    args = { 'env':'Tiger',
+#    args = { 'env':'DCA',
 #             'solver':'LinearAlphaNet', 
 #             'use_tf':1,
 #             'n_epochs': 50,                  
@@ -66,32 +66,33 @@ if __name__ == '__main__':
 #            }
     
     
-    args = { 'env':'Tiger',
+    args = { 'env':'DCA',
          'solver':'ValueIteration', 
-         'planning_horizon': 8,
-         'n_epochs': 1,                  
-         'max_steps':10, 
+         'planning_horizon': 2,
+         'n_epochs': 2,                  
+         'max_steps':2, 
          'seed': 123         
         }
     
     
     
-#    --env Tiger --solver ValueIteration --planning_horizon 8 --n_epochs 10 --max_steps 10 --seed 123
+#    --env DCA --solver ValueIteration --planning_horizon 8 --n_epochs 10 --max_steps 10 --seed 123
     
     
     
 
-    init_logger()  # ?
+  #  init_logger()  # ?
 
     np.random.seed(int(args['seed']))
 
     if args['solver'] == 'VI-Baseline':
         from experiments.scripts import approximate_vi_eval
 
-        env = TigerModel(args)
+        env = DCAModel(args)
         solver = ValueIteration
         agent = Agent(env, solver)
         approximate_vi_eval.eval_baseline(args['n_epochs'], agent, args['planning_horizon'])
+        # method one
 
     else:
         if args['solver'] == 'ValueIteration':
@@ -102,8 +103,8 @@ if __name__ == '__main__':
         else:
             raise ValueError('solver not supported')
 
-        if args['env'] == 'Tiger':
-            env = TigerModel(args)
+        if args['env'] == 'DCA':
+            env = DCAModel(args)
             agent = Agent(env, solver)   #ToDo trace
             agent.discounted_return()    #ToDo Agent.discounted_return
         else:

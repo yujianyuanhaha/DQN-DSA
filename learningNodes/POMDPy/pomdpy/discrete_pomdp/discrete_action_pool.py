@@ -9,11 +9,11 @@ class DiscreteActionPool(ActionPool):
      * discrete bins.
      *
     """
-    def __init__(self):
+    def __init__(self,model):
         """
         :param model:
         """
-        self.all_actions = [1,2,3,4]
+        self.all_actions = model.get_all_actions()
         # [0,1,2,3,4]   # that matters
 
     def create_action_mapping(self, belief_node):
