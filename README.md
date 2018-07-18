@@ -9,6 +9,7 @@ Date  : April, 2018
 
 -------------------------------------------------------------------------
 # News
+* (Tue Jul 17) 2-state markov Chain node added
 * (Fri Jun 29) stack-DQN
     * add partial observation node with shorten observation as state
     * add partial observation node with shorten observation plus padding with zero/one as full state
@@ -136,6 +137,7 @@ conda install -c conda-forge tensorflow=1.1.0
                          -- imNode.py
                          -- dsaNode.py
                          -- poissonNode.py
+                         -- markovChainNode.py
                          -- mdpNode.py      -- mdp.py
                          -- dqnNode.py      -- dqn.py
                                             -- dqnDouble.py
@@ -158,6 +160,7 @@ Paramter all configurable at header part of ```multiNodeLearning.py``` OR ```set
 | im      | 2 | imNode      | interminient                      | imPeriod dutyCycle |
 | dsa     | 3 | dsaNode     | dynamic channel access alway occupy first avaiable channel   |  |
 | poisson | 4 | poissonNode | arrival and service interval follow poisson distribution  | arrivalRate serviceRate |
+| markovChain | 5 | markovChainNode | 2-state markov chain node  | alpha beta |
 | | | | | |
 | mdp         | 10 | mdpNode mdp          | MDP(policy iteration) full obervation  |  |
 | mdp(TODO)         | 101 | mdpNode mdp          | MDP(value iteration) full obervation  |  |

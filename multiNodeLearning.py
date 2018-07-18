@@ -73,6 +73,7 @@ from dumbNodes.hoppingNode import hoppingNode
 from dumbNodes.imNode      import imNode 
 from dumbNodes.dsaNode     import dsaNode 
 from dumbNodes.poissonNode import poissonNode
+from dumbNodes.markovChainNode import markovChainNode
 
 from learningNodes.mdpNode     import mdpNode
 from learningNodes.dqnNode     import dqnNode   #
@@ -130,6 +131,11 @@ imDutyCircleList  =  json.loads(Config.get('imNode', 'imDutyCircleList'))
 poissonChanList   =  json.loads(Config.get('poissonNode', 'poissonChanList')) 
 arrivalRate       =  json.loads(Config.get('poissonNode', 'arrivalRate')) 
 serviceRate       =  json.loads(Config.get('poissonNode', 'serviceRate')) 
+
+mcChanList        =  json.loads(Config.get('markovChainNode', 'mcChanList')) 
+alpha             =  json.loads(Config.get('markovChainNode', 'alpha')) 
+beta              =  json.loads(Config.get('markovChainNode', 'beta')) 
+
 
 noiseErrorProb    =  json.loads(Config.get('noise', 'noiseErrorProb')) 
 noiseFlipNum      =  json.loads(Config.get('noise', 'noiseFlipNum')) 
@@ -222,8 +228,10 @@ for k in range(0,numNodes):
         t = dsaNode(numChans,numSteps,txProbability)    
     elif nodeTypes[k] == 4  or nodeTypes[k] == 'possion':
         t = poissonNode( numChans, numSteps, poissonChanList, arrivalRate, serviceRate)
+    elif nodeTypes[k] == 5  or nodeTypes[k] == 'markovChain':
+        t = markovChainNode( numChans, numSteps, mcChanList, alpha, beta)
     elif nodeTypes[k] == 10:
-        t = mdpNode(numChans,states,numSteps,'VI')   
+        t = mdpNode(numChans,states,numSteps,'PI')   
     elif (nodeTypes[k] >= 11 and nodeTypes[k] <= 16)  \
          or (nodeTypes[k] >= 30 and nodeTypes[k] <= 32)  \
                     or nodeTypes[k] == 'dqn'          or nodeTypes[k] == 'dqnDouble' \

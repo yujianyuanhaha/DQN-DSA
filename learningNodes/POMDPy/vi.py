@@ -4,6 +4,8 @@ from pomdpy import Agent
 from pomdpy.solvers import ValueIteration
 #from pomdpy.log import init_logger
 from examples.dca import DCAModel
+from examples.tiger import TigerModel
+
 import argparse
 import numpy as np
 
