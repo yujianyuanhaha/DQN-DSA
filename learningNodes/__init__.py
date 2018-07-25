@@ -7,6 +7,7 @@ from .util         import _checkDimensionsListLike, _checkDimensionsListLike,isS
 
 from .dqnNode      import dqnNode
 from .dqn          import dqn
+from .dqn2         import dqn2
 from .dqnDouble    import DoubleDQN
 from .dqnDuel      import DuelingDQN
 from .dqnPriReplay import SumTree, Memory, DQNPrioritizedReplay
@@ -30,6 +31,7 @@ __all__ = [
          
            'dqnNode', 
            'dqn',   
+           'dqn2',
            'dqnDouble', 
            'dqnDuel', 
            'dqnPriReplay',

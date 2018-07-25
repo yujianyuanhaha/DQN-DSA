@@ -233,7 +233,7 @@ for k in range(0,numNodes):
     elif nodeTypes[k] == 10:
         t = mdpNode(numChans,states,numSteps,'PI')   
     elif (nodeTypes[k] >= 11 and nodeTypes[k] <= 16)  \
-         or (nodeTypes[k] >= 30 and nodeTypes[k] <= 32)  \
+         or (nodeTypes[k] >= 30 and nodeTypes[k] <= 33)  \
                     or nodeTypes[k] == 'dqn'          or nodeTypes[k] == 'dqnDouble' \
                     or nodeTypes[k] == 'dqnPriReplay' or nodeTypes[k] == 'dqnDuel'   \
                     or nodeTypes[k] == 'dqnRef'       or nodeTypes[k] == 'dpg'       \
@@ -329,7 +329,7 @@ for t in range(0,numSteps):
             elif nodes[n].type == 'dqnPad':
                 observation                = partialPad( temp, t, poStepNum, poBlockNum, padValue)
                 actions[n,:], actionScalar = nodes[n].getAction(t, observation)                
-            elif nodes[n].type == 'dqnStack':
+            elif nodes[n].type == 'dqnStack' or nodes[n].type == 'dpgStack':
                 temp2 = partialObserve( temp, t, poStepNum, poSeeNum)
                 observationS               = updateStack(observationS, temp2)
                 actions[n,:], actionScalar = nodes[n].getAction(t, observationS)
@@ -418,7 +418,7 @@ for t in range(0,numSteps):
                 observation_                = partialPad( temp, t, poStepNum, poBlockNum, padValue)
                 nodes[n].storeTransition(observation, actionScalar, 
                      reward, observation_)             
-            elif nodes[n].type == 'dqnStack':
+            elif nodes[n].type == 'dqnStack' or nodes[n].type == 'dpgStack':
                 temp2 = partialObserve( temp, t, poStepNum, poSeeNum)
                 observationS_               = updateStack(observationS, temp2)
                 nodes[n].storeTransition(observationS, actionScalar, 
@@ -436,7 +436,7 @@ for t in range(0,numSteps):
             if isinstance(nodes[n],dqnNode):
                 if t % nodes[n].policyAdjustRate == 0:    
                     nodes[n].learn()
-                learnProbHist.append( nodes[n].dqn_.exploreProb)
+#                learnProbHist.append( nodes[n].dqn_.exploreProb)
                     
             elif isinstance(nodes[n],acNode):
                  nodes[n].learn(observation, actionScalar, 
@@ -523,7 +523,7 @@ myPlotPLR(nodes, PLR)
 plt.figure(9)   
 myPlotThroughput(nodes, PLR)
 plt.figure(10)
-myPlotCost(nodes)
+#myPlotCost(nodes)
 
 print "Packet Error Rate: %s"%(PER[numSteps-1]*100)
     

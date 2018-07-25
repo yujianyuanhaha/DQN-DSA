@@ -51,12 +51,7 @@ class PositionAndDSAData(HistoricalData):
 
         # Holds reference to the function for generating legal actions
         if self.model.preferred_actions:
-            self.le         
-            
-            
-            
-            
-            gal_actions = self.generate_smart_actions
+            self.legal_actions = self.generate_smart_actions
         else:
             self.legal_actions = self.generate_legal_actions
 

@@ -11,6 +11,7 @@ from radioNode import radioNode
 import random
 import numpy as np
 import dqn
+import dqn2    #
 import dqnDouble
 import dqnPriReplay
 import dqnDuel
@@ -45,6 +46,8 @@ class dqnNode(radioNode):
     # hard core so far
     poNum = 3
     poStackSize = 3 * 4
+    
+
     
     def __init__(self,numChans,states,numSteps, dqnType):
         self.actions = np.zeros((numChans+1,numChans))
@@ -81,7 +84,9 @@ class dqnNode(radioNode):
         
         
         if dqnType == 11 :
-            self.dqn_ = dqn.dqn(
+
+            if random.random() > 0.5:
+                self.dqn_ = dqn.dqn(
                             self,
                             self.n_actions, 
                             self.n_features,   
@@ -91,7 +96,24 @@ class dqnNode(radioNode):
                             replace_target_iter=200,
                             memory_size=200,
                             e_greedy_increment=True,
-                            ) 
+                        )
+                print "dqn1"
+            else:
+                self.dqn_ = dqn2.dqn2(
+                                self,
+                                self.n_actions, 
+                                self.n_features,   
+                                learning_rate=0.01,
+                                reward_decay=0.9,
+                                exploreDecayType = 'expo',
+                                replace_target_iter=200,
+                                memory_size=200,
+                                e_greedy_increment=True,
+                                ) 
+                print "dqn2"
+              
+                 
+                    
         elif dqnType == 12 :
             self.type = "dqnDouble"
             self.dqn_ = dqnDouble.DoubleDQN(
@@ -197,7 +219,17 @@ class dqnNode(radioNode):
                             memory_size=200,
                             e_greedy_increment=True,
                             ) 
-            
+        elif dqnType == 33 :
+            self.type = "dpgStack"
+            # still use .dqn_ 
+            self.dqn_ = dpg.dpg(
+                            self,
+                            self.n_actions,
+                            self.poStackSize,
+                            learning_rate=0.02,
+                            reward_decay=0.995,
+                            # output_graph=True,
+                        )    
         else:
                 pass
 

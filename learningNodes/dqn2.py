@@ -22,7 +22,7 @@ np.random.seed(1)
 tf.set_random_seed(1)
 
 # Deep Q Network off-policy
-class dqn:
+class dqn2:
     
     exploreProb      = [ ]              # Current exploration probability
     exploreInit      = 1.0              # Initial exploration probability
@@ -51,7 +51,8 @@ class dqn:
             e_greedy_increment=None,
             output_graph= True      # enable tensorboard                  
     ):    # allow dqnNode to call in its attribute
-                
+        
+        print "dqn2 inner"        
         self.n_actions           = n_actions
         self.n_features          = n_features
         self.lr                  = learning_rate

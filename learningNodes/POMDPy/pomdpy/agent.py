@@ -28,13 +28,8 @@ class Agent:
         self.results = Results()
         self.experiment_results = Results()
         self.histories = Histories()
-        self.action_pool = self.model.create_action_pool 
-        # remove (), else TypeError: 'NoneType'
-        #TODO: 
-        # self.action_pool = [-1,0,1,2,3]
-        # Agent work like dqnNode, a helper class between ENV and SOLVER
-        #
-        self.observation_pool = self.model.create_observation_pool(solver)
+        self.action_pool = self.model.create_action_pool()
+        self.observation_pool = self.model.create_observation_pool(self)
         self.solver_factory = solver.reset  # Factory method for generating instances of the solver
 
     def discounted_return(self):
@@ -43,7 +38,6 @@ class Agent:
             solver = self.solver_factory(self)
 
             self.run_value_iteration(solver, 1)
-            #     def run_value_iteration(self, solver, epoch):
 
             if self.model.save:
                 save_pkl(solver.gamma,
@@ -76,10 +70,7 @@ class Agent:
         tf.set_random_seed(int(self.model.seed) + 1)
 
         with tf.Session() as sess:
-      #      solver = self.solver_factory(self, sess)
-      
-      # no neural network involved!
-            solver = self.solver_factory
+            solver = self.solver_factory(self, sess)
 
             for epoch in range(self.model.n_epochs + 1):
 
@@ -94,18 +85,16 @@ class Agent:
                     reward = 0.
                     discounted_reward = 0.
                     discount = 1.0
-                    belief = self.model.get_initial_belief_state()  # generate belief(state)   # only for LinearAlphabelt method,not with POMDP
+                    belief = self.model.get_initial_belief_state()
                     step = 0
                     while step < self.model.max_steps:
-                        action, _ = solver.greedy_predict(belief)  #  generate action
+                        action, v_b = solver.greedy_predict(belief)
                         step_result = self.model.generate_step(action)
 
                         if not step_result.is_terminal:
-                            belief = self.model.belief_update(belief, action, step_result.observation) # update belief(state)
-                            # b, a, o -> b_
-                            
+                            belief = self.model.belief_update(belief, action, step_result.observation)
 
-                        reward += step_result.reward  # reward
+                        reward += step_result.reward
                         discounted_reward += discount * step_result.reward
                         discount *= self.model.discount
 
@@ -122,10 +111,10 @@ class Agent:
                     self.experiment_results.discounted_return.add(discounted_reward)
 
                     summary = sess.run([solver.experiment_summary], feed_dict={
-                        solver.avg_undiscounted_return         : self.experiment_results.undiscounted_return.mean,
-                        solver.avg_undiscounted_return_std_dev : self.experiment_results.undiscounted_return.std_dev(),
-                        solver.avg_discounted_return           : self.experiment_results.discounted_return.mean,
-                        solver.avg_discounted_return_std_dev   : self.experiment_results.discounted_return.std_dev()
+                        solver.avg_undiscounted_return: self.experiment_results.undiscounted_return.mean,
+                        solver.avg_undiscounted_return_std_dev: self.experiment_results.undiscounted_return.std_dev(),
+                        solver.avg_discounted_return: self.experiment_results.discounted_return.mean,
+                        solver.avg_discounted_return_std_dev: self.experiment_results.discounted_return.std_dev()
                     })
                     for summary_str in summary:
                         solver.summary_ops['writer'].add_summary(summary_str, epoch)
@@ -142,10 +131,8 @@ class Agent:
 
     def multi_epoch(self):
         eps = self.model.epsilon_start
-        # input paramter epsilon_start = 1.0, decay para
 
-       # self.model.reset_for_epoch()
-       # SKIP TODO
+        self.model.reset_for_epoch()
 
         for i in range(self.model.n_epochs):
             # Reset the epoch stats
@@ -153,32 +140,21 @@ class Agent:
 
             if self.model.solver == 'POMCP':
                 eps = self.run_pomcp(i + 1, eps)
-                #  def run_pomcp(self, epoch, eps):
                 self.model.reset_for_epoch()
 
             if self.experiment_results.time.running_total > self.model.timeout:
-#                console(2, module, 'Timed out after ' + str(i) + ' epochs in ' +
- #                       self.experiment_results.time.running_total + ' seconds')
+                console(2, module, 'Timed out after ' + str(i) + ' epochs in ' +
+                        self.experiment_results.time.running_total + ' seconds')
                 break
 
-
-######################################################################
-######################################################################
     def run_pomcp(self, epoch, eps):
-        # J epoch does not matter
         epoch_start = time.time()
 
         # Create a new solver
         solver = self.solver_factory(self)
-        # J solver.reset
-        
-        # reach nearer and nearer
 
         # Monte-Carlo start state
         state = solver.belief_tree_index.sample_particle()
-        #Todo the state(does not matter much in pomdp through XD)
-        # J solver/belief_tree_solver.py
-        # J belief_node.py .sample_particle - Randomly select a History Entry
 
         reward = 0
         discounted_reward = 0
@@ -187,28 +163,18 @@ class Agent:
         for i in range(self.model.max_steps):
 
             start_time = time.time()
-            print("######### enter notice zone #########")
+
             # action will be of type Discrete Action
             action = solver.select_eps_greedy_action(eps, start_time)
-            #Todo get action
-            # eps - kinda of prob, and tag, not used in fuction
-            
-            if type(action) is int:
-                print('~~~~~~~~~ int action ~~~~~~~') 
 
             # update epsilon
             if eps > self.model.epsilon_minimum:
                 eps *= self.model.epsilon_decay
 
             step_result, is_legal = self.model.generate_step(state, action)
-            # J like tell collision
-            # env(s,a) -> r, s_
-            # action 'Translate' here within model.generate_step( )
 
             reward += step_result.reward
             discounted_reward += discount * step_result.reward
-            
-            # debug show reward is scalar
 
             discount *= self.model.discount
             state = step_result.next_state
@@ -218,14 +184,9 @@ class Agent:
 
             if not step_result.is_terminal or not is_legal:
                 solver.update(step_result)
-                # J - blief_tree_solver .update, tree stuff
 
             # Extend the history sequence
             new_hist_entry = solver.history.add_entry()
-            # J ? add_entry() from 
-            
-            # history.py add_entry
-            
             HistoryEntry.update_history_entry(new_hist_entry, step_result.reward,
                                               step_result.action, step_result.observation, step_result.next_state)
 
@@ -250,14 +211,6 @@ class Agent:
         self.experiment_results.discounted_return.add(self.results.discounted_return.running_total)
 
         return eps
-    
-    
-######################################################################
-######################################################################
-    
-    
-    
-    
 
     def run_value_iteration(self, solver, epoch):
         run_start_time = time.time()
@@ -272,20 +225,16 @@ class Agent:
                                self.model.planning_horizon)
 
         b = self.model.get_initial_belief_state()
-        # TODO belief state
 
         for i in range(self.model.max_steps):
 
             # TODO: record average V(b) per epoch
             action, v_b = solver.select_action(b, solver.gamma)
-            # select action
 
             step_result = self.model.generate_step(action)
-            # update env
 
             if not step_result.is_terminal:
                 b = self.model.belief_update(b, action, step_result.observation)
-                # update inner
 
             reward += step_result.reward
             discounted_reward += discount * step_result.reward
@@ -299,10 +248,6 @@ class Agent:
                 break
 
             # TODO: add belief state History sequence
-
-
-        # these in function stuff -> in main run
-        # hyper class
 
         self.results.time.add(time.time() - run_start_time)
         self.results.update_reward_results(reward, discounted_reward)

@@ -76,15 +76,12 @@ class POMCP(BeliefTreeSolver):
         else:
             self.monte_carlo_approx(eps, start_time)
         return ucb_action(self, self.belief_tree_index, True)
-        # self.belief_tree_index
-        # J ucb_action() from action_selection/action_selector
 
     def simulate(self, belief_node, eps, start_time):
         """
         :param belief_node:
         :return:
         """
-        # suck, eps hard set as 0
         return self.traverse(belief_node, 0, start_time)
 
     def traverse(self, belief_node, tree_depth, start_time):

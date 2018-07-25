@@ -4,7 +4,6 @@ from pomdpy import Agent
 from pomdpy.solvers import POMCP
 from pomdpy.log import init_logger
 from examples.rock_sample import RockModel
-from examples.dsa_sample import DSAModel
 import argparse
 import numpy as np
 
@@ -54,25 +53,31 @@ if __name__ == '__main__':
 #
 #    args = vars(parser.parse_args())
     
-    
-#     python pomcp.py --env RockSample --solver POMCP --max_steps 200 --epsilon_start 1.0 
-#     --epsilon_decay 0.99 --n_epochs 10 --n_sims 500  --preferred_actions --seed 123
-#    args = { 'env':'DSA',
-#             'solver':'POMCP',                  
-#             'max_steps': 20, 
-#             'epsilon_start': 1.0,
-#             'epsilon_decay': 0.99, 
-#             'n_epochs': 20, 
-#             'n_sims': 20,
-#             'preferred_actions': 1,
-#             'seed': 12157          
-#    }
-    
-    args = { 'env':'DSA',
-             'solver':'POMCP',  
-             'seed': 12157                           
-    }
+    args = { 'env':'RockSample',
+             'solver':'POMCP',                  
+             'max_steps': 20, 
+             'epsilon_start': 1.0,
+             'epsilon_decay': 0.99, 
+             'n_epochs': 20, 
+             'n_sims': 20,
+             'preferred_actions': 1,
+             'seed': 12157,
+             
+             'discount': 0.95,
+             'use_tf': False,
+             'n_start_states': 20,
+             'ucb_coefficient': 3.0,
+             'action_selection_timeout': 60,
+             'max_depth': 20,
+             'min_particle_count':1000,
+             'max_particle_count':2000,
+             
 
+             'epsilon_minimum': 0.1,
+             'timeout':2000
+
+             
+    }
 
     init_logger()
 
@@ -83,8 +88,8 @@ if __name__ == '__main__':
     else:
         solver = POMCP
 
-    if args['env'] == 'DSA':
-        env = DSAModel(args)
+    if args['env'] == 'RockSample':
+        env = RockModel(args)
 #        env.draw_env()
         agent = Agent(env, solver)
         agent.discounted_return()

@@ -38,7 +38,6 @@ class BeliefTreeSolver(Solver):
             self.belief_tree.root.state_particles.append(particle)
 
         self.belief_tree_index = self.belief_tree.root.copy()
-        # J pomdpy.pomdp.belief_tree.py BeliefTree class 
 
     def monte_carlo_approx(self, eps, start_time):
         """
@@ -67,7 +66,6 @@ class BeliefTreeSolver(Solver):
         """
 
     @abc.abstractmethod
-    # abstract usage - advanced python grammer - more to learn
     def select_eps_greedy_action(self, eps, start_time):
         """
         Call methods specific to the implementation of the solver

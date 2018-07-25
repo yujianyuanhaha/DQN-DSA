@@ -180,12 +180,13 @@ Paramter all configurable at header part of ```multiNodeLearning.py``` OR ```set
 | et (Yue, TODO)       | 24 | dqnNode           | eligiable trace  |  |
 | guess (Yue, TODO)    | 25 | dqnNode           | memory with guess sample  |  |
 | | | | | |
-| dqnPad             | 30 | dqnNode dpg          | partial observation with unkown padding with 1/0  |  |
-| dqnPo              | 31 | dqnNode dpg          | partial observation  |  |
-| dqnStack           | 32 | dqnNode dpg          | stacked   partial observation|  |
-| dqnVI (TODO)       | 33 | dqnNode dpg          | Vaule Iteration  |  |
-| dqnPomcp (TODO)    | 34 | dqnNode dpg          | Partial Observation Monte-Carlo Planning   |  |
-| drqn (Yue, TODO)   | 35 | dqnNode dpg          | deep recurrent policy gradient  |  |
+| dqnPad             | 30 | dqnNode dqn          | partial observation with unkown padding with 1/0  |  |
+| dqnPo              | 31 | dqnNode dqn          | partial observation  |  |
+| dqnStack           | 32 | dqnNode dqn          | stacked   partial observation|  |
+| dpgStack           | 33 | dqnNode dpg          | stacked   partial observation|  |
+| dqnVI (TODO)       | 34 | dqnNode vi          | Vaule Iteration  |  |
+| dqnPomcp (TODO)    | 35 | dqnNode pomcp          | Partial Observation Monte-Carlo Planning   |  |
+| drqn (Yue, TODO)   | 36 | dqnNode drqn          | deep recurrent policy gradient  |  |
 
 
 
