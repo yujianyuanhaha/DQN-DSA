@@ -79,15 +79,26 @@ class ddpgNode(radioNode):
         
         self.ddpg_ = ddpg.DDPG(self, self.n_actions, self.n_features, self.n_actions + 1 )
         
-        self.var = 3
+        self.type = 'ddpg'
+        
+        self.var = 1
+        
+        
+        
 
     
         
     def getAction(self, stepNum ,observation):
         
-        temp = self.ddpg_.choose_action(observation) 
-        temp = np.clip(np.random.normal(temp, self.var), -2, 2) 
-        temp = temp[0]
+        temp = self.ddpg_.choose_action(observation)  
+#        print "raw action%s"%(temp)
+        temp = np.clip(np.random.normal(temp, self.var), 0, 4)
+#        temp = np.clip(temp, 0, 4)
+#        print "clip action%s"%(temp)
+        temp = int(max(np.ceil(temp)))
+#        print "final action%s"%(temp)
+#        print "---------------------"
+#        print "action%s"%(temp)
         # !!! new define, convert action from a int to a array
         action       = np.zeros(self.numChans) 
         if temp > 0:

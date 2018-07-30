@@ -12,7 +12,7 @@ from dumbNodes.legacyNode  import legacyNode
 from dumbNodes.hoppingNode import hoppingNode
 from dumbNodes.dsaNode     import dsaNode 
 from dumbNodes.imNode      import imNode 
-from dumbNodes.poissonNode import poissonNode  
+from stochasticNodes.poissonNode import poissonNode  
 
 
 

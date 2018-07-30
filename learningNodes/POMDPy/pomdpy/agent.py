@@ -132,7 +132,7 @@ class Agent:
     def multi_epoch(self):
         eps = self.model.epsilon_start
 
-        self.model.reset_for_epoch()
+#        self.model.reset_for_epoch()
 
         for i in range(self.model.n_epochs):
             # Reset the epoch stats

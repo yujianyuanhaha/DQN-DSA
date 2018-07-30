@@ -80,6 +80,7 @@ class dqnNode(radioNode):
         self.n_features    = numChans 
         
         self.type = "dqn" 
+        self.priority = 0  # asyn
         
         
         

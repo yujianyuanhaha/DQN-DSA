@@ -31,6 +31,7 @@ class dsaNode (radioNode):
         self.txProbability = txProb
         self.observedState = np.zeros(numChans)
         self.stateHist     = np.zeros((numSteps+1,numChans))
+        self.type = "dsa"
         
     ###################################################################
     # Determines an action from the node's possible actions

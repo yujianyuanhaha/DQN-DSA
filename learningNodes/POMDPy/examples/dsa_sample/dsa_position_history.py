@@ -50,10 +50,12 @@ class PositionAndDSAData(HistoricalData):
        #            self.all_DSA_data = all_DSA_data
 
         # Holds reference to the function for generating legal actions
-        if self.model.preferred_actions:
-            self.legal_actions = self.generate_smart_actions
-        else:
-            self.legal_actions = self.generate_legal_actions
+#        if self.model.preferred_actions:
+#            self.legal_actions = self.generate_smart_actions
+#        else:
+#            self.legal_actions = self.generate_legal_actions
+        
+        self.legal_actions = [0,1,2,3]
 
 #    @staticmethod
 #    def copy_DSA_data(other_data):

@@ -29,6 +29,8 @@ class hoppingNode(radioNode):
         self.hopRate       = hopRate  # hop rate, the freq it decide to hop next channel
         self.hopPattern    = HoppingChanIndex
         
+        self.type = "hopping"
+        
     def  getAction(self,stepNum):
         if not np.fmod(stepNum,self.hopRate):
             self.hopIndex +=  1

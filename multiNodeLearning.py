@@ -71,14 +71,16 @@ from stateSpaceCreate import stateSpaceCreate
 from dumbNodes.legacyNode  import legacyNode
 from dumbNodes.hoppingNode import hoppingNode
 from dumbNodes.imNode      import imNode 
+#from dumbNodes.combineNode      import combineNode
 from dumbNodes.dsaNode     import dsaNode 
-from dumbNodes.poissonNode import poissonNode
-from dumbNodes.markovChainNode import markovChainNode
+
+from stochasticNodes.poissonNode import poissonNode
+from stochasticNodes.markovChainNode import markovChainNode
 
 from learningNodes.mdpNode     import mdpNode
 from learningNodes.dqnNode     import dqnNode   #
 from learningNodes.acNode      import acNode
-#from learningNodes.ddpgNode    import ddpgNode 
+from learningNodes.ddpgNode    import ddpgNode 
 
 from scenario    import scenario
 import matplotlib.pyplot as plt
@@ -209,6 +211,7 @@ states = stateSpaceCreate(numChans)
 CountLegacyChanIndex = 0
 CountHoppingChanIndex = 0
 CountIm = 0
+CountDqn = 0
 
 ''' ===================================================================  '''
 '''          Construct diff Type of Nodes                                '''
@@ -242,8 +245,11 @@ for k in range(0,numNodes):
                     
         t = dqnNode(numChans,states,numSteps, nodeTypes[k])      
         # dqnNode, temporary asyn
-        t.policyAdjustRate = random.randint(5, 9)
+#        t.policyAdjustRate = random.randint(5, 9)
 #        t.policyAdjustRate = 5
+        CountDqn += 1
+        if CountDqn > 1:
+            t.priority += 1
 #        print "DQN node %s Parameters: learning_rate %s, reward_decay %s,\
 #                replace_target_iter %s, memory_size %s,\
 #                policyAdjustRate %s" %(k, t.dqn_.lr, t.dqn_.gamma,              
@@ -251,8 +257,8 @@ for k in range(0,numNodes):
     elif nodeTypes[k] == 17 or nodeTypes[k] == 'ac':
         t = acNode(numChans,states,numSteps) 
         
-    #ßelif nodeTypes[k] == 18 or nodeTypes[k] == 'ddpg':
-    #    t = ddpgNode(numChans,states,numSteps)     
+    elif nodeTypes[k] == 18 or nodeTypes[k] == 'ddpg':
+        t = ddpgNode(numChans,states,numSteps)     
         
 
     else:
@@ -319,7 +325,7 @@ for t in range(0,numSteps):
     ''' ===================================================================  '''
 
     for n in range(0,numNodes):
-        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode): #or isinstance(nodes[n],ddpgNode) :
+        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) or isinstance(nodes[n],ddpgNode):
             ticDqnAction  = time.time()
             temp = observedStates[n,:]
             
@@ -334,8 +340,12 @@ for t in range(0,numSteps):
                 observationS               = updateStack(observationS, temp2)
                 actions[n,:], actionScalar = nodes[n].getAction(t, observationS)
             else:
-                observation                = temp
-                actions[n,:], actionScalar = nodes[n].getAction(t, observation)
+                "------ dqn 1 get Action, while dqn 2 pending ------"
+                if nodes[n].priority:  # if higher priority
+                    observation                = temp
+                    actions[n,:], actionScalar = nodes[n].getAction(t, observation)
+#                    print "******dqn node %s make action*****"%(n)
+                    # dqn2 action pending as WAIT, be overwritten later
             
              
 
@@ -355,6 +365,7 @@ for t in range(0,numSteps):
     ''' ===================================================================  '''
     ''' Determining observations, collisions, rewards, and policies          '''
     ''' ===================================================================  '''
+
 
     observedStates = np.zeros((numNodes,numChans))
     for n in range(0,numNodes):
@@ -380,10 +391,44 @@ for t in range(0,numSteps):
                     collisions[n]         = 1
                     collisionTally[n,nn] += 1
                       
-                    
-
-
+    "-------- after meta update for another observation, dqn1 make action; and then update collision --------" 
+    for n in range(0,numNodes):
+        if nodes[n].type == 'dqn':
+            if nodes[n].priority == 0:
+                actions[n,:], actionScalar = nodes[n].getAction(t, observedStates[n,:])
+#                print "******dqn node %s make action*****"%(n)
             
+    "-------- update again after dqn 2 ------- "
+    for n in range(0,numNodes):
+        collisions[n] = 0
+    
+   
+        for nn in range(0,numNodes):
+            if nn != n:
+                # case 1, duplex collision
+                if nodes[nn].hiddenDuplexCollision[n]:
+                    if  np.sum( actions[n,:] + actions[nn,:])> 1:
+                        collisions[n]         = 1
+                        collisionTally[n,nn] += 1
+                        observedStates[n,:]   = np.ones(numChans)   # all illegal 
+                        # think duplex col node as "full channel user", only have to is wait
+                        # print "duplex collision"                                  
+                else:
+                    observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)   # partial obseravtion
+                        
+                # case 2, same channel collision                        
+                if np.sum(actions[n,:]) > 0 \
+                  and any( np.array( actions[n,:] + actions[nn,:])> 1 ) \
+                  and not nodes[nn].exposedSpatialReuse[n]:    # if nodes[nn].exposedSpatialReuse[n] == 0
+                    collisions[n]         = 1
+                    collisionTally[n,nn] += 1
+    "-------- update ends------- "
+    
+    
+                
+           
+
+    for n in range(0,numNodes):
         if isinstance(nodes[n],dsaNode):
             nodes[n].updateState(observedStates[n,:],t)
                     
@@ -404,8 +449,7 @@ for t in range(0,numSteps):
                 nodes[n].updatePolicy(t)
             tocMdpLearn = time.time()
                                 
-        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) :
-                                       # or isinstance(nodes[n],ddpgNode):
+        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) or isinstance(nodes[n],ddpgNode):
             ticDqnLearn = time.time()
             reward = nodes[n].getReward(collisions[n] ,t, isWait)
             temp = observedStates[n,:]  #  observation_
@@ -424,6 +468,7 @@ for t in range(0,numSteps):
                 nodes[n].storeTransition(observationS, actionScalar, 
                      reward, observationS_) 
             else:
+                "----- dqn1 should "
                 observation_ = temp
                 nodes[n].storeTransition(observation, actionScalar, 
                      reward, observation_)
@@ -431,7 +476,7 @@ for t in range(0,numSteps):
 
             if  noiseErrorProb > 0:           
                 observation_  = noise(observation_ , noiseErrorProb, noiseFlipNum)
-            
+            "---- learn ---------"
             done = True  
             if isinstance(nodes[n],dqnNode):
                 if t % nodes[n].policyAdjustRate == 0:    
@@ -442,12 +487,12 @@ for t in range(0,numSteps):
                  nodes[n].learn(observation, actionScalar, 
                      reward, observation_)
                  
-#            elif isinstance(nodes[n],ddpgNode):
-#                 nodes[n].storeTransition(observation, actionScalar, 
-#                 reward, observation_)
-#                 if nodes[n].ddpg_.pointer > nodes[n].ddpg_.MEMORY_CAPACITY:
-#                     nodes[n].var *= .9995    # decay the action randomness
-#                     nodes[n].ddpg_.learn()
+            elif isinstance(nodes[n],ddpgNode):
+                 nodes[n].storeTransition(observation, actionScalar, 
+                 reward, observation_)
+                 if nodes[n].ddpg_.pointer > nodes[n].ddpg_.MEMORY_CAPACITY:
+                     nodes[n].var *= .9995    # decay the action randomness
+                     nodes[n].ddpg_.learn()
                  
             else:
                 pass

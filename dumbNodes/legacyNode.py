@@ -22,6 +22,8 @@ class legacyNode(radioNode):
         self.actionHist               = np.zeros((numSteps,numChans))
         self.actionHistInd            = np.zeros(numSteps)
         self.txProbability            = txProbability
+        
+        self.type = "legacy"
     
     def getAction(self, stepNum):             
         

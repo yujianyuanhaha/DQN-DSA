@@ -47,6 +47,8 @@ class mdpNode(radioNode):
     rewardTrans      = [ ]
     cumulativeReward = [ ]
     
+    
+    
     def __init__(self,numChans,states,numSteps, iterationMethod):
         
         self.actions = np.zeros((numChans+1,numChans))
@@ -80,6 +82,8 @@ class mdpNode(radioNode):
         self.policy = np.zeros(numChans)
         
         self.iterationMethod = iterationMethod
+        
+        self.type = 'mdp'
     
       
         

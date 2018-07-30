@@ -45,6 +45,7 @@ class DSAModel:
         self.epsilon_minimum = 0.01
         self.timeout = 0.5
         self.test = 2
+        self.preferred_actions = 4
         
         # super(DSAModel, self).__init__(args)
         # super of DSAModel is Model with lots of empty function
@@ -86,7 +87,7 @@ class DSAModel:
         # The number of columns in the map
         self.n_cols = 0
         # The number of DSAs on the map.
-        self.n_DSAs = 0
+        self.n_DSAs = 4  # ToDo
         self.num_states = 0
         self.min_val = 0
         self.max_val = 0
@@ -301,8 +302,8 @@ class DSAModel:
 #        self.num_bad_checks = 0
 #        self.num_good_checks = 0
 #
-#    def reset_for_epoch(self):
-#        self.actual_DSA_states = self.sample_DSAs()
+    def reset_for_epoch(self):
+        self.actual_DSA_states = self.sample_DSAs()
 #        console(2, module, "Actual DSA states = " + str(self.actual_DSA_states))
 #
 #    def update(self, step_result):
@@ -328,14 +329,14 @@ class DSAModel:
 #            "Good": 2
 #        }, 3
 #
-#    def get_all_actions(self):
-#        """
-#        :return: Return a list of all actions along with the length
-#        """
-#        all_actions = []
-#        for code in range(0, 5 + self.n_DSAs):
-#            all_actions.append(DSAAction(code))
-#        return all_actions
+    def get_all_actions(self):
+        """
+        :return: Return a list of all actions along with the length
+        """
+        all_actions = []
+        for code in range(0, 5 + self.n_DSAs):
+            all_actions.append(DSAAction(code))
+        return all_actions
 #
 #
 #

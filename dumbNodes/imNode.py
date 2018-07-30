@@ -12,29 +12,45 @@ from radioNode import radioNode
 
 class imNode(radioNode):
     
-    imDutyCircleCount = 0
+#    imDutyCircleCount = 0
 #    imDutyPeriod      = 100
     
     def __init__(self, numChans, numSteps, imPeriod ,imDutyCircle, imChanIndex):
-        self.actions                  = np.zeros(numChans)  
-        self.actions[ imChanIndex ] = 1
+        self.actions                  = np.zeros(numChans)
+        self.OFF                      = np.zeros(numChans)  
+        self.actions[ imChanIndex ]   = 1
+        self.ON                      = self.actions
+         
         self.numActions               = np.size(self.actions,0)  
         self.actionTally              = np.zeros(numChans+1)
         self.actionHist               = np.zeros((numSteps,numChans))
         self.actionHistInd            = np.zeros(numSteps)
         self.imDutyPeriod             = imPeriod
         self.imDutyCircle             = imDutyCircle
+        self.type                     = "im"        
+        self.switch                   = np.zeros(len(self.imDutyCircle))
+        for i in range(len(self.imDutyCircle)):
+            self.switch[i] = self.imDutyCircle[i] * self.imDutyPeriod 
 
     
     def getAction(self, stepNum):             
-        
-        if self.imDutyCircleCount <= self.imDutyCircle * self.imDutyPeriod:
-            action = self.actions  
+                    
+        if stepNum > 0:
+            if  stepNum % self.imDutyPeriod in self.switch:
+                # do the 'flip' when meet the switch point
+                if (self.actionHist[stepNum-1,:]).any():
+                    action = self.OFF
+                else:
+                    action = self.ON
+            else:
+                action = self.actionHist[stepNum-1,:]        
         else:
-            action = np.zeros(len(self.actions))   # choose channel 0            
-            if self.imDutyCircleCount >= self.imDutyPeriod:
-                self.imDutyCircleCount = 0
-        self.imDutyCircleCount += 1
+            action = self.ON
+            
+            
+        
+        
+#        self.imDutyCircleCount += 1
             
         self.actionHist[stepNum,:] = action
         if not np.sum(action):

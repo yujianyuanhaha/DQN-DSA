@@ -4,6 +4,7 @@ from pomdpy import Agent
 from pomdpy.solvers import POMCP
 from pomdpy.log import init_logger
 from examples.rock_sample import RockModel
+from examples.dsa_sample import DSAModel
 import argparse
 import numpy as np
 
@@ -53,7 +54,7 @@ if __name__ == '__main__':
 #
 #    args = vars(parser.parse_args())
     
-    args = { 'env':'RockSample',
+    args = { 'env':'DSASample',
              'solver':'POMCP',                  
              'max_steps': 20, 
              'epsilon_start': 1.0,
@@ -88,8 +89,8 @@ if __name__ == '__main__':
     else:
         solver = POMCP
 
-    if args['env'] == 'RockSample':
-        env = RockModel(args)
+    if args['env'] == 'DSASample':
+        env = DSAModel(args)
 #        env.draw_env()
         agent = Agent(env, solver)
         agent.discounted_return()
