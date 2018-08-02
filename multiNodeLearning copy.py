@@ -71,9 +71,7 @@ from stateSpaceCreate import stateSpaceCreate
 from dumbNodes.legacyNode  import legacyNode
 from dumbNodes.hoppingNode import hoppingNode
 from dumbNodes.imNode      import imNode 
-#from dumbNodes.combineNode      import combineNode
 from dumbNodes.dsaNode     import dsaNode 
-
 from stochasticNodes.poissonNode import poissonNode
 from stochasticNodes.markovChainNode import markovChainNode
 
@@ -111,8 +109,16 @@ from myFunction import channelAssignment, \
 
 import ConfigParser
 import json
+import argparse
+
+parser = argparse.ArgumentParser(description='Load settings file')
+parser.add_argument('--set', default="setup.config" , type=str, help='Specify the setting file name')
+
+args = vars(parser.parse_args())
+
 Config = ConfigParser.ConfigParser()
-Config.read("setup.config")     
+Config.read(args['set'])
+#Config.read("setup.config")     
 numSteps          =  json.loads( Config.get('Global', 'numSteps'))                  
 numChans          =  json.loads( Config.get('Global', 'numChans'))  
 ChannelAssignType =  Config.get('Global', 'ChannelAssignType')    
@@ -211,7 +217,6 @@ states = stateSpaceCreate(numChans)
 CountLegacyChanIndex = 0
 CountHoppingChanIndex = 0
 CountIm = 0
-CountDqn = 0
 
 ''' ===================================================================  '''
 '''          Construct diff Type of Nodes                                '''
@@ -245,11 +250,8 @@ for k in range(0,numNodes):
                     
         t = dqnNode(numChans,states,numSteps, nodeTypes[k])      
         # dqnNode, temporary asyn
-        t.policyAdjustRate = random.randint(5, 20)
+#        t.policyAdjustRate = random.randint(5, 9)
 #        t.policyAdjustRate = 5
-        CountDqn += 1
-        if CountDqn > 1:
-            t.priority += 1
 #        print "DQN node %s Parameters: learning_rate %s, reward_decay %s,\
 #                replace_target_iter %s, memory_size %s,\
 #                policyAdjustRate %s" %(k, t.dqn_.lr, t.dqn_.gamma,              
@@ -323,11 +325,7 @@ for t in range(0,numSteps):
     ''' ===================================================================  '''
     '''    Determination of next action for each node                       '''
     ''' ===================================================================  '''
-    
-    dqnPriObservation = 0
-    dqnPriAction = 0
-    
-    '''=========== get action =============================================='''
+
     for n in range(0,numNodes):
         if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) or isinstance(nodes[n],ddpgNode):
             ticDqnAction  = time.time()
@@ -344,21 +342,9 @@ for t in range(0,numSteps):
                 observationS               = updateStack(observationS, temp2)
                 actions[n,:], actionScalar = nodes[n].getAction(t, observationS)
             else:
-                "------ dqn primary get Action, while dqn sec pending ------"
-                if nodes[n].priority:  # if higher priority
-                    observation                = temp
-                    
-                    dqnPriObservation = observation
-                    
-#                    print "dqn primary observation %s"%(observation)
-                    actions[n,:], actionScalar = nodes[n].getAction(t, observation)
-                    
-                    dqnPriAction = actions[n,:]
-                    
-#                    print "dqn primary make action %s"%(actionScalar)
-#                    print "******dqn node %s make action*****"%(n)
-                    # dqn2 action pending as WAIT, be overwritten later
-
+                observation                = temp
+                actions[n,:], actionScalar = nodes[n].getAction(t, observation)
+            
              
 
             tocDqnAction  = time.time()
@@ -374,113 +360,38 @@ for t in range(0,numSteps):
     if simulationScenario.scenarioType != 'fixed':
          simulationScenario.updateScenario(nodes,legacyNodeIndicies, t)
 
-    '---------------------- first update after dqn primary excute action -----------------------------------------'
-    observedStates = np.zeros((numNodes,numChans))
-    for n in range(0,numNodes):
-        collisions[n] = 0
-        
-        for nn in range(0,numNodes):
-            if nn != n:
-                if any( np.array( actions[n,:] + actions[nn,:])> 1 ):
-                    collisions[n]         = 1
-                    collisionTally[n,nn] += 1
-                observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)        
-    '-----------------------------------------------------------------------------'
-          
-                    
-                
-                
-#                # case 1, duplex collision
-#                if nodes[nn].hiddenDuplexCollision[n]:
-#                    if  np.sum( actions[n,:] + actions[nn,:])> 1:
-#                        collisions[n]         = 1
-#                        collisionTally[n,nn] += 1
-#                        observedStates[n,:]   = np.ones(numChans)   # all illegal 
-#                        # think duplex col node as "full channel user", only have to is wait
-#                        # print "duplex collision"                                  
-#                else:
-#                    observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)   # partial obseravtion
-#                        
-#                # case 2, same channel collision                        
-#                if np.sum(actions[n,:]) > 0 \
-#                  and any( np.array( actions[n,:] + actions[nn,:])> 1 ) \
-#                  and not nodes[nn].exposedSpatialReuse[n]:    # if nodes[nn].exposedSpatialReuse[n] == 0
-#                    collisions[n]         = 1
-#                    collisionTally[n,nn] += 1
-                    
-                    
-                      
-    "-------- after meta update for another observation, dqn1 make action; and then update collision --------" 
-    for n in range(0,numNodes):
-        if nodes[n].type == 'dqn':
-            if nodes[n].priority == 0:
-                
-#                print "dqn sec observation %s"%(observedStates[n,:])
-                
-                "--- correct check, the gosh ---"
-#                if not np.array_equal( observedStates[n,:] , ( dqnPriObservation + dqnPriAction ) > 0):
-#                    print "unmatch at step %s"%(t)
-                    
-                 
-                 
-                
-                observation = observedStates[n,:]
-                actions[n,:], actionScalar = nodes[n].getAction(t, observation)
-#                print "dqn sec make action %s"%(actionScalar)
-            
-    
-    
-    "-------- update again after dqn 2 ------- "
-    
-    
-    
-    '-----------------------------------------------------------------------------'
-    observedStates = np.zeros((numNodes,numChans))
-    for n in range(0,numNodes):
-        collisions[n] = 0
-        
-        for nn in range(0,numNodes):
-            if nn != n:
-                if any( np.array( actions[n,:] + actions[nn,:])> 1 ):
-                    collisions[n]         = 1
-                    collisionTally[n,nn] += 1
-                observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)
-    '-----------------------------------------------------------------------------'
-    
-#    for n in range(0,numNodes):
-#        collisions[n] = 0
-#    
-#   
-#        for nn in range(0,numNodes):
-#            if nn != n:
-#                # case 1, duplex collision
-#                if nodes[nn].hiddenDuplexCollision[n]:
-#                    if  np.sum( actions[n,:] + actions[nn,:])> 1:
-#                        collisions[n]         = 1
-#                        collisionTally[n,nn] += 1
-#                        observedStates[n,:]   = np.ones(numChans)   # all illegal 
-#                        # think duplex col node as "full channel user", only have to is wait
-#                        # print "duplex collision"                                  
-#                else:
-#                    observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)   # partial obseravtion
-#                        
-#                # case 2, same channel collision                        
-#                if np.sum(actions[n,:]) > 0 \
-#                  and any( np.array( actions[n,:] + actions[nn,:])> 1 ) \
-#                  and not nodes[nn].exposedSpatialReuse[n]:    # if nodes[nn].exposedSpatialReuse[n] == 0
-#                    collisions[n]         = 1
-#                    collisionTally[n,nn] += 1
-    "-------- update ends------- "
-    
-    
-    
     ''' ===================================================================  '''
     ''' Determining observations, collisions, rewards, and policies          '''
     ''' ===================================================================  '''
-            
-           
 
+
+    observedStates = np.zeros((numNodes,numChans))
     for n in range(0,numNodes):
+        collisions[n] = 0
+        
+        for nn in range(0,numNodes):
+            if nn != n:
+                # case 1, duplex collision
+                if nodes[nn].hiddenDuplexCollision[n]:
+                    if  np.sum( actions[n,:] + actions[nn,:])> 1:
+                        collisions[n]         = 1
+                        collisionTally[n,nn] += 1
+                        observedStates[n,:]   = np.ones(numChans)   # all illegal 
+                        # think duplex col node as "full channel user", only have to is wait
+                        # print "duplex collision"                                  
+                else:
+                    observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)   # partial obseravtion
+                        
+                # case 2, same channel collision                        
+                if np.sum(actions[n,:]) > 0 \
+                  and any( np.array( actions[n,:] + actions[nn,:])> 1 ) \
+                  and not nodes[nn].exposedSpatialReuse[n]:    # if nodes[nn].exposedSpatialReuse[n] == 0
+                    collisions[n]         = 1
+                    collisionTally[n,nn] += 1
+                      
+                    
+
+   
         if isinstance(nodes[n],dsaNode):
             nodes[n].updateState(observedStates[n,:],t)
                     
@@ -520,7 +431,6 @@ for t in range(0,numSteps):
                 nodes[n].storeTransition(observationS, actionScalar, 
                      reward, observationS_) 
             else:
-                "----- dqn1 should   ---- learn ---------"
                 observation_ = temp
                 nodes[n].storeTransition(observation, actionScalar, 
                      reward, observation_)
@@ -528,7 +438,7 @@ for t in range(0,numSteps):
 
             if  noiseErrorProb > 0:           
                 observation_  = noise(observation_ , noiseErrorProb, noiseFlipNum)
-
+            
             done = True  
             if isinstance(nodes[n],dqnNode):
                 if t % nodes[n].policyAdjustRate == 0:    

@@ -195,6 +195,12 @@ In terminal run:
 ```
 python multiNodeLearning.py
 ```
+for the  import the default ```setup.config``` file.  
+OR
+```
+python multiNodeLearning.py --set setFileName.config
+```
+where ```setupFileName``` was file like ```settingCaseXX``` to save some significant progressive results.
 
 
 <img align="right" width="150" height="150" src="https://github.com/yujianyuanhaha/DQN-DSA/blob/master/vt_logo.png">

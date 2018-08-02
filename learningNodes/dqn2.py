@@ -120,9 +120,9 @@ class dqn2:
                                  bias_initializer=b_initializer, name='e1')
             e2 = tf.layers.dense(e1,     50, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='e2')
-#            e3 = tf.layers.dense(e2,     200, tf.nn.relu, kernel_initializer=w_initializer,
+#            e3 = tf.layers.dense(e2,     50, tf.nn.relu, kernel_initializer=w_initializer,
 #                                 bias_initializer=b_initializer, name='e3')
-#            e4 = tf.layers.dense(e3,     20, tf.nn.relu, kernel_initializer=w_initializer,
+#            e4 = tf.layers.dense(e3,     50, tf.nn.relu, kernel_initializer=w_initializer,
 #                                 bias_initializer=b_initializer, name='e4')
             
             self.q_eval = tf.layers.dense(e2, self.n_actions, kernel_initializer=w_initializer,
@@ -135,9 +135,9 @@ class dqn2:
                                  bias_initializer=b_initializer, name='t1')
             t2 = tf.layers.dense(t1, 50, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='t2')
-#            t3 = tf.layers.dense(t2, 200, tf.nn.relu, kernel_initializer=w_initializer,
+#            t3 = tf.layers.dense(t2, 50, tf.nn.relu, kernel_initializer=w_initializer,
 #                                 bias_initializer=b_initializer, name='t3')
-#            t4 = tf.layers.dense(t3, 20, tf.nn.relu, kernel_initializer=w_initializer,
+#            t4 = tf.layers.dense(t3, 50, tf.nn.relu, kernel_initializer=w_initializer,
 #                                 bias_initializer=b_initializer, name='t4')
             self.q_next = tf.layers.dense(t2, self.n_actions, kernel_initializer=w_initializer,
                                           bias_initializer=b_initializer, name='t5')
@@ -175,7 +175,7 @@ class dqn2:
             self.learn_step_counter += 1            
         else:
             action = random.randint(0, self.n_actions-1)      
-#        print action
+#        print "scalar action %s"%(action)
         return action
 
 
