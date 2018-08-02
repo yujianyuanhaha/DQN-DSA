@@ -13,51 +13,16 @@ The main script to run
 
 ---------------------------
 Github url:
-       https://github.com/yujianyuanhaha/DQN-DSA 
-
-
-
-
-
----------------------------
-File Achitecture:
-
-    multiNodeLearning.py -- setup.config
-                         -- myFunction.py
-                         -- legacyNode.py
-                         -- hoppingNode.py
-                         -- imNode.py
-                         -- dsaNode.py
-                         -- poissonNode.py
-                         
-                         -- mdpNode.py      -- mdp.py
-                         
-                         -- dqnNode.py      -- dqn.py
-                                            -- dqnDouble.py
-                                            -- dqnPriReplay.py
-                                            -- dqnDuel.py 
-                                            -- dqnR.py
-                                            -- dpq.py 
-                                            
-                         -- acNode.py       -- actor.py                         
-                                            -- critic.py
-                                            
-                         -- ddpgNode.py     -- ddpg.py
-                                            
-                                            
-                         -- stateSpaceCreate.py
-                         -- scenario.py
-                     
+       https://github.com/yujianyuanhaha/DQN-DSA                      
 ----------------------------                     
 Main Configuration:  
-1. assignment of array "nodeTypes"  "legacyChanList"  "hoppingChanList"
-2. description seen in setup.config file
-                        
-
-
-
-
-
+    seen in setup.config file
+    
+---------------------------
+Notice:
+    for unknown reason, terminal of Spyder would keep the old tensorflow neural network data
+    when change numChans(related to neural network), REMEMBER TO SHUT OFF AND OPEN A NEW terminal
+    it would not happen in raw terminal 
 
 """
 
@@ -66,12 +31,12 @@ import numpy as np
 import math
 import random
 
-from stateSpaceCreate import stateSpaceCreate
-#from radioNode   import radioNode
+from stateSpaceCreate      import stateSpaceCreate
 from dumbNodes.legacyNode  import legacyNode
 from dumbNodes.hoppingNode import hoppingNode
 from dumbNodes.imNode      import imNode 
 from dumbNodes.dsaNode     import dsaNode 
+
 from stochasticNodes.poissonNode import poissonNode
 from stochasticNodes.markovChainNode import markovChainNode
 
@@ -95,10 +60,7 @@ from myFunction import channelAssignment, \
 
 
 
-# Notice:
-# for unknown reason, terminal of Spyder would keep the old tensorflow neural network data
-# when change numChans(related to neural network), REMEMBER TO SHUT OFF AND OPEN A NEW terminal
-# it would not happen in raw terminal 
+
 
 
 ''' ===================================================================  '''
@@ -111,17 +73,14 @@ import ConfigParser
 import json
 import argparse
 
-parser = argparse.ArgumentParser(description='Load settings file')
+parser            = argparse.ArgumentParser(description='Load settings file')
 parser.add_argument('--set', default="setup.config" , type=str, help='Specify the setting file name')
-
-args = vars(parser.parse_args())
-
-Config = ConfigParser.ConfigParser()
+args              = vars(parser.parse_args())
+Config            = ConfigParser.ConfigParser()
 Config.read(args['set'])
-#Config.read("setup.config")     
+  
 numSteps          =  json.loads( Config.get('Global', 'numSteps'))                  
 numChans          =  json.loads( Config.get('Global', 'numChans'))  
-ChannelAssignType =  Config.get('Global', 'ChannelAssignType')    
 nodeTypes         =  np.asarray(  json.loads(Config.get('Global', 'nodeTypes')))
 
 
@@ -169,12 +128,8 @@ if padEnable == 'True':
 
 
 hiddenDuplexCollision = np.zeros((numNodes,numNodes))
-#hiddenDuplexCollision[2,3] = 1
-#hiddenDuplexCollision[3,2] = 1
+exposedSpatialReuse   = np.zeros((numNodes,numNodes))
 
-exposedSpatialReuse = np.zeros((numNodes,numNodes))
-#exposedSpatialReuse[3,4] = 1
-#exposedSpatialReuse[4,3] = 1
 
 #if len(hiddenNodes) < numNodes:
 #    hiddenNodes = np.concatenate( ( hiddenNodes,\
@@ -184,42 +139,20 @@ isWait = False  #default no imNode
 if any(nodeTypes==2) and len(nodeTypes) > numChans:
     isWait = True
     print("learn to occupy imNode")
-    
 
-   
-    
-# if need to learn imNode, enable isWait to change rewards 
-
-
-# the order does not matter for dsa, dqn, mdp make action
-# we even allow several DSA coexsit
-                                
-
-if ChannelAssignType == 'random':
-    legacyChanList, imChanList, hoppingChanList, utilization =\
-        channelAssignment(nodeTypes, hoppingWidth, numChans)
-elif ChannelAssignType == 'case1':
-    "0-2 legacy,0-2 hopping"
-    legacyChanList = [0,1,2,3]
-    hoppingChanList = [ [2,3],[3,2]]
-elif ChannelAssignType == 'case2':
-    "0-4 legacy, 0-3 hopping"
-    legacyChanList = [0,1,2,3]
-    hoppingChanList = [ [4,5,6],[5,6,4],[6,5,4]]
-else:
-    pass
 
 
 
 # Initializing Nodes, Observable States, and Possible Actions
-nodes =  []
-states = stateSpaceCreate(numChans)
-CountLegacyChanIndex = 0
+nodes                 =  [ ]
+states                = stateSpaceCreate(numChans)
+CountLegacyChanIndex  = 0
 CountHoppingChanIndex = 0
-CountIm = 0
+CountIm               = 0
+CountDqn              = 0
 
 ''' ===================================================================  '''
-'''          Construct diff Type of Nodes                                '''
+'''          Construct different Type of Nodes                                '''
 ''' ===================================================================  '''
 
 for k in range(0,numNodes):
@@ -249,9 +182,11 @@ for k in range(0,numNodes):
                     or nodeTypes[k] == 'dqnStack':
                     
         t = dqnNode(numChans,states,numSteps, nodeTypes[k])      
-        # dqnNode, temporary asyn
-#        t.policyAdjustRate = random.randint(5, 9)
-#        t.policyAdjustRate = 5
+#       dqnNode, temporary asyn
+#       t.policyAdjustRate = 5
+        CountDqn += 1
+        if CountDqn > 1:
+            t.priority += 1
 #        print "DQN node %s Parameters: learning_rate %s, reward_decay %s,\
 #                replace_target_iter %s, memory_size %s,\
 #                policyAdjustRate %s" %(k, t.dqn_.lr, t.dqn_.gamma,              
@@ -272,8 +207,8 @@ for k in range(0,numNodes):
     
 print nodes
 
-#confirmKey = raw_input("If setting is ready, press ENTER to continue, any other key to abort ... ") 
-#assert confirmKey == '', "setting wrong, programs abort :("
+confirmKey = raw_input("If setting is ready, press ENTER to continue, any other key to abort ... ") 
+assert confirmKey == '', "setting wrong, programs abort :("
         
 #nodes[2].goodChans = np.array( [0,0,0,1] )        
 #nodes[1].goodChans = np.array( [0,1,1,0] )          
@@ -316,7 +251,7 @@ learnProbHist = [ ]
 #countLearnHist = np.zeros(numSteps);
 observedStates = np.zeros((numNodes,numChans))
 
-
+# for stack-DQN
 observationS  = np.zeros( stackNum * poSeeNum)
 observationS_ = np.zeros( stackNum * poSeeNum)
 
@@ -325,7 +260,11 @@ for t in range(0,numSteps):
     ''' ===================================================================  '''
     '''    Determination of next action for each node                       '''
     ''' ===================================================================  '''
-
+    
+    dqnPriObservation = 0
+    dqnPriAction = 0
+    
+    '''=========== get action =============================================='''
     for n in range(0,numNodes):
         if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) or isinstance(nodes[n],ddpgNode):
             ticDqnAction  = time.time()
@@ -342,9 +281,21 @@ for t in range(0,numSteps):
                 observationS               = updateStack(observationS, temp2)
                 actions[n,:], actionScalar = nodes[n].getAction(t, observationS)
             else:
-                observation                = temp
-                actions[n,:], actionScalar = nodes[n].getAction(t, observation)
-            
+                "------ dqn primary get Action, while dqn sec pending ------"
+                if nodes[n].priority:  # if higher priority
+                    observation                = temp
+                    
+                    dqnPriObservation = observation
+                    
+#                    print "dqn primary observation %s"%(observation)
+                    actions[n,:], actionScalar = nodes[n].getAction(t, observation)
+                    
+                    dqnPriAction = actions[n,:]
+                    
+#                    print "dqn primary make action %s"%(actionScalar)
+#                    print "******dqn node %s make action*****"%(n)
+                    # dqn2 action pending as WAIT, be overwritten later
+
              
 
             tocDqnAction  = time.time()
@@ -360,38 +311,113 @@ for t in range(0,numSteps):
     if simulationScenario.scenarioType != 'fixed':
          simulationScenario.updateScenario(nodes,legacyNodeIndicies, t)
 
-    ''' ===================================================================  '''
-    ''' Determining observations, collisions, rewards, and policies          '''
-    ''' ===================================================================  '''
-
-
+    '---------------------- first update after dqn primary excute action -----------------------------------------'
     observedStates = np.zeros((numNodes,numChans))
     for n in range(0,numNodes):
         collisions[n] = 0
         
         for nn in range(0,numNodes):
             if nn != n:
-                # case 1, duplex collision
-                if nodes[nn].hiddenDuplexCollision[n]:
-                    if  np.sum( actions[n,:] + actions[nn,:])> 1:
-                        collisions[n]         = 1
-                        collisionTally[n,nn] += 1
-                        observedStates[n,:]   = np.ones(numChans)   # all illegal 
-                        # think duplex col node as "full channel user", only have to is wait
-                        # print "duplex collision"                                  
-                else:
-                    observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)   # partial obseravtion
-                        
-                # case 2, same channel collision                        
-                if np.sum(actions[n,:]) > 0 \
-                  and any( np.array( actions[n,:] + actions[nn,:])> 1 ) \
-                  and not nodes[nn].exposedSpatialReuse[n]:    # if nodes[nn].exposedSpatialReuse[n] == 0
+                if any( np.array( actions[n,:] + actions[nn,:])> 1 ):
                     collisions[n]         = 1
                     collisionTally[n,nn] += 1
-                      
+                observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)        
+    '-----------------------------------------------------------------------------'
+          
                     
+                
+                
+#                # case 1, duplex collision
+#                if nodes[nn].hiddenDuplexCollision[n]:
+#                    if  np.sum( actions[n,:] + actions[nn,:])> 1:
+#                        collisions[n]         = 1
+#                        collisionTally[n,nn] += 1
+#                        observedStates[n,:]   = np.ones(numChans)   # all illegal 
+#                        # think duplex col node as "full channel user", only have to is wait
+#                        # print "duplex collision"                                  
+#                else:
+#                    observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)   # partial obseravtion
+#                        
+#                # case 2, same channel collision                        
+#                if np.sum(actions[n,:]) > 0 \
+#                  and any( np.array( actions[n,:] + actions[nn,:])> 1 ) \
+#                  and not nodes[nn].exposedSpatialReuse[n]:    # if nodes[nn].exposedSpatialReuse[n] == 0
+#                    collisions[n]         = 1
+#                    collisionTally[n,nn] += 1
+                    
+                    
+                      
+    "-------- after meta update for another observation, dqn1 make action; and then update collision --------" 
+    for n in range(0,numNodes):
+        if nodes[n].type == 'dqn':
+            if nodes[n].priority == 0:
+                
+#                print "dqn sec observation %s"%(observedStates[n,:])
+                
+                "--- correct check, the gosh ---"
+                if not np.array_equal( observedStates[n,:] , ( dqnPriObservation + dqnPriAction ) > 0):
+                    print "unmatch at step %s"%(t)
+                    
+                 
+                 
+                
+                observation = observedStates[n,:]
+                actions[n,:], actionScalar = nodes[n].getAction(t, observation)
+#                print "dqn sec make action %s"%(actionScalar)
+            
+    
+    
+    "-------- update again after dqn 2 ------- "
+    
+    
+    
+    '-----------------------------------------------------------------------------'
+    observedStates = np.zeros((numNodes,numChans))
+    for n in range(0,numNodes):
+        collisions[n] = 0
+        
+        for nn in range(0,numNodes):
+            if nn != n:
+                if any( np.array( actions[n,:] + actions[nn,:])> 1 ):
+                    collisions[n]         = 1
+                    collisionTally[n,nn] += 1
+                observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)
+    '-----------------------------------------------------------------------------'
+    
+#    for n in range(0,numNodes):
+#        collisions[n] = 0
+#    
+#   
+#        for nn in range(0,numNodes):
+#            if nn != n:
+#                # case 1, duplex collision
+#                if nodes[nn].hiddenDuplexCollision[n]:
+#                    if  np.sum( actions[n,:] + actions[nn,:])> 1:
+#                        collisions[n]         = 1
+#                        collisionTally[n,nn] += 1
+#                        observedStates[n,:]   = np.ones(numChans)   # all illegal 
+#                        # think duplex col node as "full channel user", only have to is wait
+#                        # print "duplex collision"                                  
+#                else:
+#                    observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)   # partial obseravtion
+#                        
+#                # case 2, same channel collision                        
+#                if np.sum(actions[n,:]) > 0 \
+#                  and any( np.array( actions[n,:] + actions[nn,:])> 1 ) \
+#                  and not nodes[nn].exposedSpatialReuse[n]:    # if nodes[nn].exposedSpatialReuse[n] == 0
+#                    collisions[n]         = 1
+#                    collisionTally[n,nn] += 1
+    "-------- update ends------- "
+    
+    
+    
+    ''' ===================================================================  '''
+    ''' Determining observations, collisions, rewards, and policies          '''
+    ''' ===================================================================  '''
+            
+           
 
-   
+    for n in range(0,numNodes):
         if isinstance(nodes[n],dsaNode):
             nodes[n].updateState(observedStates[n,:],t)
                     
@@ -431,6 +457,7 @@ for t in range(0,numSteps):
                 nodes[n].storeTransition(observationS, actionScalar, 
                      reward, observationS_) 
             else:
+                "----- dqn1 should   ---- learn ---------"
                 observation_ = temp
                 nodes[n].storeTransition(observation, actionScalar, 
                      reward, observation_)
@@ -438,7 +465,7 @@ for t in range(0,numSteps):
 
             if  noiseErrorProb > 0:           
                 observation_  = noise(observation_ , noiseErrorProb, noiseFlipNum)
-            
+
             done = True  
             if isinstance(nodes[n],dqnNode):
                 if t % nodes[n].policyAdjustRate == 0:    

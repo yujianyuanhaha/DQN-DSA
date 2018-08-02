@@ -33,6 +33,8 @@ class dpg:
         self.n_features = n_features
         self.lr         = learning_rate
         self.gamma      = reward_decay
+        
+        self.exploreProb = 0   # NOT REQUIRED
 
         self.ep_obs, self.ep_as, self.ep_rs = [], [], []
 

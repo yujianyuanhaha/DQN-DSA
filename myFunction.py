@@ -16,7 +16,35 @@ from stochasticNodes.poissonNode import poissonNode
 
 
 
+def update(nodes, numChans, actions, collisions, collisionTally):
+    numNodes = len(nodes)
+    observedStates = np.zeros((numNodes,numChans))
 
+    for n in range(0,numNodes):
+        collisions[n] = 0
+        
+        for nn in range(0,numNodes):
+            if nn != n:
+                # case 1, duplex collision
+                if nodes[nn].hiddenDuplexCollision[n]:
+                    if  np.sum( actions[n,:] + actions[nn,:])> 1:
+                        collisions[n]         = 1
+                        collisionTally[n,nn] += 1
+                        observedStates[n,:]   = np.ones(numChans)   # all illegal 
+                        # take duplex col node as "full channel user", only have to is wait
+                        # print "duplex collision"                                  
+                else:
+                    observedStates[n,:] = (observedStates[n,:] + actions[nn,:] > 0)  
+                        
+                # case 2, same channel collision                        
+                if np.sum(actions[n,:]) > 0 \
+                  and any( np.array( actions[n,:] + actions[nn,:])> 1 ) \
+                  and not nodes[nn].exposedSpatialReuse[n]:    # if nodes[nn].exposedSpatialReuse[n] == 0
+                    collisions[n]         = 1
+                    collisionTally[n,nn] += 1
+ 
+    return collisions, collisionTally, observedStates
+    
 
 
 # noise to random flip bit of observation

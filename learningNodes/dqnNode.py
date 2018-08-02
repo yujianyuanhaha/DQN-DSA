@@ -11,7 +11,6 @@ from radioNode import radioNode
 import random
 import numpy as np
 import dqn
-import dqn2    #
 import dqnDouble
 import dqnPriReplay
 import dqnDuel
@@ -79,41 +78,25 @@ class dqnNode(radioNode):
         self.n_actions     = numChans + 1   
         self.n_features    = numChans 
         
-        self.type = "dqn" 
-        self.priority = 0  # asyn
+        self.policyAdjustRate = 1
+        self.type             = "dqn" 
+        self.priority         = 0  # asyn
         
         
         
         if dqnType == 11 :
-
-            if random.random() > 0.5:
-                self.dqn_ = dqn.dqn(
-                            self,
-                            self.n_actions, 
-                            self.n_features,   
-                            learning_rate=0.01,
-                            reward_decay=0.9,
-                            exploreDecayType = 'expo',
-                            replace_target_iter=200,
-                            memory_size=200,
-                            e_greedy_increment=True,
-                        )
-                print "dqn1"
-            else:
-                self.dqn_ = dqn2.dqn2(
-                                self,
-                                self.n_actions, 
-                                self.n_features,   
-                                learning_rate=0.01,
-                                reward_decay=0.9,
-                                exploreDecayType = 'expo',
-                                replace_target_iter=200,
-                                memory_size=200,
-                                e_greedy_increment=True,
-                                ) 
-                print "dqn2"
-              
-                 
+            self.dqn_ = dqn.dqn(
+                        self,
+                        self.n_actions, 
+                        self.n_features,   
+                        learning_rate=0.01,
+                        reward_decay=0.9,
+                        exploreDecayType = 'expo',
+                        replace_target_iter=200,
+                        memory_size=200,
+                        e_greedy_increment=True,
+                    )
+                           
                     
         elif dqnType == 12 :
             self.type = "dqnDouble"
