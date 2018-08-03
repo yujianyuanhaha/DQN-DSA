@@ -28,7 +28,7 @@ class dqnNode(radioNode):
     avgStateTrans = [ ]
     
     discountFactor   = 0.9
-    policyAdjustRate = 5         # Policy is adjusted at this step increment
+    policyAdjustRate = 1        # Policy is adjusted at this step increment
     
             
     policy           = [ ] 
@@ -78,8 +78,9 @@ class dqnNode(radioNode):
         self.n_actions     = numChans + 1   
         self.n_features    = numChans 
         
-        self.policyAdjustRate = 1
-        self.type             = "dqn" 
+        self.policyAdjustRate = 5  # indeed smaller policyAdjustRate the more likely collision
+        self.type             = "dqn"   # to be overwrite later
+        self.hyperType        = "learning"
         self.priority         = 0  # asyn
         
         

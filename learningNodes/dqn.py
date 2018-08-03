@@ -26,7 +26,7 @@ class dqn:
     
     exploreProb      = [ ]              # Current exploration probability
     exploreInit      = 1.0              # Initial exploration probability
-    exploreDecay     = 0.001              # Percentage reduction in exploration chance per policy calculation
+    exploreDecay     = 0.01              # Percentage reduction in exploration chance per policy calculation
     exploreProbMin   = 0.01  # avoid the risk to stuck
     exploreHist      = [ ]    
     exploreDecayType = 'expo'           # either 'expo', 'step' or 'perf'
@@ -151,7 +151,6 @@ class dqn:
         with tf.variable_scope('train'+str(int(random.random()*100)), reuse=tf.AUTO_REUSE):
             self._train_op = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss)
             
-        print "-------------- build net done --------- "
 
     def store_transition(self, s, a, r, s_):
         if not hasattr(self, 'memory_counter'):

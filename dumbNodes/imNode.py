@@ -27,7 +27,9 @@ class imNode(radioNode):
         self.actionHistInd            = np.zeros(numSteps)
         self.imDutyPeriod             = imPeriod
         self.imDutyCircle             = imDutyCircle
-        self.type                     = "im"        
+        self.type                     = "im"
+        self.hyperType                = "dumb" 
+        "-- swith means when (the percentage of period) to make a flip"
         self.switch                   = np.zeros(len(self.imDutyCircle))
         for i in range(len(self.imDutyCircle)):
             self.switch[i] = self.imDutyCircle[i] * self.imDutyPeriod 

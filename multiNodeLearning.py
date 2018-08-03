@@ -49,13 +49,12 @@ from scenario    import scenario
 import matplotlib.pyplot as plt
 import time
 
-from myFunction import channelAssignment, \
-     myPlotProb,\
+from myFunction import myPlotProb,\
      myPlotCollision, myPlotReward, myPlotAction,\
      myPlotOccupiedEnd, myPlotOccupiedAll,\
      myPlotPER, myPlotPLR, myPlotThroughput, myPlotCost, \
      noise, updateStack, partialPad, partialObserve, \
-     update
+     update, myCalculatePER, myGetTxPackets 
      
 
 
@@ -97,8 +96,8 @@ imChanList        =  json.loads(Config.get('imNode', 'imChanList'))
 imDutyCircleList  =  json.loads(Config.get('imNode', 'imDutyCircleList')) 
 
 poissonChanList   =  json.loads(Config.get('poissonNode', 'poissonChanList')) 
-arrivalRate       =  json.loads(Config.get('poissonNode', 'arrivalRate')) 
-serviceRate       =  json.loads(Config.get('poissonNode', 'serviceRate')) 
+arrivalInterval       =  json.loads(Config.get('poissonNode', 'arrivalInterval')) 
+serviceInterval       =  json.loads(Config.get('poissonNode', 'serviceInterval')) 
 
 mcChanList        =  json.loads(Config.get('markovChainNode', 'mcChanList')) 
 alpha             =  json.loads(Config.get('markovChainNode', 'alpha')) 
@@ -170,7 +169,7 @@ for k in range(0,numNodes):
     elif nodeTypes[k] == 3  or nodeTypes[k] == 'dsa':
         t = dsaNode(numChans,numSteps,txProbability)    
     elif nodeTypes[k] == 4  or nodeTypes[k] == 'possion':
-        t = poissonNode( numChans, numSteps, poissonChanList, arrivalRate, serviceRate)
+        t = poissonNode( numChans, numSteps, poissonChanList, arrivalInterval, serviceInterval)
     elif nodeTypes[k] == 5  or nodeTypes[k] == 'markovChain':
         t = markovChainNode( numChans, numSteps, mcChanList, alpha, beta)
     elif nodeTypes[k] == 10:
@@ -182,14 +181,16 @@ for k in range(0,numNodes):
                     or nodeTypes[k] == 'dqnRef'       or nodeTypes[k] == 'dpg'       \
                     or nodeTypes[k] == 'dqnPo'        or nodeTypes[k] == 'dqnPad'    \
                     or nodeTypes[k] == 'dqnStack':
-                    
+#            or nodeTypes[k] in ['dqn', 'dqnDouble', 'dqnPriReplay', 'dqnDuel', 'dqnRef', \ 
+#                       'dpg', 'dqnPo', 'dqnPad',  'dqnStack'  ]:
+            
         t = dqnNode(numChans,states,numSteps, nodeTypes[k])      
         numDqn += 1
         dqnIndex.append(k)
-#        print "DQN node %s Parameters: learning_rate %s, reward_decay %s,\
-#                replace_target_iter %s, memory_size %s,\
-#                policyAdjustRate %s" %(k, t.dqn_.lr, t.dqn_.gamma,              
-#                    t.dqn_.replace_target_iter, t.dqn_.memory_size, t.policyAdjustRate )
+        #        print "DQN node %s Parameters: learning_rate %s, reward_decay %s,\
+        #                replace_target_iter %s, memory_size %s,\
+        #                policyAdjustRate %s" %(k, t.dqn_.lr, t.dqn_.gamma,              
+        #                    t.dqn_.replace_target_iter, t.dqn_.memory_size, t.policyAdjustRate )
     elif nodeTypes[k] == 17 or nodeTypes[k] == 'ac':
         t = acNode(numChans,states,numSteps) 
         
@@ -260,7 +261,7 @@ indexPriority = np.zeros(numDqn)
 
 for t in range(0,numSteps):
     ''' ===================================================================  '''
-    '''    Determination of next action for each node                       '''
+    '''    Determination of next action, states, and action for each node                       '''
     ''' ===================================================================  '''
     
     "random shuffle the priority of dqn nodes"
@@ -306,13 +307,17 @@ for t in range(0,numSteps):
          simulationScenario.updateScenario(nodes,legacyNodeIndicies, t)
 
     '''-------- update states and other dqn make action'''
+    
+    collisions, collisionTally, observedStates = \
+                    update(nodes, numChans, actions, collisions, collisionTally)
+
     for m in range(1,numDqn):
         l = indexPriority[m].astype(int)
         # update
-        collision, collisionTally, observedStates = \
-                    update(nodes, numChans, actions, collisions, collisionTally)
         observation = observedStates[l,:]
         actions[l,:], actionScalar = nodes[l].getAction(t, observation) 
+        collisions, collisionTally, observedStates = \
+            update(nodes, numChans, actions, collisions, collisionTally)
 
     
     ''' ===================================================================  '''
@@ -338,6 +343,7 @@ for t in range(0,numSteps):
   
                         
             nodes[n].updateTrans(observedStates[n,:],t)
+#            if t > 500:
             if t % nodes[n].policyAdjustRate == 0:
                 nodes[n].updatePolicy(t)
             tocMdpLearn = time.time()
@@ -371,7 +377,7 @@ for t in range(0,numSteps):
 
             done = True  
             if isinstance(nodes[n],dqnNode):
-                if t > 200:
+                if t > 500:
                     if t % nodes[n].policyAdjustRate == 0:    
                         nodes[n].learn()
                 learnProbHist.append( nodes[n].dqn_.exploreProb)
@@ -403,29 +409,80 @@ for t in range(0,numSteps):
     if ticDqnAction:
         dqnLearnTime[t] = tocDqnAction - ticDqnAction + tocDqnLearn - ticDqnLearn
         
-    # show compeleted
+    " show compeleted "
     if t == numSteps * 0.1:
-        print( "  10% completed")
+        print( "  10% completed--------------------")
         toc =  time.time()
-        print( "--- cost %s seconds ---" %(toc - tic))        
+        print( "--- cost %s seconds ---" %(toc - tic))
+        
+#        PER, PLR = myCalculatePER(nodes, numSteps, 
+#                                  myGetTxPackets(nodes,cumulativeCollisions), 
+#                                  cumulativeCollisions)
+#        print "Packet Error Rate: %s"%(PER[t-1]*100)
+#        print "Packet Loss  Rate: %s"%(PLR[t-1]*100)
     elif t == numSteps * 0.2:
-        print( "  20% completed")
+        print( "  20% completed--------------------")
+#        PER, PLR = myCalculatePER(nodes, numSteps, 
+#                                  myGetTxPackets(nodes,cumulativeCollisions), 
+#                                  cumulativeCollisions)
+#        print "Packet Error Rate: %s"%(PER[t-1]*100)
+#        print "Packet Loss  Rate: %s"%(PLR[t-1]*100)
     elif t == numSteps * 0.3:
-        print( "  30% completed")
+        print( "  30% completed--------------------")
+#        PER, PLR = myCalculatePER(nodes, numSteps, 
+#                                  myGetTxPackets(nodes,cumulativeCollisions), 
+#                                  cumulativeCollisions)
+#        print "Packet Error Rate: %s"%(PER[t-1]*100)
+#        print "Packet Loss  Rate: %s"%(PLR[t-1]*100)
     elif t == numSteps * 0.4:
-        print( "  40% completed")
+        print( "  40% completed--------------------")
+#        PER, PLR = myCalculatePER(nodes, numSteps, 
+#                                  myGetTxPackets(nodes,cumulativeCollisions), 
+#                                  cumulativeCollisions)
+#        print "Packet Error Rate: %s"%(PER[t-1]*100)
+#        print "Packet Loss  Rate: %s"%(PLR[t-1]*100)
     elif t == numSteps * 0.5:
-        print( "  50% completed")
+        print( "  50% completed--------------------")
+#        PER, PLR = myCalculatePER(nodes, numSteps, 
+#                                  myGetTxPackets(nodes,cumulativeCollisions), 
+#                                  cumulativeCollisions)
+#        print "Packet Error Rate: %s"%(PER[t-1]*100)
+#        print "Packet Loss  Rate: %s"%(PLR[t-1]*100)
     elif t == numSteps * 0.6:
-        print ("  60% completed")
+        print ("  60% completed--------------------")
+#        PER, PLR = myCalculatePER(nodes, numSteps, 
+#                                  myGetTxPackets(nodes,cumulativeCollisions), 
+#                                  cumulativeCollisions)
+#        print "Packet Error Rate: %s"%(PER[t-1]*100)
+#        print "Packet Loss  Rate: %s"%(PLR[t-1]*100)
     elif t == numSteps * 0.7:
-        print( "  70% completed")
+        print( "  70% completed--------------------")
+#        PER, PLR = myCalculatePER(nodes, numSteps, 
+#                                  myGetTxPackets(nodes,cumulativeCollisions), 
+#                                  cumulativeCollisions)
+#        print "Packet Error Rate: %s"%(PER[t-1]*100)
+#        print "Packet Loss  Rate: %s"%(PLR[t-1]*100)
     elif t == numSteps * 0.8:
-        print( "  80% completed")
+        print( "  80% completed--------------------")
+#        PER, PLR = myCalculatePER(nodes, numSteps, 
+#                                  myGetTxPackets(nodes,cumulativeCollisions), 
+#                                  cumulativeCollisions)
+#        print "Packet Error Rate: %s"%(PER[t-1]*100)
+#        print "Packet Loss  Rate: %s"%(PLR[t-1]*100)
     elif t == numSteps * 0.9:
-        print( "  90% completed")
+        print( "  90% completed--------------------")
+#        PER, PLR = myCalculatePER(nodes, numSteps, 
+#                                  myGetTxPackets(nodes,cumulativeCollisions), 
+#                                  cumulativeCollisions)
+#        print "Packet Error Rate: %s"%(PER[t-1]*100)
+#        print "Packet Loss  Rate: %s"%(PLR[t-1]*100)
     
-print( " 100% completed"  )        
+print( " 100% completed--------------------")
+PER, PLR = myCalculatePER(nodes, numSteps, 
+                                  myGetTxPackets(nodes,cumulativeCollisions), 
+                                  cumulativeCollisions)
+print "Packet Error Rate: %s"%(PER[t-1]*100)
+print "Packet Loss  Rate: %s"%(PLR[t-1]*100)       
 print( "--- End Main Loop--- ")
 toc =  time.time()
 print( "--- Totally %s seconds ---" %(toc - tic))
@@ -445,7 +502,7 @@ if not os.path.exists('../dqnFig'):
 plt.figure(1)
 myPlotProb(learnProbHist)
 plt.figure(2)
-txPackets = myPlotCollision(nodes, cumulativeCollisions)
+myPlotCollision(nodes, cumulativeCollisions)
 plt.figure(3)
 myPlotReward(nodes, cumulativeCollisions)
 plt.figure(4)
@@ -455,7 +512,7 @@ myPlotOccupiedEnd(nodes, numChans, plotPeriod = 100)
 plt.figure(6)
 myPlotOccupiedAll(nodes, numChans)
 plt.figure(7)
-PER, PLR = myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions) 
+myPlotPER(nodes, PLR) 
 plt.figure(8)   
 myPlotPLR(nodes, PLR)
 plt.figure(9)   
@@ -463,5 +520,3 @@ myPlotThroughput(nodes, PLR)
 plt.figure(10)
 #myPlotCost(nodes)
 
-print "Packet Error Rate: %s"%(PER[numSteps-1]*100)
-print "Packet Loss  Rate: %s"%(PLR[numSteps-1]*100)

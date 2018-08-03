@@ -79,12 +79,12 @@ class mdpNode(radioNode):
         self.exploreProb   = self.exploreInit
         self.exploreHist   = []
         
-        self.policy = np.zeros(numChans)
+        self.policy        = np.zeros(numChans)
         
         self.iterationMethod = iterationMethod
         
-        self.type = 'mdp'
-    
+        self.type           = 'mdp'
+        self.hyperType      = "learning"    
       
         
         

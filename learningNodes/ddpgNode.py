@@ -77,9 +77,10 @@ class ddpgNode(radioNode):
         self.n_actions     = numChans + 1   
         self.n_features    = numChans 
         
-        self.ddpg_ = ddpg.DDPG(self, self.n_actions, self.n_features, self.n_actions + 1 )
+        self.ddpg_         = ddpg.DDPG(self, self.n_actions, self.n_features, self.n_actions + 1 )
         
-        self.type = 'ddpg'
+        self.type          = "ddpg"
+        self.hyperType     = "learning"
         
         self.var = 1
         

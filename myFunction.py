@@ -207,11 +207,18 @@ def myPlotProb(learnProbHist):
     plt.title( 'Exploring Ratio') 
     plt.show()
 
+
+def myGetTxPackets(nodes, cumulativeCollisions):
+    txPackets = [ ]
+    for n in range(0,len(nodes)):
+        txPackets.append( np.cumsum(np.sum(nodes[n].actionHist.T , axis=0).T ) )
+    return txPackets
+
     
 def myPlotCollision(nodes, cumulativeCollisions):
     from learningNodes.dqnNode     import dqnNode
     from learningNodes.mdpNode     import mdpNode
-    txPackets = [ ] 
+#    txPackets = [ ] 
     legendInfo = [ ]
     
     for n in range(0,len(nodes)):
@@ -245,7 +252,9 @@ def myPlotCollision(nodes, cumulativeCollisions):
                 legendInfo.append( 'Node %d (undefined)'%(n) ) 
         else:
             legendInfo.append( 'Node %d (undefined)'%(n) )     
-        txPackets.append( np.cumsum(np.sum(nodes[n].actionHist.T , axis=0).T ) )
+#        txPackets.append( np.cumsum(np.sum(nodes[n].actionHist.T , axis=0).T ) )
+        
+
         
     plt.legend(legendInfo)
     plt.xlabel('Step Number')
@@ -254,7 +263,7 @@ def myPlotCollision(nodes, cumulativeCollisions):
     plt.grid(True)
     plt.savefig('../dqnFig/CumulativeCollisions.png')
     plt.savefig('../dqnFig/CumulativeCollisions.pdf')
-    return txPackets
+#    return txPackets
 
 
 def myPlotReward(nodes, cumulativeCollisions):
@@ -473,15 +482,27 @@ def myPlotOccupiedAll(nodes, numChans):
     plt.savefig('../dqnFig/Occupied-full.png')
     plt.savefig('../dqnFig/Occupied-full.pdf')     
 
-    
-def myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions):
+
+
+def myCalculatePER(nodes, numSteps, txPackets, cumulativeCollisions):
     from learningNodes.dqnNode     import dqnNode
     from learningNodes.mdpNode     import mdpNode
     timeSlots = np.matlib.repmat( np.arange(1,numSteps+1)[np.newaxis].T  ,
                                  1,len(nodes) )  
     txPackets = np.array(txPackets).T
     PER =  cumulativeCollisions / txPackets
-    PLR = (cumulativeCollisions + timeSlots - txPackets) /timeSlots    
+    PLR = (cumulativeCollisions + timeSlots - txPackets) /timeSlots
+    return PER, PLR
+    
+    
+def myPlotPER(nodes, PER):
+    from learningNodes.dqnNode     import dqnNode
+    from learningNodes.mdpNode     import mdpNode
+#    timeSlots = np.matlib.repmat( np.arange(1,numSteps+1)[np.newaxis].T  ,
+#                                 1,len(nodes) )  
+#    txPackets = np.array(txPackets).T
+#    PER =  cumulativeCollisions / txPackets
+#    PLR = (cumulativeCollisions + timeSlots - txPackets) /timeSlots    
     legendInfo = [ ]
     for i in range(len(nodes)):
         if isinstance(nodes[i],legacyNode):
@@ -536,7 +557,6 @@ def myPlotPER(nodes, numSteps, txPackets, cumulativeCollisions):
     plt.savefig('../dqnFig/PER.png')
     plt.savefig('../dqnFig/PER.pdf') 
 
-    return PER, PLR
 
 
 def myPlotPLR(nodes, PLR):

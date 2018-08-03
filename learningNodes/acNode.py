@@ -46,6 +46,8 @@ class acNode(radioNode):
     rewardTrans      = [ ]
     cumulativeReward = [ ]
     
+    
+    
 
     
     def __init__(self,numChans,states,numSteps):
@@ -73,13 +75,16 @@ class acNode(radioNode):
         
         self.exploreHist   = [ ]
         
-        self.policy = np.zeros(numChans)
+        self.type          = "ac"
+        self.hyperType     = "learning"
+        
+        self.policy        = np.zeros(numChans)
                
         self.n_actions     = numChans + 1   
         self.n_features    = numChans 
         
         sess = tf.Session()
-        
+
         self.actor_  = actor.Actor( self,  sess, self.n_features, self.n_actions, lr = 0.001)
         self.critic_ = critic.Critic(self, sess, self.n_features , lr = 0.01) 
         
