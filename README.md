@@ -9,6 +9,7 @@ Date  : April, 2018
 
 -------------------------------------------------------------------------
 # News
+* (Fri Aug 3) Multiple learning nodes coexsit fixed, starting running scale-up case.
 * (Tue Jul 17) 2-state markov Chain node added
 * (Fri Jun 29) stack-DQN
     * add partial observation node with shorten observation as state
@@ -30,10 +31,21 @@ Date  : April, 2018
     * learn long im node under limited memory and steps 
     * dynamic environment 
     * learn to greedy occupied all available channel 
-    * efficient multiple dsa node coexist 
-    * multiple dqn node coexist 
-    * merge yue's guess item & eligiable trace dqn node  
+    * ~~efficient multiple dsa node coexist~~ 
+    * ~~multiple dqn node coexist~~ 
+    * merge yue's guess item & eligiable trace dqn node
+* Policy Gradient
+    * dpg
 * POMDP 
+    * vi
+    * pomcp
+* Stochastic
+    * possion
+    * uniform
+    * 2-state markovChain
+* Scale up
+* Doxy web
+
 
 
 
@@ -45,8 +57,8 @@ Date  : April, 2018
 
 --------------------------------------------------------------------------
 # Bugs
-1. We assume all nodes detect and make decision at same time, hence the multiple dsaNode may collide  (T.B.D.).
-2. Unstable performance when multiple dqnNode works (T.B.D.).
+1. ~~We assume all nodes detect and make decision at same time, hence the multiple dsaNode may collide  (T.B.D.)~~. -> create politeness to dsa nodes to avoid ping-pong effect, a ugly way.
+2. ~~Unstable performance when multiple dqnNode works (T.B.D.)~~. -> assign priority to learning nodes to make them observe-action one by one, a ugly way.
 
 
 
@@ -125,7 +137,7 @@ We run codes on **Spyder** GUI under Anaconda(**version 2**), **tensorflow** is 
 For batch test, we run codes on ARC VT. 
 1. Python version 2.7, tensorflow version **1.6.0**. Notice tensorflow 1.5.0 is suggest on Linux OS else "keneral died, restart" error may appear. If the version would not fit, run command 
 ```
-conda install -c conda-forge tensorflow=1.1.0
+conda install -c conda-forge tensorflow=1.6.0
 ```
 
 --------------------------------------------------------------------------
@@ -159,11 +171,10 @@ Paramter all configurable at header part of ```multiNodeLearning.py``` OR ```set
 | hopping | 1 | hoppingNode | hopping bettween several channels | hopRate hopWidth HoppingChanIndex |
 | im      | 2 | imNode      | interminient                      | imPeriod dutyCycle |
 | dsa     | 3 | dsaNode     | dynamic channel access alway occupy first avaiable channel   |  |
-| poisson | 4 | poissonNode | arrival and service interval follow poisson distribution  | arrivalRate serviceRate |
+| poisson | 4 | poissonNode | arrival and service interval follow poisson distribution  | arrivalInterval serviceInterval |
 | markovChain | 5 | markovChainNode | 2-state markov chain node  | alpha beta |
 | | | | | |
-| mdp         | 10 | mdpNode mdp          | MDP(policy iteration) full obervation  |  |
-| mdp(TODO)         | 101 | mdpNode mdp          | MDP(value iteration) full obervation  |  |
+| mdp         | 10 | mdpNode mdp          | MDP(policy iteration OR policy interation) full obervation  |  |
 | dqn          | 11 | dqnNode dqn          | Deep Q network  |  |
 | dqnDouble    | 12 | dqnNode dqnDouble    | double  DQN  |  |
 | dqnPriReplay | 13 | dqnNode dqnPriReplay | Priority with Exprience Replay  DQN  |  |
@@ -191,16 +202,16 @@ Paramter all configurable at header part of ```multiNodeLearning.py``` OR ```set
 
 
 
-In terminal run:  
+In terminal run below command for the  import the default ```setup.config``` file. :  
 ```
 python multiNodeLearning.py
 ```
-for the  import the default ```setup.config``` file.  
+ 
 OR
 ```
 python multiNodeLearning.py --set setFileName.config
 ```
-where ```setupFileName``` was file like ```settingCaseXX``` to save some significant progressive results.
+where ```setupFileName``` was file like ```settingCaseXX``` to save some significant progressive results.  
 OR even further, if some modification is made on ```multiNodeLearning.py``` hence it is renamed as like ```multiNodeLearningCaseXX.py```, you and execute
 ```
 ython multiNodeLearningCaseXX.py --set setFileName.config

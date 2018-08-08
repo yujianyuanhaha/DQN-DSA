@@ -36,33 +36,25 @@ class poissonNode(radioNode):
         self.type                     = "possion"
         self.hyperType                = "stochastic"   
         
-        print "possion M/M/1  availablity %s"%( serviceInterval*1.0/arrivalInterval )
+        print "possion M/M/1  availablity %s"%( serviceInterval*1.0/(arrivalInterval+serviceInterval+1) )
 
     
     def getAction(self, stepNum):             
 
         "--- OFF state for arrival, while ON for service time ---"
-        if stepNum < self.indexLastArrival:
+        if stepNum <= self.indexLastArrival:
             action = self.OFF
-#            print "step %s, OFF, during arrival, %s, %s"%(stepNum,self.indexLastArrival, self.indexLastService)
-        elif stepNum >= self.indexLastArrival and stepNum < self.indexLastService:
+        elif stepNum > self.indexLastArrival and stepNum <= self.indexLastService:
             action = self.ON
-#            print "step %s, ON, on service,  %s, %s" %(stepNum,self.indexLastArrival, self.indexLastService)
         else:
             action = self.OFF
-#            print "step %s, OFF & update"%(stepNum)
 
             t1 = np.random.poisson(self.arrivalInterval, 1)
             self.indexLastArrival = self.indexLastService + t1
-
-            t2 = np.random.poisson(self.serviceInterval, 1)   # average service time, means ON state
+            t2 = np.random.poisson(self.serviceInterval, 1)  # average service time, means ON state
             self.indexLastService = self.indexLastArrival + t2
-#            print ' update as %s, %s'%(self.indexLastArrival, self.indexLastService)
-            
-         
-           
+            # actually the interleave is NOT TRUE POSSION
 
-   
         self.actionHist[stepNum,:] = action
         if not np.sum(action):
             self.actionHistInd[stepNum] = 0
@@ -79,33 +71,35 @@ class poissonNode(radioNode):
 
           
 if __name__ == '__main__':
-    x = poissonNode(4, 100000, 1, 3, 2) # should be 0.2 available
-    ON = 0
-    for i in range(100):
-        action = x.getAction(i)
-        if np.sum(action):
-            ON += 1
-    print ON*1.0/100
-    "100 step is enough"
-    
-    ON = 0
-    for i in range(1000):
-        action = x.getAction(i)
-        if np.sum(action):
-            ON += 1
-    print ON*1.0/1000
-    
-    ON = 0
-    for i in range(10000):
-        action = x.getAction(i)
-        if np.sum(action):
-            ON += 1
-    print ON*1.0/10000
-    
-    ON = 0
-    for i in range(100000):
-        action = x.getAction(i)
-        if np.sum(action):
-            ON += 1
-    print ON*1.0/100000
-    " test pass"   
+    for y in range(4,10):
+        print "%s,4"%(y)
+        x = poissonNode(4, 100000, 1, y ,4) # should be 0.2 available
+        ON = 0
+        for i in range(100):
+            action = x.getAction(i)
+            if np.sum(action):
+                ON += 1
+        print ON*1.0/100
+        "100 step is enough"
+        
+        ON = 0
+        for i in range(1000):
+            action = x.getAction(i)
+            if np.sum(action):
+                ON += 1
+        print ON*1.0/1000
+    #    
+        ON = 0
+        for i in range(10000):
+            action = x.getAction(i)
+            if np.sum(action):
+                ON += 1
+        print ON*1.0/10000
+#    
+#    ON = 0
+#    for i in range(100000):
+#        action = x.getAction(i)
+#        if np.sum(action):
+#            ON += 1
+#    print ON*1.0/100000
+#    " test pass"   

@@ -82,6 +82,7 @@ Config.read(args['set'])
 numSteps          =  json.loads( Config.get('Global', 'numSteps'))                  
 numChans          =  json.loads( Config.get('Global', 'numChans'))  
 nodeTypes         =  np.asarray(  json.loads(Config.get('Global', 'nodeTypes')))
+optimalTP         =  json.loads( Config.get('Global', 'optimalTP')) 
 
 
 legacyChanList    =  json.loads(Config.get('legacyNode', 'legacyChanList')) 
@@ -173,7 +174,7 @@ for k in range(0,numNodes):
     elif nodeTypes[k] == 5  or nodeTypes[k] == 'markovChain':
         t = markovChainNode( numChans, numSteps, mcChanList, alpha, beta)
     elif nodeTypes[k] == 10:
-        t = mdpNode(numChans,states,numSteps,'PI')   
+        t = mdpNode(numChans,states,numSteps,'VI')   
     elif (nodeTypes[k] >= 11 and nodeTypes[k] <= 16)  \
          or (nodeTypes[k] >= 30 and nodeTypes[k] <= 33)  \
                     or nodeTypes[k] == 'dqn'          or nodeTypes[k] == 'dqnDouble' \
@@ -184,7 +185,8 @@ for k in range(0,numNodes):
 #            or nodeTypes[k] in ['dqn', 'dqnDouble', 'dqnPriReplay', 'dqnDuel', 'dqnRef', \ 
 #                       'dpg', 'dqnPo', 'dqnPad',  'dqnStack'  ]:
             
-        t = dqnNode(numChans,states,numSteps, nodeTypes[k])      
+        t = dqnNode(numChans, numSteps, nodeTypes[k])     
+#        print "type %s with n_feature%s "%(t.type,t.dqn_.n_features)
         numDqn += 1
         dqnIndex.append(k)
         #        print "DQN node %s Parameters: learning_rate %s, reward_decay %s,\
@@ -269,7 +271,7 @@ for t in range(0,numSteps):
     for m in range(numDqn):
         nodes[dqnIndex[m]].priority =  priorityS[m]
         indexPriority[priorityS[m]] = dqnIndex[m]
-
+#    print "indexPriority %s at step %s"%(indexPriority,t)
     
     '''------------------- get action ------------------------'''
     for n in range(0,numNodes):
@@ -277,21 +279,24 @@ for t in range(0,numSteps):
             ticDqnAction  = time.time()
             temp = observedStates[n,:]
             
-            if   nodes[n].type == 'dqnPo':
-                observation                = partialObserve( temp, t, poStepNum, poSeeNum)
-                actions[n,:], actionScalar = nodes[n].getAction(t, observation)
-            elif nodes[n].type == 'dqnPad':
-                observation                = partialPad( temp, t, poStepNum, poBlockNum, padValue)
-                actions[n,:], actionScalar = nodes[n].getAction(t, observation)                
-            elif nodes[n].type == 'dqnStack' or nodes[n].type == 'dpgStack':
-                temp2 = partialObserve( temp, t, poStepNum, poSeeNum)
-                observationS               = updateStack(observationS, temp2)
-                actions[n,:], actionScalar = nodes[n].getAction(t, observationS)
-            else:
-                "------ dqn primary get Action, while dqn sec pending ------"
-                if n == indexPriority[0]:  # if higher priority
+            "------ dqn primary get Action, while dqn sec pending ------"
+
+            if n == indexPriority[0]:  # if higher priority
+                if nodes[n].type == 'dqn':
                     observation                = temp                    
                     actions[n,:], actionScalar = nodes[n].getAction(t, observation)
+                elif nodes[n].type == 'dqnPo':
+                    observationPo              = partialObserve( temp, t, poStepNum, poSeeNum)
+                    actions[n,:], actionScalar = nodes[n].getAction(t, observationPo)
+                elif nodes[n].type == 'dqnPad':
+                    observationPd                = partialPad( temp, t, poStepNum, poBlockNum, padValue)
+                    actions[n,:], actionScalar = nodes[n].getAction(t, observationPd)                
+                elif nodes[n].type == 'dqnStack' or nodes[n].type == 'dpgStack':
+                    temp2                      = partialObserve( temp, t, poStepNum, poSeeNum)
+                    observationS               = updateStack(observationS, temp2)
+                    actions[n,:], actionScalar = nodes[n].getAction(t, observationS)
+                else:
+                    print "error dqn type"
 
             tocDqnAction  = time.time()
         elif isinstance(nodes[n],mdpNode):
@@ -306,16 +311,34 @@ for t in range(0,numSteps):
     if simulationScenario.scenarioType != 'fixed':
          simulationScenario.updateScenario(nodes,legacyNodeIndicies, t)
 
-    '''-------- update states and other dqn make action'''
-    
+    '''-------- update states and other dqn make action'''    
     collisions, collisionTally, observedStates = \
                     update(nodes, numChans, actions, collisions, collisionTally)
 
     for m in range(1,numDqn):
         l = indexPriority[m].astype(int)
         # update
-        observation = observedStates[l,:]
-        actions[l,:], actionScalar = nodes[l].getAction(t, observation) 
+        temp = observedStates[l,:]
+#        actions[l,:], actionScalar = nodes[l].getAction(t, observation) 
+            
+        if nodes[l].type == 'dqn':
+            observation                = temp                    
+            actions[l,:], actionScalar = nodes[l].getAction(t, observation)
+        elif nodes[l].type == 'dqnPo':
+            observationPo              = partialObserve( temp, t, poStepNum, poSeeNum)
+#            print "observationPo len %s at step %s"%(len(observationPo),t)
+#            print "n_features len %s"%(nodes[l].dqn_.n_features)
+            actions[l,:], actionScalar = nodes[l].getAction(t, observationPo)
+        elif nodes[l].type == 'dqnPad':
+            observationPd                = partialPad( temp, t, poStepNum, poBlockNum, padValue)
+            actions[l,:], actionScalar = nodes[l].getAction(t, observationPd)                
+        elif nodes[l].type == 'dqnStack' or nodes[l].type == 'dpgStack':
+            temp2                      = partialObserve( temp, t, poStepNum, poSeeNum)
+            observationS               = updateStack(observationS, temp2)
+            actions[l,:], actionScalar = nodes[l].getAction(t, observationS)
+        else:
+            print "error dqn type"
+        
         collisions, collisionTally, observedStates = \
             update(nodes, numChans, actions, collisions, collisionTally)
 
@@ -355,11 +378,11 @@ for t in range(0,numSteps):
 
             if   nodes[n].type == 'dqnPo':
                 observation_                = partialObserve( temp, t, poStepNum, poSeeNum)
-                nodes[n].storeTransition(observation, actionScalar, 
+                nodes[n].storeTransition(observationPo, actionScalar, 
                      reward, observation_)
             elif nodes[n].type == 'dqnPad':
                 observation_                = partialPad( temp, t, poStepNum, poBlockNum, padValue)
-                nodes[n].storeTransition(observation, actionScalar, 
+                nodes[n].storeTransition(observationPd, actionScalar, 
                      reward, observation_)             
             elif nodes[n].type == 'dqnStack' or nodes[n].type == 'dpgStack':
                 temp2 = partialObserve( temp, t, poStepNum, poSeeNum)
@@ -478,8 +501,9 @@ for t in range(0,numSteps):
 #        print "Packet Loss  Rate: %s"%(PLR[t-1]*100)
     
 print( " 100% completed--------------------")
+txPackets = myGetTxPackets(nodes,cumulativeCollisions)
 PER, PLR = myCalculatePER(nodes, numSteps, 
-                                  myGetTxPackets(nodes,cumulativeCollisions), 
+                                  txPackets, 
                                   cumulativeCollisions)
 print "Packet Error Rate: %s"%(PER[t-1]*100)
 print "Packet Loss  Rate: %s"%(PLR[t-1]*100)       
@@ -516,7 +540,7 @@ myPlotPER(nodes, PLR)
 plt.figure(8)   
 myPlotPLR(nodes, PLR)
 plt.figure(9)   
-myPlotThroughput(nodes, PLR)
+myPlotThroughput(nodes, cumulativeCollisions, txPackets, optimalTP, numSteps)
 plt.figure(10)
 #myPlotCost(nodes)
 

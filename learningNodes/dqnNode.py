@@ -17,6 +17,9 @@ import dqnDuel
 import dpg
 import dqnR
 
+#import tensorflow as tf
+#tf.set_random_seed(1)
+
 
 class dqnNode(radioNode):
     goodChans     = [ ]    
@@ -43,12 +46,12 @@ class dqnNode(radioNode):
     cumulativeReward = [ ]
     
     # hard core so far
-    poNum = 3
-    poStackSize = 3 * 4
+    poNum = 4
+    poStackSize = 4 * 4
     
 
     
-    def __init__(self,numChans,states,numSteps, dqnType):
+    def __init__(self,numChans,numSteps, dqnType):
         self.actions = np.zeros((numChans+1,numChans))
         for k in range(0,numChans):
             self.actions[k+1,k] = 1
@@ -60,16 +63,16 @@ class dqnNode(radioNode):
         
         self.goodChans     = np.ones(numChans)
         
-        self.states        = states
-        self.numStates     = np.shape(states)[0]
+#        self.states        = states
+#        self.numStates     = np.shape(states)[0]
         
-        self.stateHist     = np.zeros((numSteps,numChans))
-        self.stateTally    = np.zeros(self.numStates)
+#        self.stateHist     = np.zeros((numSteps,numChans))
+#        self.stateTally    = np.zeros(self.numStates)
       
         self.rewardHist    = np.zeros(numSteps)
         self.rewardTally   = np.zeros(numChans+1)
         self.cumulativeReward = np.zeros(numSteps)
-        self.rewardTrans   = np.zeros((self.numActions, self.numStates,self.numStates) )
+#        self.rewardTrans   = np.zeros((self.numActions, self.numStates,self.numStates) )
         
         self.exploreHist   = [ ]
         
@@ -94,7 +97,7 @@ class dqnNode(radioNode):
                         reward_decay=0.9,
                         exploreDecayType = 'expo',
                         replace_target_iter=200,
-                        memory_size=200,
+                        memory_size=1000,
                         e_greedy_increment=True,
                     )
                            
@@ -109,7 +112,7 @@ class dqnNode(radioNode):
                             reward_decay=0.9,
                             exploreDecayType = 'expo',
                             replace_target_iter=200,
-                            memory_size=200,
+                            memory_size=1000,
                             e_greedy_increment=True,
                             double_q = True, 
                             )
@@ -123,7 +126,7 @@ class dqnNode(radioNode):
                             reward_decay=0.9,
                             exploreDecayType = 'expo',
                             replace_target_iter=200,
-                            memory_size=200,
+                            memory_size=1000,
                             e_greedy_increment=True,
                             prioritized=True,  
                             ) 
@@ -137,7 +140,7 @@ class dqnNode(radioNode):
                             reward_decay=0.9,
                              exploreDecayType = 'expo',
                             replace_target_iter=200,
-                            memory_size=200,
+                            memory_size=1000,
                             e_greedy_increment=True,
                             dueling=True, 
                             ) 
@@ -151,7 +154,7 @@ class dqnNode(radioNode):
                             reward_decay=0.9,
                             exploreDecayType = 'expo',
                             replace_target_iter=200,
-                            memory_size=200,
+                            memory_size=1000,
                             e_greedy_increment=True,
                             )                         
         elif dqnType == 16 :
@@ -175,7 +178,7 @@ class dqnNode(radioNode):
                             reward_decay=0.9,
                             exploreDecayType = 'expo',
                             replace_target_iter=200,
-                            memory_size=200,
+                            memory_size=1000,
                             e_greedy_increment=True,
                             ) 
         elif dqnType == 31 :
@@ -188,7 +191,7 @@ class dqnNode(radioNode):
                             reward_decay=0.9,
                             exploreDecayType = 'expo',
                             replace_target_iter=200,
-                            memory_size=200,
+                            memory_size=1000,
                             e_greedy_increment=True,
                             )   
         elif dqnType == 32 :
@@ -201,7 +204,7 @@ class dqnNode(radioNode):
                             reward_decay=0.9,
                             exploreDecayType = 'expo',
                             replace_target_iter=200,
-                            memory_size=200,
+                            memory_size=1000,
                             e_greedy_increment=True,
                             ) 
         elif dqnType == 33 :

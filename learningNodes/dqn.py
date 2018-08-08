@@ -104,6 +104,7 @@ class dqn:
     def _build_net(self):
         # ------------------ all inputs ------------------------
         self.s = tf.placeholder(tf.float32,  [None, self.n_features], name='s')  # input State
+#        print "len of s %s"%(np.shape(self.s))
         # !!! the cal of n_features, the length of state is the size of n_feature        
         self.s_ = tf.placeholder(tf.float32, [None, self.n_features], name='s_')  # input Next State
         self.r = tf.placeholder(tf.float32,  [None, ],                name='r')  # input Reward

@@ -491,7 +491,7 @@ def myCalculatePER(nodes, numSteps, txPackets, cumulativeCollisions):
                                  1,len(nodes) )  
     txPackets = np.array(txPackets).T
     PER =  cumulativeCollisions / txPackets
-    PLR = (cumulativeCollisions + timeSlots - txPackets) /timeSlots
+    PLR = (cumulativeCollisions + timeSlots - txPackets) /timeSlots # NOT ABSOLUTE FAIR, prefer throughput
     return PER, PLR
     
     
@@ -580,16 +580,17 @@ def myPlotPLR(nodes, PLR):
     plt.savefig('../dqnFig/PLR.pdf')  
     
     
-def myPlotThroughput(nodes, PLR):
+def myPlotThroughput(nodes, cumulativeCollisions, txPackets, optimalTP, numSteps):
     from learningNodes.dqnNode     import dqnNode
     from learningNodes.mdpNode     import mdpNode
     legendInfo = [ ]
+    Throughput = ( txPackets - cumulativeCollisions.T ).sum(axis = 0) * 1.0 / (optimalTP * numSteps)
     for i in range(len(nodes)):
         if isinstance(nodes[i],mdpNode):
-            plt.semilogy( 1- PLR[:,i] )
+            plt.plot( Throughput )
             legendInfo.append( 'Node %d (MDP)'%(i) )
         elif isinstance(nodes[i],dqnNode):
-            plt.semilogy( 1- PLR[:,i] )
+            plt.plot( Throughput )
             legendInfo.append( 'Node %d (DQN)'%(i) )
     if legendInfo:
         plt.xlabel('Step Number')
@@ -598,7 +599,9 @@ def myPlotThroughput(nodes, PLR):
         plt.grid(True)                     
         plt.show() 
     plt.savefig('../dqnFig/TP.png')
-    plt.savefig('../dqnFig/TP.pdf')  
+    plt.savefig('../dqnFig/TP.pdf')
+    
+    return Throughput
     
     
 def myPlotCost(nodes):
