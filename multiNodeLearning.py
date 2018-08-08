@@ -9,7 +9,7 @@ jianyuan@vt.edu
 
 April,2018
 
-The main script to run
+This is the main script to run
 
 ---------------------------
 Github url:
@@ -97,8 +97,8 @@ imChanList        =  json.loads(Config.get('imNode', 'imChanList'))
 imDutyCircleList  =  json.loads(Config.get('imNode', 'imDutyCircleList')) 
 
 poissonChanList   =  json.loads(Config.get('poissonNode', 'poissonChanList')) 
-arrivalInterval       =  json.loads(Config.get('poissonNode', 'arrivalInterval')) 
-serviceInterval       =  json.loads(Config.get('poissonNode', 'serviceInterval')) 
+arrivalInterval   =  json.loads(Config.get('poissonNode', 'arrivalInterval')) 
+serviceInterval   =  json.loads(Config.get('poissonNode', 'serviceInterval')) 
 
 mcChanList        =  json.loads(Config.get('markovChainNode', 'mcChanList')) 
 alpha             =  json.loads(Config.get('markovChainNode', 'alpha')) 
@@ -400,7 +400,7 @@ for t in range(0,numSteps):
 
             done = True  
             if isinstance(nodes[n],dqnNode):
-                if t > 500:
+                if t > 2000:
                     if t % nodes[n].policyAdjustRate == 0:    
                         nodes[n].learn()
                 learnProbHist.append( nodes[n].dqn_.exploreProb)
