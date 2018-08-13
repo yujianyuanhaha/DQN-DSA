@@ -8,69 +8,30 @@ Date  : April, 2018
  
 
 -------------------------------------------------------------------------
-# News
-* (Fri Aug 3) Multiple learning nodes coexsit fixed, starting running scale-up case.
-* (Tue Jul 17) 2-state markov Chain node added
-* (Fri Jun 29) stack-DQN
-    * add partial observation node with shorten observation as state
-    * add partial observation node with shorten observation plus padding with zero/one as full state
-    * add partial observation node with stacked partial observation together as state
-* (Sun Jun 24) some new features 
-    * add in possion node, model under M/M/1 theory, with arrival rate & service rate configurable 
-    * add in policy gradient learning node, namely deep policy gradient (dpg) node 
-    * rename, adapt string name, dumb node under 9, learning node start with 10 or more 
 
+Table of contents
+=================
 
+<!--ts-->
+   * [Overview](#Overview)
+   * [News](#News)
+   * [ToDoList](#ToDoList)
+      * [Capacity_Robust](#Capacity_Robust)
+      * [PolicyGradient](#PolicyGradient)
+      * [POMDP](#POMDP)
+      * [Stochastic](#Stochastic)
+      * [ScaleUp](#ScaleUp)
+      * [Doxy](#Doxy)
+   * [Notice](#Notice)
+   * [Bugs](#Bugs)
+   * [RelatedFiles](#RelatedFiles)
+   * [Tutorial_of_Deep_Reinforcement_Learning](#Tutorial_of_Deep_Reinforcement_Learning)
+   * [Ongoing_Work_POMDP](#Ongoing_Work_POMDP)
+   * [FileTopology](#FileTopology)
+   * [Configuration](#Configuration)
+   * [How_to_run](#How_to_run)
 
-
---------------------------------------------------------------------------
-# To Do List
-* Capacity & Robust
-    * learn possion node  
-    * learn legacy node with fixed baised tx prob 
-    * learn long im node under limited memory and steps 
-    * dynamic environment 
-    * learn to greedy occupied all available channel 
-    * ~~efficient multiple dsa node coexist~~ 
-    * ~~multiple dqn node coexist~~ 
-    * merge yue's guess item & eligiable trace dqn node
-* Policy Gradient
-    * dpg
-* POMDP 
-    * vi
-    * pomcp
-* Stochastic
-    * possion
-    * uniform
-    * 2-state markovChain
-* Scale up
-* Doxy web
-
-
-
-
---------------------------------------------------------------------------
-# Notice
-1. When assign new number of channels and DQN node exist, need to restart the IPython console, exist pop size umatch error. While would not happen in raw terminal.
-2. mdpNode would meet compuation constraint when number of channel over 10, result in dead loop (stuck at stateSpaceCreate).
-
-
---------------------------------------------------------------------------
-# Bugs
-1. ~~We assume all nodes detect and make decision at same time, hence the multiple dsaNode may collide  (T.B.D.)~~. -> create politeness to dsa nodes to avoid ping-pong effect, a ugly way.
-2. ~~Unstable performance when multiple dqnNode works (T.B.D.)~~. -> assign priority to learning nodes to make them observe-action one by one, a ugly way.
-
-
-
-
---------------------------------------------------------------------------
-# Related Files:
-1. The [Result Demo of DQN-DCA](https://drive.google.com/open?id=1Tl5y8Ov_P_Fwqt1SpoRLuaAqaTlG20mImVx5o15VUsY) of Google Slides, 
-and figure come from VT Google Folder [qdnFig](https://drive.google.com/open?id=1hQxplvCs_hSfgr9rrJ-rywutUkHWwnxP) of .png .pdf 
-figure autosave by python, notice we SEPERATE figure from github to avoid too frequent update git folder.
-2. The [technic report](https://drive.google.com/open?id=1X-I2D4Dk_Z1IXAt19XUnlWHUvkxn42EB) and 
-the [latex folder](https://drive.google.com/open?id=1GeqjxzAroWrWHcM8LnwumbAo0h-ZYItX).
-3. A backup of Chris(Dr. Headley) MDP codes of [MDP solver](https://drive.google.com/open?id=1rddetimeRR8MECEsv0KRfdV1uLvd-4ZQ).
+<!--te-->
 
 # Overview
 This project work around applying **deep Q network**[1] in **dynamic channel access**.
@@ -99,6 +60,73 @@ The project transfer Chris's code of MDP-DCA Matlab simulator as the starter wit
 Another repository[6] maintain by Yue would merge soon, and [7] is the technical report.  
 
 
+News
+====
+* (Fri Aug 3) Multiple learning nodes coexsit fixed, starting running scale-up case.
+* (Tue Jul 17) 2-state markov Chain node added
+* (Fri Jun 29) stack-DQN
+    * add partial observation node with shorten observation as state
+    * add partial observation node with shorten observation plus padding with zero/one as full state
+    * add partial observation node with stacked partial observation together as state
+* (Sun Jun 24) some new features 
+    * add in possion node, model under M/M/1 theory, with arrival rate & service rate configurable 
+    * add in policy gradient learning node, namely deep policy gradient (dpg) node 
+    * rename, adapt string name, dumb node under 9, learning node start with 10 or more 
+
+
+
+
+--------------------------------------------------------------------------
+# ToDoList
+* Capacity_Robust
+    * learn possion node  
+    * learn legacy node with fixed baised tx prob 
+    * learn long im node under limited memory and steps 
+    * dynamic environment 
+    * learn to greedy occupied all available channel 
+    * ~~efficient multiple dsa node coexist~~ 
+    * ~~multiple dqn node coexist~~ 
+    * merge yue's guess item & eligiable trace dqn node
+* PolicyGradient
+    * dpg
+* POMDP 
+    * vi
+    * pomcp
+* Stochastic
+    * possion
+    * uniform
+    * 2-state markovChain
+* ScaleUp
+* Doxy
+
+
+
+
+--------------------------------------------------------------------------
+# Notice
+1. When assign new number of channels and DQN node exist, need to restart the IPython console, exist pop size umatch error. While would not happen in raw terminal.
+2. mdpNode would meet compuation constraint when number of channel over 10, result in dead loop (stuck at stateSpaceCreate).
+
+
+--------------------------------------------------------------------------
+# Bugs
+1. ~~We assume all nodes detect and make decision at same time, hence the multiple dsaNode may collide  (T.B.D.)~~. -> create politeness to dsa nodes to avoid ping-pong effect, a ugly way.
+2. ~~Unstable performance when multiple dqnNode works (T.B.D.)~~. -> assign priority to learning nodes to make them observe-action one by one, a ugly way.
+
+
+
+
+--------------------------------------------------------------------------
+# RelatedFiles:
+1. The [Result Demo of DQN-DCA](https://drive.google.com/open?id=1Tl5y8Ov_P_Fwqt1SpoRLuaAqaTlG20mImVx5o15VUsY) of Google Slides, 
+and figure come from VT Google Folder [qdnFig](https://drive.google.com/open?id=1hQxplvCs_hSfgr9rrJ-rywutUkHWwnxP) of .png .pdf 
+figure autosave by python, notice we SEPERATE figure from github to avoid too frequent update git folder.
+2. The [technic report](https://drive.google.com/open?id=1X-I2D4Dk_Z1IXAt19XUnlWHUvkxn42EB) and 
+the [latex folder](https://drive.google.com/open?id=1GeqjxzAroWrWHcM8LnwumbAo0h-ZYItX).
+3. A backup of Chris(Dr. Headley) MDP codes of [MDP solver](https://drive.google.com/open?id=1rddetimeRR8MECEsv0KRfdV1uLvd-4ZQ).
+
+
+
 
 # Reference:  
 [1] Mnih, Volodymyr, et al. "Human-level control through deep reinforcement learning." Nature 518.7540 (2015): 529-533.  
@@ -109,12 +137,12 @@ Another repository[6] maintain by Yue would merge soon, and [7] is the technical
 [7] https://drive.google.com/open?id=1X-I2D4Dk_Z1IXAt19XUnlWHUvkxn42EB  
 
 
-# Tutorial of Deep Reinforcement Learning
+# Tutorial_of_Deep_Reinforcement_Learning
 [1]. http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html  by Dr. Silver, lecturers video are in open access in  youtube as well
 [2]. https://icml.cc/2016/tutorials/deep_rl_tutorial.pdf  a brief tutorial by Dr. Silver 
 
 
-# Ongoing Work - POMDP
+# Ongoing_Work_POMDP
 We are attempt to implement four method as solver
 * stack-DQN
 * Vaule Itervation
@@ -141,7 +169,7 @@ conda install -c conda-forge tensorflow=1.6.0
 ```
 
 --------------------------------------------------------------------------
-# File Topology
+# FileTopology
     multiNodeLearning.py -- setup.config
                          -- myFunction.py
                          -- legacyNode.py
@@ -162,7 +190,7 @@ conda install -c conda-forge tensorflow=1.6.0
 
 
 --------------------------------------------------------------------------
-# How to run the codes?  
+# How_to_run
 Paramter all configurable at header part of ```multiNodeLearning.py``` OR ```setup.config``` file. Table below provide a quick view.  
 
 | string name    | numeric    | file(.py)   | description   | parameters    |
@@ -209,12 +237,12 @@ python multiNodeLearning.py
  
 OR
 ```
-python multiNodeLearning.py --set setFileName.config
+python multiNodeLearning.py --set setFileName.cfg
 ```
 where ```setupFileName``` was file like ```settingCaseXX``` to save some significant progressive results.  
 OR even further, if some modification is made on ```multiNodeLearning.py``` hence it is renamed as like ```multiNodeLearningCaseXX.py```, you and execute
 ```
-ython multiNodeLearningCaseXX.py --set setFileName.config
+ython multiNodeLearningCaseXX.py --set setFileName.cfg
 ```
 
 

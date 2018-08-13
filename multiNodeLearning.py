@@ -74,7 +74,7 @@ import json
 import argparse
 
 parser            = argparse.ArgumentParser(description='Load settings file')
-parser.add_argument('--set', default="setup.config" , type=str, help='Specify the setting file name')
+parser.add_argument('--set', default="setup.cfg" , type=str, help='Specify the setting file name')
 args              = vars(parser.parse_args())
 Config            = ConfigParser.ConfigParser()
 Config.read(args['set'])
@@ -186,7 +186,6 @@ for k in range(0,numNodes):
 #                       'dpg', 'dqnPo', 'dqnPad',  'dqnStack'  ]:
             
         t = dqnNode(numChans, numSteps, nodeTypes[k])     
-#        print "type %s with n_feature%s "%(t.type,t.dqn_.n_features)
         numDqn += 1
         dqnIndex.append(k)
         #        print "DQN node %s Parameters: learning_rate %s, reward_decay %s,\
@@ -209,6 +208,7 @@ for k in range(0,numNodes):
     
 print nodes
 
+"-------- print ENTER to confirm the input--------------"
 #confirmKey = raw_input("If setting is ready, press ENTER to continue, any other key to abort ... ") 
 #assert confirmKey == '', "setting wrong, programs abort :("
         
@@ -319,15 +319,12 @@ for t in range(0,numSteps):
         l = indexPriority[m].astype(int)
         # update
         temp = observedStates[l,:]
-#        actions[l,:], actionScalar = nodes[l].getAction(t, observation) 
             
         if nodes[l].type == 'dqn':
             observation                = temp                    
             actions[l,:], actionScalar = nodes[l].getAction(t, observation)
         elif nodes[l].type == 'dqnPo':
             observationPo              = partialObserve( temp, t, poStepNum, poSeeNum)
-#            print "observationPo len %s at step %s"%(len(observationPo),t)
-#            print "n_features len %s"%(nodes[l].dqn_.n_features)
             actions[l,:], actionScalar = nodes[l].getAction(t, observationPo)
         elif nodes[l].type == 'dqnPad':
             observationPd                = partialPad( temp, t, poStepNum, poBlockNum, padValue)
@@ -366,7 +363,6 @@ for t in range(0,numSteps):
   
                         
             nodes[n].updateTrans(observedStates[n,:],t)
-#            if t > 500:
             if t % nodes[n].policyAdjustRate == 0:
                 nodes[n].updatePolicy(t)
             tocMdpLearn = time.time()
@@ -400,7 +396,7 @@ for t in range(0,numSteps):
 
             done = True  
             if isinstance(nodes[n],dqnNode):
-                if t > 2000:
+                if t > 1000:
                     if t % nodes[n].policyAdjustRate == 0:    
                         nodes[n].learn()
                 learnProbHist.append( nodes[n].dqn_.exploreProb)
@@ -505,7 +501,7 @@ txPackets = myGetTxPackets(nodes,cumulativeCollisions)
 PER, PLR = myCalculatePER(nodes, numSteps, 
                                   txPackets, 
                                   cumulativeCollisions)
-print "Packet Error Rate: %s"%(PER[t-1]*100)
+print "Packet Loss  Rate: %s"%(PER[t-1]*100)   
 print "Packet Loss  Rate: %s"%(PLR[t-1]*100)       
 print( "--- End Main Loop--- ")
 toc =  time.time()
