@@ -8,30 +8,28 @@ Date  : April, 2018
  
 
 -------------------------------------------------------------------------
-
-Table of contents
+Table of Contents
 =================
 
-<!--ts-->
-   * [Overview](#Overview)
-   * [News](#News)
-   * [ToDoList](#ToDoList)
-      * [Capacity_Robust](#Capacity_Robust)
-      * [PolicyGradient](#PolicyGradient)
-      * [POMDP](#POMDP)
-      * [Stochastic](#Stochastic)
-      * [ScaleUp](#ScaleUp)
-      * [Doxy](#Doxy)
-   * [Notice](#Notice)
-   * [Bugs](#Bugs)
-   * [RelatedFiles](#RelatedFiles)
-   * [Tutorial_of_Deep_Reinforcement_Learning](#Tutorial_of_Deep_Reinforcement_Learning)
-   * [Ongoing_Work_POMDP](#Ongoing_Work_POMDP)
-   * [FileTopology](#FileTopology)
-   * [Configuration](#Configuration)
-   * [How_to_run](#How_to_run)
-
-<!--te-->
+   * [Table of Contents](#table-of-contents)
+   * [Overview](#overview)
+   * [News](#news)
+   * [ToDoList](#todolist)
+      * [Capacity_Robust](#capacity_robust)
+      * [PolicyGradient](#policygradient)
+      * [POMDP](#pomdp)
+      * [Stochastic](#stochastic)
+      * [ScaleUp](#scaleup)
+      * [Doxy](#doxy)
+   * [Notice](#notice)
+   * [Bugs](#bugs)
+   * [Related Files:](#related-files)
+   * [Reference:](#reference)
+   * [Tutorial of Deep Reinforcement Learning](#tutorial-of-deep-reinforcement-learning)
+   * [Ongoing Work - POMDP](#ongoing-work---pomdp)
+   * [Configuration](#configuration)
+   * [File Topology](#file-topology)
+   * [How to run](#how-to-run)
 
 # Overview
 This project work around applying **deep Q network**[1] in **dynamic channel access**.
@@ -60,8 +58,7 @@ The project transfer Chris's code of MDP-DCA Matlab simulator as the starter wit
 Another repository[6] maintain by Yue would merge soon, and [7] is the technical report.  
 
 
-News
-====
+# News
 * (Fri Aug 3) Multiple learning nodes coexsit fixed, starting running scale-up case.
 * (Tue Jul 17) 2-state markov Chain node added
 * (Fri Jun 29) stack-DQN
@@ -78,26 +75,26 @@ News
 
 --------------------------------------------------------------------------
 # ToDoList
-* Capacity_Robust
-    * learn possion node  
-    * learn legacy node with fixed baised tx prob 
-    * learn long im node under limited memory and steps 
-    * dynamic environment 
-    * learn to greedy occupied all available channel 
-    * ~~efficient multiple dsa node coexist~~ 
-    * ~~multiple dqn node coexist~~ 
-    * merge yue's guess item & eligiable trace dqn node
-* PolicyGradient
-    * dpg
-* POMDP 
-    * vi
-    * pomcp
-* Stochastic
-    * possion
-    * uniform
-    * 2-state markovChain
-* ScaleUp
-* Doxy
+## Capacity_Robust
+* learn possion node  
+* learn legacy node with fixed baised tx prob 
+* learn long im node under limited memory and steps 
+* dynamic environment 
+* learn to greedy occupied all available channel 
+* ~~efficient multiple dsa node coexist~~ 
+* ~~multiple dqn node coexist~~ 
+* merge yue's guess item & eligiable trace dqn node
+## PolicyGradient
+* dpg
+## POMDP 
+* vi
+* pomcp
+## Stochastic
+* possion
+* uniform
+* 2-state markovChain
+## ScaleUp
+## Doxy
 
 
 
@@ -117,7 +114,7 @@ News
 
 
 --------------------------------------------------------------------------
-# RelatedFiles:
+# Related Files:
 1. The [Result Demo of DQN-DCA](https://drive.google.com/open?id=1Tl5y8Ov_P_Fwqt1SpoRLuaAqaTlG20mImVx5o15VUsY) of Google Slides, 
 and figure come from VT Google Folder [qdnFig](https://drive.google.com/open?id=1hQxplvCs_hSfgr9rrJ-rywutUkHWwnxP) of .png .pdf 
 figure autosave by python, notice we SEPERATE figure from github to avoid too frequent update git folder.
@@ -137,12 +134,12 @@ the [latex folder](https://drive.google.com/open?id=1GeqjxzAroWrWHcM8LnwumbAo0h-
 [7] https://drive.google.com/open?id=1X-I2D4Dk_Z1IXAt19XUnlWHUvkxn42EB  
 
 
-# Tutorial_of_Deep_Reinforcement_Learning
-[1]. http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html  by Dr. Silver, lecturers video are in open access in  youtube as well
+# Tutorial of Deep Reinforcement Learning
+[1]. http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html  by Dr. Silver, lecturers video are in open access in  youtube as well.  
 [2]. https://icml.cc/2016/tutorials/deep_rl_tutorial.pdf  a brief tutorial by Dr. Silver 
 
 
-# Ongoing_Work_POMDP
+# Ongoing Work - POMDP
 We are attempt to implement four method as solver
 * stack-DQN
 * Vaule Itervation
@@ -169,7 +166,7 @@ conda install -c conda-forge tensorflow=1.6.0
 ```
 
 --------------------------------------------------------------------------
-# FileTopology
+# File Topology
     multiNodeLearning.py -- setup.config
                          -- myFunction.py
                          -- legacyNode.py
@@ -190,7 +187,7 @@ conda install -c conda-forge tensorflow=1.6.0
 
 
 --------------------------------------------------------------------------
-# How_to_run
+# How to run
 Paramter all configurable at header part of ```multiNodeLearning.py``` OR ```setup.config``` file. Table below provide a quick view.  
 
 | string name    | numeric    | file(.py)   | description   | parameters    |
