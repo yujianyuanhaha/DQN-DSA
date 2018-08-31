@@ -194,9 +194,14 @@ for k in range(0,numNodes):
         #                    t.dqn_.replace_target_iter, t.dqn_.memory_size, t.policyAdjustRate )
     elif nodeTypes[k] == 17 or nodeTypes[k] == 'ac':
         t = acNode(numChans,states,numSteps) 
+        numDqn += 1
+        dqnIndex.append(k)
         
     elif nodeTypes[k] == 18 or nodeTypes[k] == 'ddpg':
-        t = ddpgNode(numChans,states,numSteps)     
+        t = ddpgNode(numChans,states,numSteps)
+        numDqn += 1
+        dqnIndex.append(k)
+        
         
 
     else:
@@ -282,7 +287,7 @@ for t in range(0,numSteps):
             "------ dqn primary get Action, while dqn sec pending ------"
 
             if n == indexPriority[0]:  # if higher priority
-                if nodes[n].type == 'dqn':
+                if nodes[n].type == 'dqn' or nodes[n].type == 'dpg' or nodes[n].type == 'ac':
                     observation                = temp                    
                     actions[n,:], actionScalar = nodes[n].getAction(t, observation)
                 elif nodes[n].type == 'dqnPo':
@@ -311,7 +316,7 @@ for t in range(0,numSteps):
     if simulationScenario.scenarioType != 'fixed':
          simulationScenario.updateScenario(nodes,legacyNodeIndicies, t)
 
-    '''-------- update states and other dqn make action'''    
+    '''-------- update states and other dqn make action ----------------------'''    
     collisions, collisionTally, observedStates = \
                     update(nodes, numChans, actions, collisions, collisionTally)
 
@@ -320,7 +325,7 @@ for t in range(0,numSteps):
         # update
         temp = observedStates[l,:]
             
-        if nodes[l].type == 'dqn':
+        if nodes[l].type == 'dqn' or nodes[l].type == 'dpg' or nodes[l].type == 'ac':
             observation                = temp                    
             actions[l,:], actionScalar = nodes[l].getAction(t, observation)
         elif nodes[l].type == 'dqnPo':
@@ -385,7 +390,7 @@ for t in range(0,numSteps):
                 observationS_               = updateStack(observationS, temp2)
                 nodes[n].storeTransition(observationS, actionScalar, 
                      reward, observationS_) 
-            else:
+            elif nodes[n].type == 'dqn' or nodes[n].type == 'dpg':
                 observation_ = temp
                 nodes[n].storeTransition(observation, actionScalar, 
                      reward, observation_)
@@ -501,7 +506,7 @@ txPackets = myGetTxPackets(nodes,cumulativeCollisions)
 PER, PLR = myCalculatePER(nodes, numSteps, 
                                   txPackets, 
                                   cumulativeCollisions)
-print "Packet Loss  Rate: %s"%(PER[t-1]*100)   
+print "Packet Error  Rate: %s"%(PER[t-1]*100)   
 print "Packet Loss  Rate: %s"%(PLR[t-1]*100)       
 print( "--- End Main Loop--- ")
 toc =  time.time()
