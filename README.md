@@ -228,10 +228,11 @@ Table below provide a quick view.
 
 # X-O table
 This table show the learning ability of learning nodes with other type of nodes. Where **X** for CANNOT, **O** for CAN and **N/A** for unkown.  
-|           | legacy      | hop       |intermittent    | dsa    | mdp       | dqn    | policy        |
-|-----------|--------|-----|-------------|-----|-----|-----|--------|
-| mdp       | O      | O   | X           | O   | O   | O   | O      |
-| dqn       | O      | O   | O           | O   | O   | O   | O      |
+
+| string name    | legacy    | hop   | intermittent   | dsa    | mdp        | dqn       | policy        |
+|----------|----------|----------|----------|----------|----------|----------|----------|
+| mdp      | O        | O        | O        |      O   |      O   |      O   |      O    |
+| dqn |O        | O        | O        |      O   |      O   |      O   |      O    |
 
 
 # How to run
