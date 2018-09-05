@@ -48,7 +48,7 @@ PBS -q normal_q
 # Replace "youraccount" below with the name of your allocation account.
 # If you are a student, you will need to get this from your advisor.
 # For more on allocations, go here: http://www.arc.vt.edu/allocations
-PBS -A jianyuan
+PBS -A RadarDQN
 
 # Access group. Do not change this line.
 #PBS -W group_list=cascades
