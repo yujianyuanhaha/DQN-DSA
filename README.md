@@ -185,8 +185,9 @@ conda install -c conda-forge tensorflow=1.6.0
 
 
 --------------------------------------------------------------------------
-# How to run
-Paramter all configurable at header part of ```multiNodeLearning.py``` OR ```setup.config``` file. Table below provide a quick view.  
+
+# Node Type Overview
+Table below provide a quick view.  
 
 | string name    | numeric    | file(.py)   | description   | parameters    |
 |----------|----------|----------|----------|----------|
@@ -227,19 +228,14 @@ Paramter all configurable at header part of ```multiNodeLearning.py``` OR ```set
 
 # X-O table
 This table show the learning ability of learning nodes with other type of nodes. Where **X** for CANNOT, **O** for CAN and **N/A** for unkown. 
-|   | legacy | hop |intermittent | dsa | mdp | dqn | policy |
-|---|--------|-----|-------------|-----|-----|-----|--------|
-| legacy  | 0 | legacyNode  | always occupy one channel         |  txProb|
+|           | legacy | hop |intermittent | dsa | mdp | dqn | policy |
+|-----------|:------:|:---:|:-----------:|:---:|:---:|:---:|:------:|
+| mdp       | O      | O   | X           | O   | O   | O   | O      |
+| dqn       | O      | O   | O           | O   | O   | O   | O      |
 
 
-
-test
-|      |   T_1   |   T_2   | T_3 |   T_4  |
-|:----:|:-------:|:-------:|:---:|:------:|
-| TX_1 | 0,0,0,1 | -,-,-,- | s_1 | -s_2^* |
-|  TX2 | -,-,-,- | 0,0,0,1 | s_2 |  s_1^* |
-|      |         |         |     |        |
-
+# How to run
+Paramter all configurable at header part of ```multiNodeLearning.py``` OR ```setup.config``` file. 
 In terminal run below command for the  import the default ```setup.config``` file. :  
 ```
 python multiNodeLearning.py
