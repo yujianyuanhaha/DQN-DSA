@@ -6,7 +6,7 @@ Created on Mon Apr  2 00:45:09 2018
 @author: Jet
 """
 
-from radioNode import radioNode
+from dumbNodes.radioNode import radioNode
 
 import random
 import numpy as np
