@@ -66,6 +66,8 @@ class dqnR:
 
         # initialize zero memory [s, a, r, s_]
         self.memory = np.zeros((self.memory_size, n_features * 2 + 2))
+        
+        self.memory_counter = 1
 
         # consist of [target_net, evaluate_net]
         self._build_net()

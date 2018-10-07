@@ -6,11 +6,14 @@ from .util         import _checkDimensionsListLike, _checkDimensionsListLike,isS
                             isStochastic, isNonNegative,  checkSquareStochastic, check, getSpan
 
 from .dqnNode      import dqnNode
+from .drqnNode     import drqnNode
 from .dqn          import dqn
 from .dqnDouble    import DoubleDQN
 from .dqnDuel      import DuelingDQN
 from .dqnPriReplay import SumTree, Memory, DQNPrioritizedReplay
 from .dqnR         import dqnR
+
+from .drqn         import drqn
 
 from .acNode        import acNode
 from .actor         import Actor
@@ -34,6 +37,9 @@ __all__ = [
            'dqnDuel', 
            'dqnPriReplay',
            'dqnR',
+           
+           'drqnNode', 
+           'drqn',
            
            'acNode', 
            'actor', 

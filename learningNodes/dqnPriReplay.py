@@ -107,7 +107,16 @@ class Memory(object):  # stored as ( s, a, r, s_ ) in SumTree
         self.tree.add(max_p, transition)   # set the max p for new p
 
     def sample(self, n):
-        b_idx, b_memory, ISWeights = np.empty((n,), dtype=np.int32), np.empty((n, self.tree.data[0].size)), np.empty((n, 1))
+        temp = np.array(self.tree.data[0])
+        b_idx, b_memory, ISWeights = np.empty((n,), dtype=np.int32), np.empty((n, temp.size)), np.empty((n, 1))
+#        temp = self.tree.data[0]
+#        if len(temp) == 1:
+#            temp2 = np.array(temp)
+#        else:
+#            temp2 = temp
+#        print(temp,temp2)
+#        
+#        b_idx, b_memory, ISWeights = np.empty((n,), dtype=np.int32), np.empty((n, temp2.size)), np.empty((n, 1))
         pri_seg = self.tree.total_p / n       # priority segment
         self.beta = np.min([1., self.beta + self.beta_increment_per_sampling])  # max = 1
 

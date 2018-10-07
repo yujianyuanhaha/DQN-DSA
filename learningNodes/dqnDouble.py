@@ -59,6 +59,8 @@ class DoubleDQN:
 
         self.learn_step_counter = 0
         self.memory = np.zeros((self.memory_size, n_features*2+2))
+        self.memory_counter = 1   # fix
+        
         self._build_net()
         t_params = tf.get_collection('target_net_params')
         e_params = tf.get_collection('eval_net_params')
@@ -108,7 +110,7 @@ class DoubleDQN:
             c_names = ['target_net_params', tf.GraphKeys.GLOBAL_VARIABLES]
 
             self.q_next = build_layers(self.s_, c_names, n_l1, w_initializer, b_initializer)
-
+ 
     def store_transition(self, s, a, r, s_):
         if not hasattr(self, 'memory_counter'):
             self.memory_counter = 0

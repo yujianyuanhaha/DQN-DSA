@@ -100,7 +100,8 @@ Another repository[6] maintain by Yue would merge soon, and [7] is the technical
 --------------------------------------------------------------------------
 # Notice
 1. When assign new number of channels and DQN node exist, need to restart the IPython console, exist pop size umatch error. While would not happen in raw terminal.
-2. mdpNode would meet compuation constraint when number of channel over 10, result in dead loop (stuck at stateSpaceCreate).
+2. mdpNode would meet compuation constraint when number of channel over 10, result in dead loop (stuck at stateSpaceCreate).  
+3. the assigment of patrial observation is currently in *dqnNode.py* file, tho silly way.
 
 
 --------------------------------------------------------------------------
@@ -158,10 +159,23 @@ We are attempt to implement four method as solver
 # Configuration  
 We run codes on **Spyder** GUI under Anaconda(**version 2**), **tensorflow** is required as well as related tensorboard setup.  
 For batch test, we run codes on ARC VT. 
-1. Python version 2.7, tensorflow version **1.6.0**. Notice tensorflow 1.5.0 is suggest on Linux OS else "keneral died, restart" error may appear. If the version would not fit, run command 
+* Python version 2.7, tensorflow version **1.6.0**. Notice tensorflow 1.5.0 is suggest on Linux OS else "keneral died, restart" error may appear. If the version would not fit, run command 
 ```
 conda install -c conda-forge tensorflow=1.6.0
+```  
+Version would never be the big issue, since Anaconda support *virtual environment* easily wihtout bothering current version setup.
+e.g. setup Python 3.6    
+1. python 3.5   
 ```
+    conda create --name py3 python=3.5
+```  
+2. after py3 prompt show up, install any lib missing like numpy, tensorflow, matlibplot.  
+``` 
+    conda install numpy
+    conda install tensorflow
+    conda install matlibplot
+```
+
 
 --------------------------------------------------------------------------
 # File Topology
@@ -249,7 +263,7 @@ python multiNodeLearning.py --set setFileName.cfg
 where ```setupFileName``` was file like ```settingCaseXX``` to save some significant progressive results.  
 OR even further, if some modification is made on ```multiNodeLearning.py``` hence it is renamed as like ```multiNodeLearningCaseXX.py```, you and execute
 ```
-ython multiNodeLearningCaseXX.py --set setFileName.cfg
+python multiNodeLearningCaseXX.py --set setFileName.cfg
 ```
 
 

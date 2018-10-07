@@ -42,6 +42,7 @@ from stochasticNodes.markovChainNode import markovChainNode
 
 from learningNodes.mdpNode     import mdpNode
 from learningNodes.dqnNode     import dqnNode   #
+from learningNodes.drqnNode     import drqnNode   #
 from learningNodes.acNode      import acNode
 from learningNodes.ddpgNode    import ddpgNode 
 
@@ -173,7 +174,7 @@ for k in range(0,numNodes):
         t = poissonNode( numChans, numSteps, poissonChanList, arrivalInterval, serviceInterval)
     elif nodeTypes[k] == 5  or nodeTypes[k] == 'markovChain':
         t = markovChainNode( numChans, numSteps, mcChanList, alpha, beta)
-    elif nodeTypes[k] == 10:
+    elif nodeTypes[k] == 10  or nodeTypes[k] == 'mdp':
         t = mdpNode(numChans,states,numSteps,'VI')   
     elif (nodeTypes[k] >= 11 and nodeTypes[k] <= 16)  \
          or (nodeTypes[k] >= 30 and nodeTypes[k] <= 33)  \
@@ -199,6 +200,11 @@ for k in range(0,numNodes):
         
     elif nodeTypes[k] == 18 or nodeTypes[k] == 'ddpg':
         t = ddpgNode(numChans,states,numSteps)
+        numDqn += 1
+        dqnIndex.append(k)
+        
+    elif nodeTypes[k] == 34  or nodeTypes[k] == 'drqn':
+        t = drqnNode(numChans,numSteps, poSeeNum)   
         numDqn += 1
         dqnIndex.append(k)
         
@@ -280,14 +286,16 @@ for t in range(0,numSteps):
     
     '''------------------- get action ------------------------'''
     for n in range(0,numNodes):
-        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) or isinstance(nodes[n],ddpgNode):
+        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],drqnNode) or isinstance(nodes[n],acNode) or isinstance(nodes[n],ddpgNode):
             ticDqnAction  = time.time()
             temp = observedStates[n,:]
             
             "------ dqn primary get Action, while dqn sec pending ------"
 
             if n == indexPriority[0]:  # if higher priority
-                if nodes[n].type == 'dqn' or nodes[n].type == 'dpg' or nodes[n].type == 'ac':
+                if nodes[n].type == 'dqn' or nodes[n].type == 'dpg' or nodes[n].type == 'ac' \
+                    or nodes[n].type == 'dqnDouble' or nodes[n].type == 'dqnDuel' \
+                    or nodes[n].type == 'dqnPriReplay' or nodes[n].type == 'dqnRef':
                     observation                = temp                    
                     actions[n,:], actionScalar = nodes[n].getAction(t, observation)
                 elif nodes[n].type == 'dqnPo':
@@ -300,6 +308,9 @@ for t in range(0,numSteps):
                     temp2                      = partialObserve( temp, t, poStepNum, poSeeNum)
                     observationS               = updateStack(observationS, temp2)
                     actions[n,:], actionScalar = nodes[n].getAction(t, observationS)
+                elif nodes[n].type == 'drqn':
+                    observationPo              = partialObserve( temp, t, poStepNum, poSeeNum)
+                    actions[n,:], actionScalar = nodes[n].getAction(t, observationPo)
                 else:
                     print "error dqn type"
 
@@ -325,7 +336,10 @@ for t in range(0,numSteps):
         # update
         temp = observedStates[l,:]
             
-        if nodes[l].type == 'dqn' or nodes[l].type == 'dpg' or nodes[l].type == 'ac':
+        if nodes[l].type == 'dqn' or nodes[l].type == 'dpg' or nodes[l].type == 'ac' \
+            or nodes[l].type == 'dqnDouble' or nodes[l].type == 'dqnDuel' \
+            or nodes[l].type == 'dqnPriReplay' or nodes[l].type == 'dqnRef':
+        
             observation                = temp                    
             actions[l,:], actionScalar = nodes[l].getAction(t, observation)
         elif nodes[l].type == 'dqnPo':
@@ -338,6 +352,9 @@ for t in range(0,numSteps):
             temp2                      = partialObserve( temp, t, poStepNum, poSeeNum)
             observationS               = updateStack(observationS, temp2)
             actions[l,:], actionScalar = nodes[l].getAction(t, observationS)
+        elif nodes[l].type == 'drqn':
+            observationPo              = partialObserve( temp, t, poStepNum, poSeeNum)
+            actions[l,:], actionScalar = nodes[l].getAction(t, observationPo)
         else:
             print "error dqn type"
         
@@ -390,6 +407,10 @@ for t in range(0,numSteps):
                 observationS_               = updateStack(observationS, temp2)
                 nodes[n].storeTransition(observationS, actionScalar, 
                      reward, observationS_) 
+            elif   nodes[n].type == 'drqn':
+                observation_                = partialObserve( temp, t, poStepNum, poSeeNum)
+                nodes[n].storeTransition(observationPo, actionScalar, 
+                     reward, observation_, t)         ########################
             elif nodes[n].type == 'dqn' or nodes[n].type == 'dpg':
                 observation_ = temp
                 nodes[n].storeTransition(observation, actionScalar, 
@@ -401,7 +422,7 @@ for t in range(0,numSteps):
 
             done = True  
             if isinstance(nodes[n],dqnNode):
-                if t > 1000:
+                if t >1000:
                     if t % nodes[n].policyAdjustRate == 0:    
                         nodes[n].learn()
                 learnProbHist.append( nodes[n].dqn_.exploreProb)

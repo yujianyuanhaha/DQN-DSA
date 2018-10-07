@@ -16,6 +16,7 @@ import dqnPriReplay
 import dqnDuel
 import dpg
 import dqnR
+import drqn
 
 #import tensorflow as tf
 #tf.set_random_seed(1)
@@ -47,7 +48,7 @@ class dqnNode(radioNode):
     
     # hard core so far
     poNum = 4
-    poStackSize = 4 * 4
+    poStackSize = 40 * 4
     
 
     
@@ -217,7 +218,23 @@ class dqnNode(radioNode):
                             learning_rate=0.02,
                             reward_decay=0.995,
                             # output_graph=True,
-                        )    
+                        ) 
+            
+#        elif dqnType == 34:
+#            self.type = "drqn"
+#            print(self.type)   ##
+#            self.dqn_ = drqn.drqn(
+#                        self,
+#                        self.n_actions, 
+#                        self.n_features,   
+#                        learning_rate=0.01,
+#                        reward_decay=0.9,
+#                        lamda = 0.9,
+#                        e_greedy=0.9,
+#                        replace_target_iter=400,
+#                        batch_size= 1,
+#                        e_greedy_increment=None,
+#                    )
         else:
                 pass
 
@@ -228,7 +245,41 @@ class dqnNode(radioNode):
         action       = np.zeros(self.numChans) 
         if temp > 0:
             action[temp-1] = 1 
-        
+           
+        ''' dsa-aided - rewrite '''
+        '''
+        if stepNum < 1000:
+            ind = np.where(observation == 0)[0]   # numpy return two set of value, cause np.zeros is treat as matrix
+            if not any(ind):
+                action = np.zeros(np.shape(self.actions)[1])
+            else:
+                # choose the first one
+                if stepNum > 0 and np.where(self.actionHistInd[stepNum-1] == ind+1) == True:                       
+                        ind = self.actionHistInd[stepNum-1] - 1                  
+                # STAY ORGANIZED - could not figure Chris intention of follow previous step, would it work with hopping Nodes ? 
+                # first-available-channel would not work
+                else:
+                    if random.random() <= 0.5:    # 50% politeness to avoid, but still stuck for hopping node
+                        ind = ind[random.randint(0,len(ind)-1)]
+                    else:
+                        ind = self.actionHistInd[stepNum-1] - 1    # avoid ping-pong when mutilple dsaNode
+            
+                ind = ind.astype(int)  
+                if random.random() <= 1.0:
+                    action = self.actions[ind+1,:]  
+                else:
+                    action = np.zeros(np.shape(self.actions)[1])
+            # rewrite temp
+            if sum(action):
+                temp = np.where(action==1)[0]+1                
+            else:
+                temp = 0
+        '''
+        ''' dsa-aided end '''
+
+                   
+                    
+        # ============ update ===========
         self.actionHist[stepNum,:] = action                   
         if not np.sum(action):
             self.actionTally[0] +=    1
