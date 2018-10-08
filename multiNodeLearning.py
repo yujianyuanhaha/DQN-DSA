@@ -389,7 +389,7 @@ for t in range(0,numSteps):
                 nodes[n].updatePolicy(t)
             tocMdpLearn = time.time()
                                 
-        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) or isinstance(nodes[n],ddpgNode):
+        if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) or isinstance(nodes[n],ddpgNode) or isinstance(nodes[n],drqnNode):
             ticDqnLearn = time.time()
             reward = nodes[n].getReward(collisions[n] ,t, isWait)
             temp = observedStates[n,:]  #  observation_

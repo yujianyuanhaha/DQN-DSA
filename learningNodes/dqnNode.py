@@ -48,7 +48,7 @@ class dqnNode(radioNode):
     
     # hard core so far
     poNum = 4
-    poStackSize = 40 * 4
+    poStackSize = 4 * 4
     
 
     
