@@ -175,7 +175,7 @@ e.g. setup Python 3.6
     conda install tensorflow
     conda install matlibplot
 ```
-
+Notice ipython do not support virtual environment as raw terminal, you can type ```anaconda-navigator``` after virtual environment is setup to launch the GUI, so as to apply feature like debugging in virtual environment.
 
 --------------------------------------------------------------------------
 # File Topology

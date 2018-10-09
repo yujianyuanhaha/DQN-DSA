@@ -55,7 +55,7 @@ from myFunction import myPlotProb,\
      myPlotOccupiedEnd, myPlotOccupiedAll,\
      myPlotPER, myPlotPLR, myPlotThroughput, myPlotCost, \
      noise, updateStack, partialPad, partialObserve, \
-     update, myCalculatePER, myGetTxPackets 
+     update, myCalculatePER, myGetTxPackets, partialObserveAction 
      
 
 
@@ -309,7 +309,7 @@ for t in range(0,numSteps):
                     observationS               = updateStack(observationS, temp2)
                     actions[n,:], actionScalar = nodes[n].getAction(t, observationS)
                 elif nodes[n].type == 'drqn':
-                    observationPo              = partialObserve( temp, t, poStepNum, poSeeNum)
+                    observationPo              = partialObserveAction( temp, t, poStepNum, poSeeNum, actions[n,:])
                     actions[n,:], actionScalar = nodes[n].getAction(t, observationPo)
                 else:
                     print "error dqn type"
@@ -321,6 +321,8 @@ for t in range(0,numSteps):
             tocMdpAction  = time.time()
         else:    
             actions[n,:] = nodes[n].getAction(t)
+
+                
         assert not any(np.isnan(actions[n,:])), "ERROR! action is Nan"
 
 
@@ -353,7 +355,7 @@ for t in range(0,numSteps):
             observationS               = updateStack(observationS, temp2)
             actions[l,:], actionScalar = nodes[l].getAction(t, observationS)
         elif nodes[l].type == 'drqn':
-            observationPo              = partialObserve( temp, t, poStepNum, poSeeNum)
+            observationPo              = partialObserveAction( temp, t, poStepNum, poSeeNum, actions[l,:])
             actions[l,:], actionScalar = nodes[l].getAction(t, observationPo)
         else:
             print "error dqn type"
@@ -408,7 +410,7 @@ for t in range(0,numSteps):
                 nodes[n].storeTransition(observationS, actionScalar, 
                      reward, observationS_) 
             elif   nodes[n].type == 'drqn':
-                observation_                = partialObserve( temp, t, poStepNum, poSeeNum)
+                observation_                = partialObserveAction( temp, t, poStepNum, poSeeNum, actions[n,:])
                 nodes[n].storeTransition(observationPo, actionScalar, 
                      reward, observation_, t)         ########################
             elif nodes[n].type == 'dqn' or nodes[n].type == 'dpg':
@@ -421,11 +423,11 @@ for t in range(0,numSteps):
                 observation_  = noise(observation_ , noiseErrorProb, noiseFlipNum)
 
             done = True  
-            if isinstance(nodes[n],dqnNode):
+            if isinstance(nodes[n],dqnNode) or nodes[n].type == 'drqn':
                 if t >1000:
                     if t % nodes[n].policyAdjustRate == 0:    
                         nodes[n].learn()
-                learnProbHist.append( nodes[n].dqn_.exploreProb)
+#                learnProbHist.append( nodes[n].dqn_.exploreProb)
                     
             elif isinstance(nodes[n],acNode):
                  nodes[n].learn(observation, actionScalar, 
