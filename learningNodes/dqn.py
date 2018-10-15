@@ -27,6 +27,8 @@ class dqn:
     exploreProb      = [ ]              # Current exploration probability
     exploreInit      = 1.0              # Initial exploration probability
     exploreDecay     = 0.01              # Percentage reduction in exploration chance per policy calculation
+#    exploreDecay     = 0.0011512/4   
+    
     exploreProbMin   = 0.01  # avoid the risk to stuck
     exploreHist      = [ ]    
     exploreDecayType = 'expo'           # either 'expo', 'step' or 'perf'
@@ -120,12 +122,12 @@ class dqn:
                                  bias_initializer=b_initializer, name='e1')
             e2 = tf.layers.dense(e1,     50, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='e2')
-#            e3 = tf.layers.dense(e2,     50, tf.nn.relu, kernel_initializer=w_initializer,
-#                                 bias_initializer=b_initializer, name='e3')
-#            e4 = tf.layers.dense(e3,     50, tf.nn.relu, kernel_initializer=w_initializer,
-#                                 bias_initializer=b_initializer, name='e4')
+            e3 = tf.layers.dense(e2,     50, tf.nn.relu, kernel_initializer=w_initializer,
+                                 bias_initializer=b_initializer, name='e3')
+            e4 = tf.layers.dense(e3,     50, tf.nn.relu, kernel_initializer=w_initializer,
+                                 bias_initializer=b_initializer, name='e4')
             
-            self.q_eval = tf.layers.dense(e2, self.n_actions, kernel_initializer=w_initializer,
+            self.q_eval = tf.layers.dense(e4, self.n_actions, kernel_initializer=w_initializer,
                                           bias_initializer=b_initializer, name='q')
 
 
@@ -135,11 +137,11 @@ class dqn:
                                  bias_initializer=b_initializer, name='t1')
             t2 = tf.layers.dense(t1, 50, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='t2')
-#            t3 = tf.layers.dense(t2, 50, tf.nn.relu, kernel_initializer=w_initializer,
-#                                 bias_initializer=b_initializer, name='t3')
-#            t4 = tf.layers.dense(t3, 50, tf.nn.relu, kernel_initializer=w_initializer,
-#                                 bias_initializer=b_initializer, name='t4')
-            self.q_next = tf.layers.dense(t2, self.n_actions, kernel_initializer=w_initializer,
+            t3 = tf.layers.dense(t2, 50, tf.nn.relu, kernel_initializer=w_initializer,
+                                 bias_initializer=b_initializer, name='t3')
+            t4 = tf.layers.dense(t3, 50, tf.nn.relu, kernel_initializer=w_initializer,
+                                 bias_initializer=b_initializer, name='t4')
+            self.q_next = tf.layers.dense(t4, self.n_actions, kernel_initializer=w_initializer,
                                           bias_initializer=b_initializer, name='t5')
         with tf.variable_scope('q_target'+str(int(random.random()*100))):
             q_target = self.r + self.gamma * tf.reduce_max(self.q_next, axis=1, name='Qmax_s_')    # shape=(None, )
@@ -165,7 +167,8 @@ class dqn:
     def choose_action(self, observation):
         # to have batch dimension when feed into tf placeholder
         observation = observation[np.newaxis, :]
-        #observation = observation[1:]  # the size of observation matter, or tf grammer        
+        #observation = observation[1:]  # the size of observation matter, or tf grammer 
+        self.exploreHist.append(self.exploreProb)
         if np.random.uniform() < 1.0 - self.exploreProb:   #
             # forward feed the observation and get q value for every actions
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation})

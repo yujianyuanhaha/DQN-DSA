@@ -47,8 +47,7 @@ class dqnNode(radioNode):
     cumulativeReward = [ ]
     
     # hard core so far
-    poNum = 4
-    poStackSize = 4 * 4
+
     
 
     
@@ -82,10 +81,14 @@ class dqnNode(radioNode):
         self.n_actions     = numChans + 1   
         self.n_features    = numChans 
         
-        self.policyAdjustRate = 5  # indeed smaller policyAdjustRate the more likely collision
+        self.policyAdjustRate = 1  # indeed smaller policyAdjustRate the more likely collision
         self.type             = "dqn"   # to be overwrite later
         self.hyperType        = "learning"
         self.priority         = 0  # asyn
+        
+        self.poNum = 4
+        self.stackNum = 8
+        self.poStackSize = self.stackNum * self.numChans
         
         
         

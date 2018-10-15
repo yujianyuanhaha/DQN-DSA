@@ -30,9 +30,10 @@ class imNode(radioNode):
         self.type                     = "im"
         self.hyperType                = "dumb" 
         "-- swith means when (the percentage of period) to make a flip"
-        self.switch                   = np.zeros(len(self.imDutyCircle))
+        self.switch                   = np.zeros(len(self.imDutyCircle)+1)
+        self.switch[0]                = 0                   
         for i in range(len(self.imDutyCircle)):
-            self.switch[i] = self.imDutyCircle[i] * self.imDutyPeriod 
+            self.switch[i+1] = self.imDutyCircle[i] * self.imDutyPeriod 
 
     
     def getAction(self, stepNum):             
@@ -66,3 +67,5 @@ class imNode(radioNode):
             self.actionTally[1:] = self.actionTally[1:] + action
         return action
           
+    
+# ToDo, write test unit    

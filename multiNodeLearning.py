@@ -51,7 +51,7 @@ import matplotlib.pyplot as plt
 import time
 
 from myFunction import myPlotProb,\
-     myPlotCollision, myPlotReward, myPlotAction,\
+      myPlotCollision, myPlotReward, myPlotAction,\
      myPlotOccupiedEnd, myPlotOccupiedAll,\
      myPlotPER, myPlotPLR, myPlotThroughput, myPlotCost, \
      noise, updateStack, partialPad, partialObserve, \
@@ -265,8 +265,10 @@ learnProbHist = [ ]
 observedStates = np.zeros((numNodes,numChans))
 
 # for stack-DQN
-observationS  = np.zeros( stackNum * poSeeNum)
-observationS_ = np.zeros( stackNum * poSeeNum)
+#observationS  = np.zeros( stackNum * poSeeNum)
+#observationS_ = np.zeros( stackNum * poSeeNum)
+observationS  = np.zeros( stackNum * numChans)
+observationS_ = np.zeros( stackNum * numChans)
 
 priorityS      = np.arange(numDqn)
 indexPriority = np.zeros(numDqn)
@@ -305,7 +307,8 @@ for t in range(0,numSteps):
                     observationPd                = partialPad( temp, t, poStepNum, poBlockNum, padValue)
                     actions[n,:], actionScalar = nodes[n].getAction(t, observationPd)                
                 elif nodes[n].type == 'dqnStack' or nodes[n].type == 'dpgStack':
-                    temp2                      = partialObserve( temp, t, poStepNum, poSeeNum)
+#                    temp2                      = partialObserve( temp, t, poStepNum, poSeeNum)
+                    temp2                      = partialObserveAction( temp, t, poStepNum, poSeeNum,actions[n,:])
                     observationS               = updateStack(observationS, temp2)
                     actions[n,:], actionScalar = nodes[n].getAction(t, observationS)
                 elif nodes[n].type == 'drqn':
@@ -351,7 +354,7 @@ for t in range(0,numSteps):
             observationPd                = partialPad( temp, t, poStepNum, poBlockNum, padValue)
             actions[l,:], actionScalar = nodes[l].getAction(t, observationPd)                
         elif nodes[l].type == 'dqnStack' or nodes[l].type == 'dpgStack':
-            temp2                      = partialObserve( temp, t, poStepNum, poSeeNum)
+            temp2                      = partialObserveAction( temp, t, poStepNum, poSeeNum, actions[l,:])
             observationS               = updateStack(observationS, temp2)
             actions[l,:], actionScalar = nodes[l].getAction(t, observationS)
         elif nodes[l].type == 'drqn':
@@ -405,7 +408,7 @@ for t in range(0,numSteps):
                 nodes[n].storeTransition(observationPd, actionScalar, 
                      reward, observation_)             
             elif nodes[n].type == 'dqnStack' or nodes[n].type == 'dpgStack':
-                temp2 = partialObserve( temp, t, poStepNum, poSeeNum)
+                temp2 = partialObserveAction( temp, t, poStepNum, poSeeNum,actions[n,:])
                 observationS_               = updateStack(observationS, temp2)
                 nodes[n].storeTransition(observationS, actionScalar, 
                      reward, observationS_) 
@@ -423,7 +426,7 @@ for t in range(0,numSteps):
                 observation_  = noise(observation_ , noiseErrorProb, noiseFlipNum)
 
             done = True  
-            if isinstance(nodes[n],dqnNode) or nodes[n].type == 'drqn':
+            if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],drqnNode):
                 if t >1000:
                     if t % nodes[n].policyAdjustRate == 0:    
                         nodes[n].learn()
@@ -547,24 +550,24 @@ import os
 if not os.path.exists('../dqnFig'):
    os.makedirs('../dqnFig') 
         
+#plt.figure(1)
+#myPlotProb(learnProbHist)
 plt.figure(1)
-myPlotProb(learnProbHist)
-plt.figure(2)
 myPlotCollision(nodes, cumulativeCollisions)
-plt.figure(3)
+plt.figure(2)
 myPlotReward(nodes, cumulativeCollisions)
-plt.figure(4)
-myPlotAction(nodes, numChans) 
-plt.figure(5)   
+#plt.figure(4)
+#myPlotAction(nodes, numChans) 
+plt.figure(3)   
 myPlotOccupiedEnd(nodes, numChans, plotPeriod = 100)
-plt.figure(6)
+plt.figure(4)
 myPlotOccupiedAll(nodes, numChans)
-plt.figure(7)
-myPlotPER(nodes, PLR) 
-plt.figure(8)   
+plt.figure(5)
+myPlotPER(nodes, PER) 
+plt.figure(6)   
 myPlotPLR(nodes, PLR)
-plt.figure(9)   
-myPlotThroughput(nodes, cumulativeCollisions, txPackets, optimalTP, numSteps)
-plt.figure(10)
+#plt.figure(9)   
+#myPlotThroughput(nodes, cumulativeCollisions, txPackets, optimalTP, numSteps)
+#plt.figure(10)
 #myPlotCost(nodes)
 
