@@ -44,12 +44,12 @@ class dqn:
             dqnNode,
             n_actions,
             n_features,
-            learning_rate=0.001,    # for neural network
+            learning_rate=0.01,    # for neural network
             reward_decay=0.9,
             exploreDecayType = 'expo',   
             replace_target_iter=300,
             memory_size=200,
-            batch_size=32,
+            batch_size=32,   # not matter much?
             e_greedy_increment=None,
             output_graph= True      # enable tensorboard                  
     ):    # allow dqnNode to call in its attribute

@@ -276,7 +276,7 @@ class DQNPrioritizedReplay:
         else:
             sample_index = np.random.choice(self.memory_size, size=self.batch_size)
             batch_memory = self.memory[sample_index, :]
-
+  
         q_next, q_eval = self.sess.run(
                 [self.q_next, self.q_eval],
                 feed_dict={self.s_: batch_memory[:, -self.n_features:],

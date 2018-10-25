@@ -18,7 +18,7 @@ import random
 class drqn:
     
     exploreInit      = 1.0              # Initial exploration probability
-    exploreDecay     = 0.0011512             # Percentage reduction in exploration chance per policy calculation
+    exploreDecay     = 0.01             # Percentage reduction in exploration chance per policy calculation
     # approximate reach 1% at 20000 steps
     exploreProbMin   = 0.01             # avoid the risk to stuck
     exploreHist      = [ ]
@@ -210,6 +210,7 @@ class drqn:
         return out
 
     def store_transition(self,s, a, r, s_, step):
+        
         if not hasattr(self, 'memory_counter'): # check whether self has 'memory_counter'
             self.memory_counter = 0            
         transition = np.zeros((1,self.n_features*2 + 3))

@@ -313,6 +313,7 @@ for t in range(0,numSteps):
                     actions[n,:], actionScalar = nodes[n].getAction(t, observationS)
                 elif nodes[n].type == 'drqn':
                     observationPo              = partialObserveAction( temp, t, poStepNum, poSeeNum, actions[n,:])
+#                    observationPo = temp
                     actions[n,:], actionScalar = nodes[n].getAction(t, observationPo)
                 else:
                     print "error dqn type"
@@ -359,6 +360,7 @@ for t in range(0,numSteps):
             actions[l,:], actionScalar = nodes[l].getAction(t, observationS)
         elif nodes[l].type == 'drqn':
             observationPo              = partialObserveAction( temp, t, poStepNum, poSeeNum, actions[l,:])
+#            observationPo = temp
             actions[l,:], actionScalar = nodes[l].getAction(t, observationPo)
         else:
             print "error dqn type"
@@ -414,6 +416,7 @@ for t in range(0,numSteps):
                      reward, observationS_) 
             elif   nodes[n].type == 'drqn':
                 observation_                = partialObserveAction( temp, t, poStepNum, poSeeNum, actions[n,:])
+#                observation_ = temp
                 nodes[n].storeTransition(observationPo, actionScalar, 
                      reward, observation_, t)         ########################
             elif nodes[n].type == 'dqn' or nodes[n].type == 'dpg':
@@ -430,7 +433,8 @@ for t in range(0,numSteps):
                 if t >1000:
                     if t % nodes[n].policyAdjustRate == 0:    
                         nodes[n].learn()
-#                learnProbHist.append( nodes[n].dqn_.exploreProb)
+                    
+                learnProbHist.append( nodes[n].dqn_.exploreProb)
                     
             elif isinstance(nodes[n],acNode):
                  nodes[n].learn(observation, actionScalar, 
@@ -550,8 +554,8 @@ import os
 if not os.path.exists('../dqnFig'):
    os.makedirs('../dqnFig') 
         
-#plt.figure(1)
-#myPlotProb(learnProbHist)
+plt.figure(1)
+myPlotProb(learnProbHist)
 plt.figure(1)
 myPlotCollision(nodes, cumulativeCollisions)
 plt.figure(2)

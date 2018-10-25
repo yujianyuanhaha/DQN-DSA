@@ -81,7 +81,7 @@ class dqnNode(radioNode):
         self.n_actions     = numChans + 1   
         self.n_features    = numChans 
         
-        self.policyAdjustRate = 1  # indeed smaller policyAdjustRate the more likely collision
+        self.policyAdjustRate = 5  # indeed smaller policyAdjustRate the more likely collision
         self.type             = "dqn"   # to be overwrite later
         self.hyperType        = "learning"
         self.priority         = 0  # asyn
