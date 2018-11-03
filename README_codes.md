@@ -30,7 +30,7 @@ Date  : April, 2018
 --------------------------------------------------------------------------
 
 # Node Type Overview
-Table below provide a quick view.  
+Table below provides a quick view.  
 
 | string name    | numeric    | file(.py)   | description   | parameters    |
 |----------|----------|----------|----------|----------|
@@ -70,7 +70,7 @@ Table below provide a quick view.
 
 
 # X-O table
-This table show the learning ability of learning nodes with other type of nodes. Where **X** for CANNOT, **O** for CAN and **N/A** for unkown.  
+This table shows the learning ability of learning nodes with other type of nodes. Where **X** for CANNOT, **O** for CAN and **N/A** for unknown.  
 
 | string name    | legacy    | hop      | intermittent   | dsa    | mdp        | dqn       | policy        |
 |----------------|-----------|----------|----------------|--------|------------|-----------|---------------|

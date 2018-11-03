@@ -10,11 +10,11 @@ Date  : April, 2018
 # Configuration  
 We run codes on **Spyder** GUI under Anaconda(**version 2**), **tensorflow** is required as well as related tensorboard setup.  
 For batch test, we run codes on ARC VT. 
-* Python version 2.7, tensorflow version **1.6.0**. Notice tensorflow 1.5.0 is suggest on Linux OS else "keneral died, restart" error may appear. If the version would not fit, run command 
+* Python version 2.7, tensorflow version **1.6.0**. Notice tensorflow 1.5.0 is suggested on Linux OS else "keneral died, restart" error may appear. If the version would not fit, run command 
 ```
 conda install -c conda-forge tensorflow=1.6.0
 ```  
-Version would never be the big issue, since Anaconda support *virtual environment* easily wihtout bothering current version setup.
+Version would never be the big issue, since Anaconda support *virtual environment* easily without bothering current version setup.
 e.g. setup Python 3.6    
 1. python 3.5   
 ```
@@ -26,12 +26,12 @@ e.g. setup Python 3.6
     conda install tensorflow
     conda install matlibplot
 ```
-Notice ipython do not support virtual environment as raw terminal, you can type ```anaconda-navigator``` after virtual environment is setup to launch the GUI, so as to apply feature like debugging in virtual environment.
+Notice ipython does not support virtual environment as raw terminal; you can type ```anaconda-navigator``` after virtual environment is setup to launch the GUI, to apply feature like debugging in a virtual environment.
 
 
 # How to run
-Paramter all configurable at header part of ```multiNodeLearning.py``` OR ```setup.config``` file. 
-In terminal run below command for the  import the default ```setup.config``` file. :  
+Parameter all configurable at header part of ```multiNodeLearning.py``` OR ```setup.config``` file. 
+In terminal run below command for the import the default ```setup.config``` file. :  
 ```
 python multiNodeLearning.py
 ```
