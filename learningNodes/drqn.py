@@ -190,8 +190,8 @@ class drqn:
         return out
     
     def flatInputSN(self, In, t):
-        print "2. flatInputSN in"
-        print In
+#        print "2. flatInputSN in"
+#        print In
         length = len(In)
         out = []
         if length ==1:
@@ -211,7 +211,7 @@ class drqn:
                     temp = np.reshape(np.array(temp),[1,self.n_features])
                     out.append(temp)       
         out = np.reshape(np.array(out),[length,-1])    
-        print out 
+#        print out 
 #        print np.shape(out)
         return out
 
@@ -316,11 +316,11 @@ class drqn:
                 self.temp_batch_size:self.batch_size,
                 self.s_: self.flatInputSN(batch_memory[:, -self.n_features:], t),
         })
-        print np.shape(self.s_)
-        print np.shape(batch_memory[:, -self.n_features:])
-        print np.shape( self.flatInputSN(batch_memory[:, -self.n_features:], t))
+#        print np.shape(self.s_)
+#        print np.shape(batch_memory[:, -self.n_features:])
+#        print np.shape( self.flatInputSN(batch_memory[:, -self.n_features:], t))
         
-        print "------"
+#        print "------"
         self.cost_his.append(cost)
 
         # increasing epsilon
