@@ -18,42 +18,63 @@ Bibliography sum up of the Deep Reinforcement Learning on Dynamic Channel Access
 
 
 # General Survey
-
+* [Arulkumaran, Kai, et al. "A brief survey of deep reinforcement learning." arXiv preprint arXiv:1708.05866 (2017).](https://arxiv.org/pdf/1708.05866)
 
 * [Luong, Nguyen Cong, et al. "Applications of Deep Reinforcement Learning in Communications and Networking: A Survey." arXiv preprint arXiv:1810.07862 (2018).](https://arxiv.org/pdf/1810.07862.pdf)
     * [BibTex](https://scholar.googleusercontent.com/scholar.bib?q=info:iEhzRRZvQrYJ:scholar.google.com/&output=citation&scisig=AAGBfm0AAAAAW9CVAnWnMKdFrlWDUeGix1vFg0KC1ZJI&scisf=4&ct=citation&cd=-1&hl=en)
-    * []
-    * (+) cover many other work besides dynamic channel access, such as rate control, cache, offload and security
-    * (+) cover pratical details such as multi-agent
-
+    * [luong2018applications]
+    * (+) cover many other work besides dynamic channel access, such as __rate control__, __cache__, offload and security, part of them could be our further work.
+    * (+) cover pratical details such as __multi-agent__
+* [Chen, Mingzhe, et al. "Machine learning for wireless networks with artificial intelligence: A tutorial on neural networks." arXiv preprint arXiv:1710.02913 (2017).](https://arxiv.org/pdf/1710.02913.pdf)
+    * list __liquid state machine__ / __echo state machine__
+    * (-) skip DQN
 
 # Classic Method
+## myopic
+* [Zhao, Qing, Bhaskar Krishnamachari, and Keqin Liu. "On myopic sensing for multi-channel opportunistic access: structure, optimality, and performance." IEEE Transactions on Wireless Communications 7.12 (2008).](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=4723352)  
+        * (+) achieve 66.7% rate when coexist with __stochastic channel__, the Gilber-Elliot/ 2-state Makov Chain Model. 
+        * (-) limited, work for small scale channel case. 
+        * [zhao2008myopic] 
 ## MDP
+* [Zhang, Yalin, et al. "Model free dynamic sensing order selection for imperfect sensing multichannel cognitive radio networks: A Q-learning approach." Communication Systems (ICCS), 2014 IEEE International Conference on. IEEE, 2014.](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7024826)
+    * (+) imprefect sensing analyze
+    * (+) Q-learning
+    * (-) sense-tx procedure is not real learning
+
 
 # Recent peer's work
 
-* WANG [Deep Reinforcement Learning for DynamicMultichannel Access in Wireless Networks](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8303773)
-    * IEEE TRANSACTIONS ON COGNITIVE COMMUNICATIONS AND NETWORKING, VOL. 4, NO. 2, JUNE 2018
+* [Wang, Shangxing, et al. "Deep reinforcement learning for dynamic multichannel access in wireless networks." IEEE Transactions on Cognitive Communications and Networking (2018).](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8303773)
+    * __first journal__, IEEE TRANSACTIONS ON COGNITIVE COMMUNICATIONS AND NETWORKING, VOL. 4, NO. 2, JUNE 2018, First paper __apply DQN on channel access__
+    * USC
     * [wang2018deep]
-    * First paper apply DQN on channel access
 
 
-* Yu [Deep-Reinforcement Learning Multiple Accessfor Heterogeneous Wireless Networks](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8422168)
+
+* [Yu, Yiding, Taotao Wang, and Soung Chang Liew. "Deep-reinforcement learning multiple access for heterogeneous wireless networks." 2018 IEEE International Conference on Communications (ICC). IEEE, 2018.](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8422168)
     * Time slot aceess
     * [yu2017deep]
 
-* Tsili []()
-    * reduce state space in a math way, rather than neural network
+* [Tsiligkaridis, Theodoros, and David Romero. "Accelerated Reinforcement Learning Algorithms with Nonparametric Function Approximation for Opportunistic Spectrum Access." arXiv preprint arXiv:1706.04546 (2017).](https://arxiv.org/pdf/1706.04546)
+    * MIT 
+    * (+)reduce state space in a math way, rather than neural network
     * [tsiligkaridis2017accelerated]
+* [Naparstek, Oshri, and Kobi Cohen. "Deep multi-user reinforcement learning for dynamic spectrum access in multichannel wireless networks." arXiv preprint arXiv 1704 (2017).](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8254101)
+    * (+) first handle __multi-agent learning__, first implement __DRQN in LSTM__, where author treat _distribute observation as the partial observation_. 
+    * [30 page version](https://arxiv.org/pdf/1704.02613.pdf)
+    * [naparstek2017deep]
+
+---
+After July 2018
 
 * [Lu, Xiaozhen, Liang Xiao, and Canhuang Dai. "UAV-Aided 5G Communications with Deep Reinforcement Learning Against Jamming." arXiv preprint arXiv:1805.06628 (2018).](https://arxiv.org/pdf/1805.06628.pdf)
     * [BibTex](https://scholar.googleusercontent.com/scholar.bib?q=info:9V72XjAHCxgJ:scholar.google.com/&output=citation&scisig=AAGBfm0AAAAAW9CXHajwPLTyO54Ziru6khCZdceCUXcY&scisf=4&ct=citation&cd=-1&hl=en)
-    * []
+    * [lu2018uav]
     * (+) apply **Tranfer Learning** to fast initial CNN
     * (+) claim to convergecast in 200 steps.
     * (-) lack technic details
 
-* DRQN - [Cell Selection with Deep Reinforcement Learning in Sparse Mobile Crowdsensing](https://arxiv.org/pdf/1804.07047.pdf) -by LEYE WANG, HKUST, 2018
+* [Wang, Leye, et al. "Cell Selection with Deep Reinforcement Learning in Sparse Mobile Crowdsensing." arXiv preprint arXiv:1804.07047 (2018).](https://arxiv.org/pdf/1804.07047.pdf) 
     * [wang2018cell]
     * [BibTex](https://scholar.googleusercontent.com/scholar.bib?q=info:XWTN3jWWLNoJ:scholar.google.com/&output=citation&scisig=AAGBfm0AAAAAW9H0jrnscHn0KWRuwE2rNlvI982Sdsaz&scisf=4&ct=citation&cd=-1&hl=en)
     * (+) apply DRQN to solver partial observation
