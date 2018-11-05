@@ -20,7 +20,7 @@ Bibliography sum up of the Deep Reinforcement Learning on Dynamic Channel Access
 # General Survey
 * [Arulkumaran, Kai, et al. "A brief survey of deep reinforcement learning." arXiv preprint arXiv:1708.05866 (2017).](https://arxiv.org/pdf/1708.05866)
 
-* [Luong, Nguyen Cong, et al. "Applications of Deep Reinforcement Learning in Communications and Networking: A Survey." arXiv preprint arXiv:1810.07862 (2018).](https://arxiv.org/pdf/1810.07862.pdf)
+* [Luong, Nguyen Cong, et al. "Applications of Deep Reinforcement Learning in Communications and Networking: A Survey." arXiv preprint arXiv:1810.07862 (2018).](https://arxiv.org/pdf/1810.07862.pdf)  
     * [BibTex](https://scholar.googleusercontent.com/scholar.bib?q=info:iEhzRRZvQrYJ:scholar.google.com/&output=citation&scisig=AAGBfm0AAAAAW9CVAnWnMKdFrlWDUeGix1vFg0KC1ZJI&scisf=4&ct=citation&cd=-1&hl=en)
     * [luong2018applications]
     * (+) cover many other work besides dynamic channel access, such as __rate control__, __cache__, offload and security, part of them could be our further work.
@@ -32,9 +32,9 @@ Bibliography sum up of the Deep Reinforcement Learning on Dynamic Channel Access
 # Classic Method
 ## myopic
 * [Zhao, Qing, Bhaskar Krishnamachari, and Keqin Liu. "On myopic sensing for multi-channel opportunistic access: structure, optimality, and performance." IEEE Transactions on Wireless Communications 7.12 (2008).](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=4723352)  
-        * (+) achieve 66.7% rate when coexist with __stochastic channel__, the Gilber-Elliot/ 2-state Makov Chain Model. 
-        * (-) limited, work for small scale channel case. 
-        * [zhao2008myopic] 
+        * (+) achieve 66.7% rate when coexist with __stochastic channel__, the Gilber-Elliot/ 2-state Makov Chain Model.  
+        * (-) limited, work for small scale channel case.  
+        * [zhao2008myopic]  
 ## MDP
 * [Zhang, Yalin, et al. "Model free dynamic sensing order selection for imperfect sensing multichannel cognitive radio networks: A Q-learning approach." Communication Systems (ICCS), 2014 IEEE International Conference on. IEEE, 2014.](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7024826)
     * (+) imprefect sensing analyze
@@ -49,7 +49,10 @@ Bibliography sum up of the Deep Reinforcement Learning on Dynamic Channel Access
     * USC
     * [wang2018deep]
 
-
+* [Chang, Hao-Hsuan, et al. "Distributive Dynamic Spectrum Access through Deep Reinforcement Learning: A Reservoir Computing Based Approach." IEEE Internet of Things Journal (2018).](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8474348)  
+    * Lingjia Liu's work, apply __Echo State Machine__  
+    * DQN + RC > DQN + MLP  
+    * [chang2018distributive]  
 
 * [Yu, Yiding, Taotao Wang, and Soung Chang Liew. "Deep-reinforcement learning multiple access for heterogeneous wireless networks." 2018 IEEE International Conference on Communications (ICC). IEEE, 2018.](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8422168)
     * Time slot aceess
@@ -102,14 +105,21 @@ Deep Deterministic Policy Gradient (DDPG) |David Silver | Google DeepMind | - | 
 Distributed Proximal Policy Optimization (DPPO)  |John Schulman | OpenAI | - | [BibTex](https://scholar.googleusercontent.com/scholar.bib?q=info:apL6FsUh-SQJ:scholar.google.com/&output=citation&scisig=AAGBfm0AAAAAW9E6CfJM9_46O33fqRFqs76J5z8YGcBU&scisf=4&ct=citation&cd=-1&hl=en)   | [paper](https://arxiv.org/pdf/1707.06347.pdf)  | [schulman2017proximal]   |  [DDPO](https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow/tree/master/contents/12_Proximal_Policy_Optimization)    
 
 
+## Large Action Size
+[Dulac-Arnold, Gabriel, et al. "Deep reinforcement learning in large discrete action spaces." arXiv preprint arXiv:1512.07679 (2015).](https://arxiv.org/pdf/1512.07679.pdf)  
+* Wolpertinger architecture(similiar to actor-critic)  
+* deal with large action-space, ~1 M action  
+
 ## POMDP
-* DRNQ - [Deep Recurrent Q-Learning for Partially Observable MDPs](https://arxiv.org/pdf/1507.06527.pdf) - by Matthew Hausknecht, UTA, Jul 2015 .
+* [Hausknecht, Matthew, and Peter Stone. "Deep recurrent q-learning for partially observable mdps." CoRR, abs/1507.06527 7.1 (2015).](https://arxiv.org/pdf/1507.06527.pdf)  
+    * __DRQN__
     * [BibTex](https://scholar.googleusercontent.com/scholar.bib?q=info:8OHjZ0rzTZYJ:scholar.google.com/&output=citation&scisig=AAGBfm0AAAAAW9HSsKVkzhePmb0bDaO_aZXjYKKBihUS&scisf=4&ct=citation&cd=-1&hl=en)
     * [hausknecht2015deep]
 
 
 
-* POMCP - [Monte-Carlo planning in large POMDPs](http://papers.nips.cc/paper/4031-monte-carlo-planning-in-large-pomdps.pdf) - by David Silver, MIT, 2010.    
+* [Silver, David, and Joel Veness. "Monte-Carlo planning in large POMDPs." Advances in neural information processing systems. 2010.](http://papers.nips.cc/paper/4031-monte-carlo-planning-in-large-pomdps.pdf) - by David Silver, MIT, 2010.    
+    * __POMDP__
     * [BibTex](https://scholar.googleusercontent.com/scholar.bib?q=info:VavDmV-qsioJ:scholar.google.com/&output=citation&scisig=AAGBfm0AAAAAW9HTSwdqmPPetj8N2rSAF-rNza0apO8x&scisf=4&ct=citation&cd=-1&hl=en)
     * [silver2010monte]
 

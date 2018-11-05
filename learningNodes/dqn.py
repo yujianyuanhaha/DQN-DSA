@@ -189,10 +189,20 @@ class dqn:
            # print('\ntarget_params_replaced\n')
 
         # sample batch memory from all memory
+        "-----------------  test why random mini batch works -----------------------  "
+        method = "random"   # test random(default) and order(Buehrer) mode
         if self.memory_counter > self.memory_size:
-            sample_index = np.random.choice(self.memory_size, size=self.batch_size)
+            if method == "random":
+                sample_index = np.random.choice(self.memory_size, size=self.batch_size)
+            else:
+                pass
+#                sample_index
+                print sample_index
+                
+        "-----------------  test ends -----------------------"                
         else:
             sample_index = np.random.choice(self.memory_counter, size=self.batch_size)
+            
         batch_memory = self.memory[sample_index, :]
 
         _, cost = self.sess.run(
