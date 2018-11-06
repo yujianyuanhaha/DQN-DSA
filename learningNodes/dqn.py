@@ -174,12 +174,15 @@ class dqn:
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation})
             # size of observation = s / n_feature
             action = np.argmax(actions_value) 
+#            print actions_value
             self.learn_step_counter += 1            
         else:
             action = random.randint(0, self.n_actions-1)      
 #        print "scalar action %s"%(action)
             # 0 for WAIT
         return action
+        
+        
 
 
     def learn(self):
@@ -187,22 +190,22 @@ class dqn:
         if self.learn_step_counter % self.replace_target_iter == 0:
             self.sess.run(self.target_replace_op)
            # print('\ntarget_params_replaced\n')
-
-        # sample batch memory from all memory
-        "-----------------  test why random mini batch works -----------------------  "
-        method = "random"   # test random(default) and order(Buehrer) mode
+        
+        "------- test why random mini batch works -------------------------------------"
+        # random(default) and order(Buehrer) mode
+        method = "random" 
+#        method = "order"
         if self.memory_counter > self.memory_size:
             if method == "random":
                 sample_index = np.random.choice(self.memory_size, size=self.batch_size)
             else:
-                pass
-#                sample_index
-                print sample_index
-                
-        "-----------------  test ends -----------------------"                
+                sample_index = range( self.memory_counter%self.memory_size, (self.memory_counter+32)%self.memory_size )
+#            print sample_index
+
+
+            
         else:
             sample_index = np.random.choice(self.memory_counter, size=self.batch_size)
-            
         batch_memory = self.memory[sample_index, :]
 
         _, cost = self.sess.run(

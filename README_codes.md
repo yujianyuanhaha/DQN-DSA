@@ -77,3 +77,26 @@ This table shows the learning ability of learning nodes with other type of nodes
 | mdp            | O         | O        | X              |      O |      O     |      O    |      O        |
 | dqn             |O         | O        | O              |      O |      O     |      O    |      O        |
 | policy          |O         | O        | X              |      O |      O     |      O    |      O        |
+
+
+# Detail
+Quite some functionality does not provide interface, but simple noted in codes.
+## random or order mini-batch sample of DQN
+set ```method = random``` or ```method =order``` inside ```dqn.py``` file.
+
+
+## extra-memory DQN
+use ```stackDQN``` without blocking work as extra-memory.  
+edit where near ```updateStack```, 
+``` python
+                temp2 = partialObserveAction( temp, t, poStepNum, poSeeNum,actions[n,:])
+                
+                observationS_               = updateStack(observationS, temp2)
+```
+as 
+```
+#                temp2 = partialObserveAction( temp, t, poStepNum, poSeeNum,actions[n,:])
+                temp2 = temp
+                observationS_               = updateStack(observationS, temp2)
+```
+Also, edit ```self.stackNum = 4``` inside ```dqn.py``` file as well as ```stackNum = 4``` in ```setup.cfg``` file(TODO buggy).

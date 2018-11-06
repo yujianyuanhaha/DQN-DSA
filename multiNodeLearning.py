@@ -309,11 +309,13 @@ for t in range(0,numSteps):
                 elif nodes[n].type == 'dqnStack' or nodes[n].type == 'dpgStack':
 #                    temp2                      = partialObserve( temp, t, poStepNum, poSeeNum)
                     temp2                      = partialObserveAction( temp, t, poStepNum, poSeeNum,actions[n,:])
+                    # extra-memory DQN, no block
+#                    temp2 = temp
                     observationS               = updateStack(observationS, temp2)
                     actions[n,:], actionScalar = nodes[n].getAction(t, observationS)
                 elif nodes[n].type == 'drqn':
-                    observationPo              = partialObserveAction( temp, t, poStepNum, poSeeNum, actions[n,:])
-#                    observationPo = temp
+#                    observationPo              = partialObserveAction( temp, t, poStepNum, poSeeNum, actions[n,:])
+                    observationPo = temp
                     actions[n,:], actionScalar = nodes[n].getAction(t, observationPo)
                 else:
                     print "error dqn type"
@@ -356,11 +358,12 @@ for t in range(0,numSteps):
             actions[l,:], actionScalar = nodes[l].getAction(t, observationPd)                
         elif nodes[l].type == 'dqnStack' or nodes[l].type == 'dpgStack':
             temp2                      = partialObserveAction( temp, t, poStepNum, poSeeNum, actions[l,:])
+#            temp2 = temp
             observationS               = updateStack(observationS, temp2)
             actions[l,:], actionScalar = nodes[l].getAction(t, observationS)
         elif nodes[l].type == 'drqn':
-            observationPo              = partialObserveAction( temp, t, poStepNum, poSeeNum, actions[l,:])
-#            observationPo = temp
+#            observationPo              = partialObserveAction( temp, t, poStepNum, poSeeNum, actions[l,:])
+            observationPo = temp
             actions[l,:], actionScalar = nodes[l].getAction(t, observationPo)
         else:
             print "error dqn type"
@@ -411,12 +414,13 @@ for t in range(0,numSteps):
                      reward, observation_)             
             elif nodes[n].type == 'dqnStack' or nodes[n].type == 'dpgStack':
                 temp2 = partialObserveAction( temp, t, poStepNum, poSeeNum,actions[n,:])
+#                temp2 = temp
                 observationS_               = updateStack(observationS, temp2)
                 nodes[n].storeTransition(observationS, actionScalar, 
                      reward, observationS_) 
             elif   nodes[n].type == 'drqn':
-                observation_                = partialObserveAction( temp, t, poStepNum, poSeeNum, actions[n,:])
-#                observation_ = temp
+#                observation_                = partialObserveAction( temp, t, poStepNum, poSeeNum, actions[n,:])
+                observation_ = temp
                 nodes[n].storeTransition(observationPo, actionScalar, 
                      reward, observation_, t)         ########################
             elif nodes[n].type == 'dqn' or nodes[n].type == 'dpg':

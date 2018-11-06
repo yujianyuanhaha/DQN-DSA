@@ -87,7 +87,7 @@ class dqnNode(radioNode):
         self.priority         = 0  # asyn
         
         self.poNum = 4
-        self.stackNum = 8
+        self.stackNum = 4
         self.poStackSize = self.stackNum * self.numChans
         
         

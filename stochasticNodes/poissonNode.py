@@ -34,27 +34,144 @@ class poissonNode(radioNode):
         self.arrivalInterval          = arrivalInterval   # lamda
         self.serviceInterval          = serviceInterval   #  miu
         self.type                     = "possion"
-        self.hyperType                = "stochastic"   
+        self.hyperType                = "stochastic" 
         
-        print "possion M/M/1  availablity %s"%( serviceInterval*1.0/(arrivalInterval+serviceInterval+1) )
+        
+        # exponential distribution -> geometric distribution
+        # ON dist -OFF dist
 
-    
-    def getAction(self, stepNum):             
+        self.const = 5  
+        self.pOn = 0.20    # for exp
+        self.pOff = 0.40
+        self.lamba = 4   #for possion
+        self.miu = 5
+        self.onDist = "const"
+#        self.onDist = "exp"
+#        self.onDist = "pos"
+#        self.onDist = "uni"
 
-        "--- OFF state for arrival, while ON for service time ---"
-        if stepNum <= self.indexLastArrival:
-            action = self.OFF
-        elif stepNum > self.indexLastArrival and stepNum <= self.indexLastService:
-            action = self.ON
+#        self.offDist = "const"
+#        self.offDist = "exp"
+#        self.offDist = "pos"
+        self.offDist = "uni"
+
+        self.pattern                  = self.generateSequences(numSteps)
+        
+        
+        
+    def uniDist(self):
+        # [a,b,c,d]
+        # 10% 20% 30% 40%
+        # 5    6   7  8
+        # 0.5+1.2+2.1+3.2 = 7.0
+        
+        
+        a = 0.10
+        b = 0.30
+        c = 0.60
+        
+        var = np.random.rand() 
+        if var < a:
+            l = 5
+        elif var >= a and var <b:
+            l = 6
+        elif var >= b and var <c:
+            l = 7
         else:
-            action = self.OFF
+            l = 8
+        
+        # case 2
+        
+                # [a,b,c,d]
+        # 5% 5% 10% 10%  15% 15% 20% 20%
+        # 5   6   7  8   9   10   11  12
+        # ..
+        
+        
+#        a = 0.05
+#        b = 0.10
+#        c = 0.20
+#        d = 0.30
+#        e = 0.45
+#        f = 0.60
+#        g = 0.80
+#        
+##        
+#        var = np.random.rand() 
+#        if var < a:
+#            l = 5
+#        elif var >= a and var <b:
+#            l = 6
+#        elif var >= b and var <c:
+#            l = 7
+#        elif var >= c and var <d:
+#            l = 8
+#        elif var >= d and var <e:
+#            l = 9
+#        elif var >= e and var <f:
+#            l = 10
+#        elif var >= f and var <g:
+#            l = 11
+#        else:
+#            l = 12
+#            
+        return l
+            
+        
+        
+    def generateSequences(self,numSteps):
+        pattern = [ ]
+        
+        
+        while len(pattern)<= numSteps:
+           
+            if self.onDist == "const":
+                new = np.ones(self.const)
+            elif self.onDist == "exp":
+                var = np.random.geometric(self.pOn, size=1)
+                new = np.ones(var[0])
+            elif self.onDist == "pos":
+                var = np.random.poisson(self.lamba, size=1)
+                new = np.ones(var[0])
+            elif self.onDist == "uni":
+                var = self.uniDist()
+                new = np.ones(var)
+            else:
+                print "error onDist"
+            for i in new:
+                pattern.append(i)
+                
+            if self.offDist == "const":
+                new = np.zeros(self.const)
+            elif self.offDist == "exp":
+                var = np.random.geometric(self.pOff, size=1)
+                new = np.zeros(var[0])
+            elif self.offDist == "pos":
+                var = np.random.poisson(self.miu, size=1)
+                new = np.zeros(var[0])
+            elif self.offDist == "uni":
+                var = self.uniDist()
+                new = np.zeros(var)
+            else:
+                print "error onDist"
+            for i in new:
+                pattern.append(i)
 
-            t1 = np.random.poisson(self.arrivalInterval, 1)
-            self.indexLastArrival = self.indexLastService + t1
-            t2 = np.random.poisson(self.serviceInterval, 1)  # average service time, means ON state
-            self.indexLastService = self.indexLastArrival + t2
-            # actually the interleave is NOT TRUE POSSION
 
+        
+        return pattern[:numSteps]
+        
+#        print "possion M/M/1  availablity %s"%( serviceInterval*1.0/(arrivalInterval+serviceInterval+1) )
+
+
+    def getAction(self, stepNum):
+        temp = self.pattern[stepNum]
+        if temp:
+            temp2 = self.ON
+        else:
+            temp2 = self.OFF
+            
+        action = temp2
         self.actionHist[stepNum,:] = action
         if not np.sum(action):
             self.actionHistInd[stepNum] = 0
@@ -65,9 +182,38 @@ class poissonNode(radioNode):
             self.actionTally[0] = self.actionTally[0] + 1
         else:
             self.actionTally[1:] = self.actionTally[1:] + action
-        return action
-
-# ToDo - easily extend to M/M/c wherer c as numServer
+            
+        return temp2
+    
+#    def getAction(self, stepNum):             
+#
+#        "--- OFF state for arrival, while ON for service time ---"
+#        if stepNum <= self.indexLastArrival:
+#            action = self.OFF
+#        elif stepNum > self.indexLastArrival and stepNum <= self.indexLastService:
+#            action = self.ON
+#        else:
+#            action = self.OFF
+#
+#            t1 = np.random.poisson(self.arrivalInterval, 1)
+#            self.indexLastArrival = self.indexLastService + t1
+#            t2 = np.random.poisson(self.serviceInterval, 1)  # average service time, means ON state
+#            self.indexLastService = self.indexLastArrival + t2
+#            # actually the interleave is NOT TRUE POSSION
+#
+#        self.actionHist[stepNum,:] = action
+#        if not np.sum(action):
+#            self.actionHistInd[stepNum] = 0
+#        else:
+#            self.actionHistInd[stepNum] = np.where(action == 1)[0] + 1             
+#            
+#        if not np.sum(action):
+#            self.actionTally[0] = self.actionTally[0] + 1
+#        else:
+#            self.actionTally[1:] = self.actionTally[1:] + action
+#        return action
+#
+## ToDo - easily extend to M/M/c wherer c as numServer
 
           
 if __name__ == '__main__':
