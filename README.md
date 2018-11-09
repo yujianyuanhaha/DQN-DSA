@@ -19,6 +19,9 @@ Date  : April, 2018
 <img align="" width="" height="150" src="Matlab_Logo.png"> .m MDPtool [[Download]()]  |  <img align="" width="" height="150" src="TensorflowLogo.png">  RL open-source [[link]()]| 
 ![](./milcom.jpg)DQN [[paper]()] [[Slides]()]  |  ![](./milcom.jpg)DRQN [[paper]()] [[Slides]()]    |
 
+comment work on github, while not on VS Code
+the figure fail on github, while on VS Code
+
 -->
 
 -------------------------------------------------------------------------
