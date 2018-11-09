@@ -8,6 +8,20 @@ Date  : April, 2018
  
 
 -------------------------------------------------------------------------
+-             |  -             |  -             |
+:-------------------------:|:-------------------------:|:-------------------------:
+![](./profile.png) Jianyuan (Jet) Yu jiayuan@vt.edu  |  ![](./profile.png) Yue Xu xuyue24@vt.edu| ![](./profile.png) R.Michael Buehrer buehrer@vt.edu
+
+
+-------------------------------------------------------------------------
+-             |  -             | 
+:-------------------------:|:-------------------------:|
+<img align="" width="" height="150" src="Matlab_Logo.png"> .m MDPtool [[Download]()]  |  <img align="" width="" height="150" src="TensorflowLogo.png">  RL open-source [[link]()]| 
+![](./milcom.jpg)DQN [[paper]()] [[Slides]()]  |  ![](./milcom.jpg)DRQN [[paper]()] [[Slides]()]|
+
+
+
+-------------------------------------------------------------------------
 Table of Contents
 =================
    * [Overview](#overview)
@@ -109,21 +123,7 @@ Another repository[6] maintain by Yue would merge soon, and [7] is the technical
 1. ~~We assume all nodes detect and make decision at same time, hence the multiple dsaNode may collide  (T.B.D.)~~. -> create politeness to dsa nodes to avoid ping-pong effect, a ugly way.
 2. ~~Unstable performance when multiple dqnNode works (T.B.D.)~~. -> assign priority to learning nodes to make them observe-action one by one, a ugly way.
 
-
-
-
---------------------------------------------------------------------------
-
-
-
---------------------------------------------------------------------------
-
-
-
-```
-
-
-<img align="right" width="150" height="150" src="https://github.com/yujianyuanhaha/DQN-DSA/blob/master/vt_logo.png">
+<img align="right" width="150" height="150" src="vt_logo.png">
 
 
 

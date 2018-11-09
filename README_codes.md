@@ -69,25 +69,25 @@ Table below provides a quick view.
 
 
 
-# X-O table
+# ❌  -✔️ table
 This table shows the learning ability of learning nodes with other type of nodes. Where **X** for CANNOT, **O** for CAN and **N/A** for unknown.  
 
 | string name    | legacy    | hop      | intermittent   | dsa    | mdp        | dqn       | policy        |
 |----------------|-----------|----------|----------------|--------|------------|-----------|---------------|
-| mdp            | O         | O        | X              |      O |      O     |      O    |      O        |
-| dqn             |O         | O        | O              |      O |      O     |      O    |      O        |
-| policy          |O         | O        | X              |      O |      O     |      O    |      O        |
+| mdp            |  ✔️         | ✔️        | ❌              |      ✔️ |      ✔️     |     ✔️    |     ✔️        |
+| dqn             |✔️         | ✔️       | ✔️              |      ✔️ |     ✔️     |      ✔️    |      ✔️        |
+| policy          |✔️         | ✔️        | ❌              |      ✔️ |      ✔️     |      ✔️    |      ✔️        |
 
 
 # Detail
 Quite some functionality does not provide interface, but simple noted in codes.
 ## random or order mini-batch sample of DQN
-set ```method = random``` or ```method =order``` inside ```dqn.py``` file.
+set `method = random` or `method =order` inside `dqn.py` file.
 
 
 ## extra-memory DQN
-use ```stackDQN``` without blocking work as extra-memory.  
-edit where near ```updateStack```, 
+use _`stackDQN`_ without blocking work as extra-memory.  
+edit where near _`updateStack()`_, 
 ``` python
                 temp2 = partialObserveAction( temp, t, poStepNum, poSeeNum,actions[n,:])
                 
@@ -99,4 +99,9 @@ as
                 temp2 = temp
                 observationS_               = updateStack(observationS, temp2)
 ```
-Also, edit ```self.stackNum = 4``` inside ```dqn.py``` file as well as ```stackNum = 4``` in ```setup.cfg``` file(TODO buggy).
+Also, edit `self.stackNum = 4` inside `dqn.py` file as well as `stackNum = 4` in `setup.cfg` file(TODO buggy).
+
+## learn stochastic
+multi-var uniform distribution + "interleave" exponienal + "interleave" possion  
+in function _`generateSequences()`_ in `possionNode.py`, assign mode one of _`const`_, _`exp`_, _`pos`_, _`uni`_ to var _`onDist`_ and _`offDist`_.  
+While further in function _`uniDist`_, two typical case, the 4-var and 8-var are provided.  

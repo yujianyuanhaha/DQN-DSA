@@ -40,7 +40,7 @@ class poissonNode(radioNode):
         # exponential distribution -> geometric distribution
         # ON dist -OFF dist
 
-        self.const = 5  
+        self.const = 150  
         self.pOn = 0.20    # for exp
         self.pOff = 0.40
         self.lamba = 4   #for possion
@@ -72,13 +72,13 @@ class poissonNode(radioNode):
         
         var = np.random.rand() 
         if var < a:
-            l = 5
+            l = 150
         elif var >= a and var <b:
-            l = 6
+            l = 160
         elif var >= b and var <c:
-            l = 7
+            l = 170
         else:
-            l = 8
+            l = 180
         
         # case 2
         
@@ -99,21 +99,21 @@ class poissonNode(radioNode):
 ##        
 #        var = np.random.rand() 
 #        if var < a:
-#            l = 5
+#            l = 15
 #        elif var >= a and var <b:
-#            l = 6
+#            l = 16
 #        elif var >= b and var <c:
-#            l = 7
+#            l = 17
 #        elif var >= c and var <d:
-#            l = 8
+#            l = 18
 #        elif var >= d and var <e:
-#            l = 9
+#            l = 19
 #        elif var >= e and var <f:
-#            l = 10
+#            l = 20
 #        elif var >= f and var <g:
-#            l = 11
+#            l = 21
 #        else:
-#            l = 12
+#            l = 22
 #            
         return l
             
