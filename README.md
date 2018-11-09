@@ -17,7 +17,7 @@ Date  : April, 2018
 -             |  -             | 
 :-------------------------:|:-------------------------:|
 <img align="" width="" height="150" src="Matlab_Logo.png"> .m MDPtool [[Download]()]  |  <img align="" width="" height="150" src="TensorflowLogo.png">  RL open-source [[link]()]| 
-![](./milcom.jpg)DQN [[paper]()] [[Slides]()]  |  ![](./milcom.jpg)DRQN [[paper]()] [[Slides]()]|
+![](./milcom.jpg)DQN [[paper]()] [[Slides]()]  |  ![](./milcom.jpg)DRQN [[paper]()] [[Slides]()]    |
 
 
 
