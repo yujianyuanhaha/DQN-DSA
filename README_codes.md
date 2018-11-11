@@ -89,12 +89,15 @@ This table shows the learning ability of learning nodes with other type of nodes
 | policy          |✔️         | ✔️        | ❌              |      ✔️ |      ✔️     |      ✔️    |      ✔️        |
 
 
-# Detail
+# Some config NOT provide interface at function
 Quite some functionality does not provide interface, but simple noted in codes.
 
 ## txProbability of constant and dsa Node
 An aspect we set _`txProbability`_ in `legacyNode.py` and `dsaNode.py` denote the probablilty it can transmit when it got legacy allocation. By default it is set as _`1.0`_ .   
 Conclusion: ❌  _Current design cannot learning these first_oder random well._
+
+
+
 
 
 ## DSA-aided DRQN
@@ -109,6 +112,11 @@ Conclusion: ❌   would NOT help
 
 
 ## extra-memory MDP
+
+
+## Value Iteration vs Policy Iteration of MDP
+_`iterationMethod`_, is assigned when do the __MDP__ construction.  
+Conclusion: ❌  no significant difference
 
 
 ## extra-memory DQN

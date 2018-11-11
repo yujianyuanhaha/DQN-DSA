@@ -52,7 +52,7 @@ class drqn:
         self.n_hidden_units      = 40;
         self.continue_length     = 10
         self.epsilon_increment   = e_greedy_increment 
-        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max # epsilon_greedy algorithm
+#        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max # epsilon_greedy algorithm
         # record training times and decide when to update target-network 
         self.learn_step_counter  = 0
         self.exploreProb         = self.exploreInit
@@ -299,7 +299,7 @@ class drqn:
         self.cost_his.append(cost)
 
         # increasing epsilon
-        self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
+#        self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
         self.learn_step_counter += 1
         
         return cost

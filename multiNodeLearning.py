@@ -116,6 +116,8 @@ poStepNum         =  json.loads(Config.get('partialObservation', 'poStepNum'))
 padEnable         =  json.loads(Config.get('partialObservation', 'padEnable')) 
 padValue          =  json.loads(Config.get('partialObservation', 'padValue')) 
 stackNum          =  json.loads(Config.get('partialObservation', 'stackNum')) 
+
+timeLearnStart    = 1000
              
 numNodes = len(nodeTypes)
 print "nodeType list: %s"%nodeTypes
@@ -435,7 +437,7 @@ for t in range(0,numSteps):
 
             done = True  
             if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],drqnNode):
-                if t >1000:
+                if t >timeLearnStart:
                     if t % nodes[n].policyAdjustRate == 0:    
                         nodes[n].learn()
                     
