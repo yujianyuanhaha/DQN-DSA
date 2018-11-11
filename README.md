@@ -120,6 +120,8 @@ Another repository[6] maintain by Yue would merge soon, and [7] is the technical
 2. mdpNode would meet compuation constraint when number of channel over 10, result in dead loop (stuck at stateSpaceCreate).  
 3. the assigment of patrial observation is currently in *dqnNode.py* file, tho silly way.
 
+4. due to the `.pyc` are git-ignored, when do the pull, these files would not be cloned, hence when run codes without `.pyc`, it would pop error like `ImportError: No module named ddpgNode`. Never mind, just execute again and again (to generate more `.pyc` files) till it runs through.
+
 
 --------------------------------------------------------------------------
 # Bugs

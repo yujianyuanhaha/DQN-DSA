@@ -7,24 +7,34 @@ Email : *jianyuan@vt.edu*
 Date  : April, 2018 
 
 
+
+# Input
+`setup.cfg` file. (ToDo)
+
+# Output
+Piles of figure and _`.csv`_ _`.npy`_ file. (ToDo)
+
+
+
+
 # File Topology
-    multiNodeLearning.py -- setup.config
-                         -- myFunction.py
-                         -- legacyNode.py
-                         -- hoppingNode.py
-                         -- imNode.py
-                         -- dsaNode.py
-                         -- poissonNode.py
-                         -- markovChainNode.py
-                         -- mdpNode.py      -- mdp.py
-                         -- dqnNode.py      -- dqn.py
-                                            -- dqnDouble.py
-                                            -- dqnPriReplay.py
-                                            -- dqnDuel.py 
-                                            -- dqnR.py
-                                            -- dpq.py                                                                     
-                         -- stateSpaceCreate.py
-                         -- scenario.py 
+    multiNodeLearning.py |-- setup.config
+                         |-- myFunction.py
+                         |-- legacyNode.py
+                         |-- hoppingNode.py
+                         |-- imNode.py
+                         |-- dsaNode.py
+                         |-- poissonNode.py
+                         |-- markovChainNode.py
+                         |-- mdpNode.py      -- mdp.py
+                         |-- dqnNode.py      -- dqn.py
+                                            |-- dqnDouble.py
+                                            |-- dqnPriReplay.py
+                                            |-- dqnDuel.py 
+                                            |-- dqnR.py
+                                            |-- dpq.py                                                                     
+                         |-- stateSpaceCreate.py
+                         |-- scenario.py 
 
 
 --------------------------------------------------------------------------
@@ -81,8 +91,24 @@ This table shows the learning ability of learning nodes with other type of nodes
 
 # Detail
 Quite some functionality does not provide interface, but simple noted in codes.
-## random or order mini-batch sample of DQN
-set `method = random` or `method =order` inside `dqn.py` file.
+
+## txProbability of constant and dsa Node
+An aspect we set _`txProbability`_ in `legacyNode.py` and `dsaNode.py` denote the probablilty it can transmit when it got legacy allocation. By default it is set as _`1.0`_ .   
+Conclusion: ❌  _Current design cannot learning these first_oder random well._
+
+
+## DSA-aided DRQN
+Try apply DSA to accelerate the convergecast.    
+see in _`getAction()`_ of `drqnNode.py`, uncomment to enable dsa-aided.  
+Conclusion: ❌   would NOT help
+
+
+## random or order mini-batch sample of DQN experience replay
+set `method = random` or `method =order` inside `dqn.py` file.    
+Conclusion: ❌   would NOT help
+
+
+## extra-memory MDP
 
 
 ## extra-memory DQN
@@ -99,9 +125,11 @@ as
                 temp2 = temp
                 observationS_               = updateStack(observationS, temp2)
 ```
-Also, edit `self.stackNum = 4` inside `dqn.py` file as well as `stackNum = 4` in `setup.cfg` file(TODO buggy).
+Also, edit `self.stackNum = 4` inside `dqn.py` file as well as `stackNum = 4` in `setup.cfg` file(TODO buggy).    
+Conclusion: ❌ 
 
 ## learn stochastic
 multi-var uniform distribution + "interleave" exponienal + "interleave" possion  
 in function _`generateSequences()`_ in `possionNode.py`, assign mode one of _`const`_, _`exp`_, _`pos`_, _`uni`_ to var _`onDist`_ and _`offDist`_.  
-While further in function _`uniDist`_, two typical case, the 4-var and 8-var are provided.  
+While further in function _`uniDist`_, two typical case, the 4-var and 8-var are provided.   
+Conclusion: ❌  _Current design cannot learning these stochastic well._

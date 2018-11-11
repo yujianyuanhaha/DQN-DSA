@@ -87,11 +87,12 @@ optimalTP         =  json.loads( Config.get('Global', 'optimalTP'))
 
 
 legacyChanList    =  json.loads(Config.get('legacyNode', 'legacyChanList')) 
-txProbability     =  json.loads(Config.get('legacyNode', 'txProbability'))  
+ 
 
 hoppingChanList   =  json.loads(Config.get('hoppingNode', 'hoppingChanList'))
 hopRate           =  json.loads( Config.get('hoppingNode', 'hopRate'))  
 hoppingWidth      =  json.loads( Config.get('hoppingNode', 'hoppingWidth'))  
+offSet            =  json.loads( Config.get('hoppingNode', 'offSet'))  
 
 imPeriod          =  json.loads(Config.get('imNode', 'imPeriod')) 
 imChanList        =  json.loads(Config.get('imNode', 'imChanList')) 
@@ -160,16 +161,16 @@ dqnIndex              =  [ ]
 
 for k in range(0,numNodes):
     if   nodeTypes[k] == 0 or nodeTypes[k] == 'legacy':
-        t = legacyNode(numChans,numSteps, txProbability[CountLegacyChanIndex], legacyChanList[CountLegacyChanIndex]) 
+        t = legacyNode(numChans,numSteps, legacyChanList[CountLegacyChanIndex]) 
         CountLegacyChanIndex += 1               
     elif nodeTypes[k] == 1  or nodeTypes[k] == 'hopping':
-        t = hoppingNode(numChans,numSteps,hoppingChanList[CountHoppingChanIndex],hopRate)
+        t = hoppingNode(numChans,numSteps,hoppingChanList[CountHoppingChanIndex],hopRate,offSet[CountHoppingChanIndex])
         CountHoppingChanIndex += 1
     elif nodeTypes[k] == 2 or nodeTypes[k] == 'im':
         t = imNode(numChans,numSteps,imPeriod, imDutyCircleList[CountIm], imChanList[CountIm])
         CountIm += 1
     elif nodeTypes[k] == 3  or nodeTypes[k] == 'dsa':
-        t = dsaNode(numChans,numSteps,txProbability)    
+        t = dsaNode(numChans,numSteps)    
     elif nodeTypes[k] == 4  or nodeTypes[k] == 'possion':
         t = poissonNode( numChans, numSteps, poissonChanList, arrivalInterval, serviceInterval)
     elif nodeTypes[k] == 5  or nodeTypes[k] == 'markovChain':

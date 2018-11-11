@@ -94,7 +94,7 @@ class drqn:
               
         w_initializer, b_initializer = tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)
 
-        with tf.variable_scope('eval_net0'):            
+        with tf.variable_scope('eval_net0',reuse=tf.AUTO_REUSE):            
             sIn          = tf.reshape(self.s, [-1, self.n_features])#[None, self.continue_length ,self.n_features]
             e_in         =  tf.layers.dense(sIn, self.n_hidden_units, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='e00',reuse=tf.AUTO_REUSE)
@@ -118,7 +118,7 @@ class drqn:
     # This Network has same architecture 
     
     #30 50 60 40 - 200 1600
-        with tf.variable_scope('target_net1'):
+        with tf.variable_scope('target_net1',reuse=tf.AUTO_REUSE):
             
             s_In         = tf.reshape(self.s, [-1, self.n_features])#[None, self.continue_length ,self.n_features]
             t_in         =  tf.layers.dense(s_In, self.n_hidden_units, tf.nn.relu, kernel_initializer=w_initializer,
@@ -158,13 +158,12 @@ class drqn:
         #self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval))
             self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval_wrt_a, name='TD_error1'))
         
-        with tf.variable_scope('train0'):
+        with tf.variable_scope('train0',reuse=tf.AUTO_REUSE):
             self._train_op = tf.train.AdamOptimizer(self.lr).minimize(self.loss)
 
 
     def flatInputS(self, In, t):
-#        print "1. flatInputS in"
-#        print In
+
         length = len(In)
         out = []
         if length ==1:
@@ -186,12 +185,11 @@ class drqn:
         
         out = np.reshape(np.array(out),[length,-1])    
             
-#        print out
+
         return out
     
     def flatInputSN(self, In, t):
-#        print "2. flatInputSN in"
-#        print In
+
         length = len(In)
         out = []
         if length ==1:
@@ -211,8 +209,7 @@ class drqn:
                     temp = np.reshape(np.array(temp),[1,self.n_features])
                     out.append(temp)       
         out = np.reshape(np.array(out),[length,-1])    
-#        print out 
-#        print np.shape(out)
+
         return out
 
     def store_transition(self,s, a, r, s_, step):
@@ -242,26 +239,7 @@ class drqn:
 
     def choose_action(self,step, observation):
 
-        temp_observation = observation[np.newaxis, :]
-        
-        
-#        if step <= 500:
-#                action = np.random.randint(0, self.n_actions)         
-#        # obvious logic error, py2 vs py3
-#        elif step>500 and step <= 20000 :
-#            # silly way, 0-500 100%; 500-20000 90%; 20000+ 95%
-#            # what if 90% and 99% 
-#            if np.random.uniform() < 0.9:
-#                actions_value = self.sess.run(self.q_eval0, feed_dict={self.s: self.flatInputS(temp_observation,step), self.temp_batch_size: 1})
-#                action = np.argmax(actions_value)
-#            else:
-#                action = np.random.randint(0, self.n_actions)
-#        else:
-#            if np.random.uniform() < 0.99:
-#                actions_value = self.sess.run(self.q_eval0, feed_dict={self.s: self.flatInputS(temp_observation,step), self.temp_batch_size: 1})
-#                action = np.argmax(actions_value)
-#            else:
-#                action = np.random.randint(0, self.n_actions)   
+        temp_observation = observation[np.newaxis, :] 
         
         self.exploreHist.append(self.exploreProb)
         if np.random.uniform() < self.exploreProb:   #
@@ -269,7 +247,8 @@ class drqn:
             action = np.random.randint(0, self.n_actions)      # ! different
         else:
             actions_value = self.sess.run(self.q_eval0, feed_dict={self.s: self.flatInputS(temp_observation,step),
-                                                                  self.temp_batch_size: 1})
+                                                              self.temp_batch_size: 1})
+
             action = np.argmax(actions_value) 
             self.learn_step_counter += 1  
             
@@ -316,11 +295,7 @@ class drqn:
                 self.temp_batch_size:self.batch_size,
                 self.s_: self.flatInputSN(batch_memory[:, -self.n_features:], t),
         })
-#        print np.shape(self.s_)
-#        print np.shape(batch_memory[:, -self.n_features:])
-#        print np.shape( self.flatInputSN(batch_memory[:, -self.n_features:], t))
-        
-#        print "------"
+
         self.cost_his.append(cost)
 
         # increasing epsilon

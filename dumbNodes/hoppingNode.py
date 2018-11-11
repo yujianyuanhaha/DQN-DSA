@@ -15,7 +15,7 @@ class hoppingNode(radioNode):
     hopRate = [ ]  
     hopPattern = [ ]
     hopIndex = 0  
-    def __init__(self, numChans, numSteps, HoppingChanIndex, hopRate):
+    def __init__(self, numChans, numSteps, HoppingChanIndex, hopRate, offSet):
         
         self.numActions    = len(HoppingChanIndex)  
         self.actions       = np.zeros((self.numActions,numChans) )
@@ -28,21 +28,28 @@ class hoppingNode(radioNode):
         
         self.hopRate       = hopRate  # hop rate, the freq it decide to hop next channel
         self.hopPattern    = HoppingChanIndex
+        self.offSet        = offSet
+        
         
         self.type          = "hopping"
         self.hyperType     = "dumb"
         
     def  getAction(self,stepNum):
-        if not np.fmod(stepNum,self.hopRate):
-            self.hopIndex +=  1
-            if self.hopIndex >= len(self.hopPattern):
-                self.hopIndex = 0  # roll over
-                
-        action = self.actions[self.hopIndex,:]
+        
+        if stepNum < self.offSet:   # before offset stay idle
+            action  = np.zeros(len(self.actions[0]))
+        else:            
+            if not np.fmod(stepNum,self.hopRate):
+                self.hopIndex +=  1
+                if self.hopIndex >= len(self.hopPattern):
+                    self.hopIndex = 0  # roll over
+                    
+            action = self.actions[self.hopIndex,:]
         
         self.actionHist[stepNum,:] = action
 
-        self.actionHistInd[stepNum] = np.where(action == 1)[0] + 1
+        if np.sum(action):    # ind where to start?
+            self.actionHistInd[stepNum] = np.where(action == 1)[0] + 1
         
         if not np.sum(action):
             self.actionTally[0] = self.actionTally[1] + 1

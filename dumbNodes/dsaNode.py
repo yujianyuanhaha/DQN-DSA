@@ -18,7 +18,7 @@ class dsaNode (radioNode):
     ###################################################################
     # Constructor
     ###################################################################
-    def __init__(self, numChans, numSteps,txProb):
+    def __init__(self, numChans, numSteps):
         
         self.actions = np.zeros((numChans+1,numChans))
         for k in range(numChans):
@@ -28,7 +28,7 @@ class dsaNode (radioNode):
         self.actionTally   = np.zeros(numChans+1)
         self.actionHist    = np.zeros((numSteps,numChans))
         self.actionHistInd = np.zeros(numSteps)
-        self.txProbability = txProb
+        self.txProbability = 1.0     # could be modified
         self.observedState = np.zeros(numChans)
         self.stateHist     = np.zeros((numSteps+1,numChans))
         self.type          = "dsa"

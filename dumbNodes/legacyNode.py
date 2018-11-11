@@ -14,14 +14,14 @@ class legacyNode(radioNode):
     
 
     
-    def __init__(self, numChans, numSteps, txProbability, legacyChanIndex):
+    def __init__(self, numChans, numSteps, legacyChanIndex):
         self.actions                  = np.zeros(numChans)   
         self.actions[ legacyChanIndex ] = 1
         self.numActions               = np.size(self.actions,0)  
         self.actionTally              = np.zeros(numChans+1)
         self.actionHist               = np.zeros((numSteps,numChans))
         self.actionHistInd            = np.zeros(numSteps)
-        self.txProbability            = txProbability        
+        self.txProbability            = 1.0        
         self.type                     = "legacy"
         self.hyperType                = "dumb"
     

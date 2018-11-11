@@ -7,7 +7,7 @@ Email : *jianyuan@vt.edu*
 Date  : April, 2018 
 
 
-# Configuration  
+# Configuration  🔧
 We run codes on **Spyder** GUI under Anaconda(**version 2**), **tensorflow** is required as well as related tensorboard setup.  
 For batch test, we run codes on ARC VT. 
 * Python version 2.7, tensorflow version **1.6.0**. Notice tensorflow 1.5.0 is suggested on Linux OS else "keneral died, restart" error may appear. If the version would not fit, run command 
@@ -34,7 +34,8 @@ This programmes automatically save down files, thus by default the Github would 
 ``` shell
     *.pyc
 ``` 
-to ignore local files ending with name `.pyc` and under any folder.  Refer to [bitbucks git ignore tutorial](https://www.atlassian.com/git/tutorials/saving-changes/gitignore) for more tricks.
+to ignore local files ending with name `.pyc` and under any folder.  Refer to [bitbucks git ignore tutorial](https://www.atlassian.com/git/tutorials/saving-changes/gitignore) for more tricks.  
+Notice if you have not edit `.gitignore` when init the repository, you need to remove all `.pyc` file by command `find . -name "*.pyc" -exec git rm -f "{}" \;`.
 
 # How to run
 Git Clone the codes by in terminal by `git clone https://github.com/yujianyuanhaha/DQN-DSA`, or in GUI app(Github or GitKraken). 
@@ -55,3 +56,4 @@ OR even further, if some modification is made on ```multiNodeLearning.py``` henc
 ```
 python multiNodeLearningCaseXX.py --set setFileName.cfg
 ```
+A tricky way for __parallel run__ to quickly test different parameter or cases would be like, open several IPython Console windows at same time, execute after each editing. While more advanced way is use ARC.
