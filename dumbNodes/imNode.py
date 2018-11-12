@@ -40,8 +40,8 @@ class imNode(radioNode):
 
 #        mode = "dutyCycle"
         mode = "onOFF"
-        onDuration = 5
-        offDuration = 2
+        onDuration = 2
+        offDuration = 1
             
                     
         if stepNum > 0:

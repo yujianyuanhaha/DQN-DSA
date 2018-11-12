@@ -51,7 +51,7 @@ for t in 1 to numberStep
 |----------|----------|----------
 | __MDP__  | NOT require `Frozen Time` | _`exp`_, _`step`_, _`perf`_ in _`updatePolicy()`_ of `mdpNode.py`
 | __DQN__ |  -  | _`incre`_, _`exp`_ in _`choose_action()`_  of `dqn.py`
-| __DRQN__ |  require longer explore time   |_`exp`_ in  _`choose_action()`_  of `drqn.py`  
+| __DRQN__ |  require longer explore time   |_`exp`_ in  _`choose_action()`_  of `drqn.py`     
 
 
 Besides, the _`timeLearnStart`_ (default value _`1000`_) could be set at `multiNodeLearning.py`, the _`exploreDecay`_(decay rate, default value _`0.01`_),  _`exploreMin`_(default value _`0.01`_) could be set at `mdpNode.py`, `dqn.py`.
@@ -93,9 +93,10 @@ Besides, the _`timeLearnStart`_ (default value _`1000`_) could be set at `multiN
 | type    | scheme    | comment   |
 |----------|----------|----------
 | __preSense__  | make action based on __current__ observation | classic, __reactive__ ,perfect, require full observation, low throughput  | 
-| __postSense__ |  make action based on __previous__ observation  | would fail when meet hopping or intermittent | 
-![](/README_fig/dsa.png)  
+| __postSense__ |  make action based on __previous__ observation  | would fail when meet hopping or intermittent |     
+![](/README_fig/dsa.png)    
 <!-- <img align="left" width="" height="150" src="/README_fig/dsa.png">  -->
+
 
 Notice DSA do perfect when make action based on current state, while would __fail by making action based on previous state__. It is reactive, not predict or learn.
 

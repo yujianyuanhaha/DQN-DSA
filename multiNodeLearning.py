@@ -151,7 +151,9 @@ if any(nodeTypes==2) and len(nodeTypes) > numChans:
 
 # Initializing Nodes, Observable States, and Possible Actions
 nodes                 =  [ ]
-states                = stateSpaceCreate(numChans, mdpMemorySize)
+states                = stateSpaceCreate(numChans*stackNum)
+#states                = stateSpaceCreate(numChans)
+
 CountLegacyChanIndex  = 0
 CountHoppingChanIndex = 0
 CountIm               = 0
@@ -394,15 +396,15 @@ for t in range(0,numSteps):
             
             # extra-meory
             observationS               = updateStack(observationS, temp)
-            temp = observationS
+
 
             if  noiseErrorProb > 0:
                 observedStates[n,:]  = noise(observedStates[n,:] , noiseErrorProb, noiseFlipNum)            
             if padEnable == 'True':
                 observedStates[n,:] = partialPad(observedStates[n,:], t, poStepNum, poBlockNum, padValue)
   
-                        
-            nodes[n].updateTrans(observedStates[n,:],t)
+            nodes[n].updateTrans(observationS,t)         # for extra-memoey             
+#            nodes[n].updateTrans(observedStates[n,:],t)
             if t % nodes[n].policyAdjustRate == 0:
                 nodes[n].updatePolicy(t)
             tocMdpLearn = time.time()

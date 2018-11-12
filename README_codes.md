@@ -114,6 +114,20 @@ Conclusion: ❌   would NOT help
 
 
 ## extra-memory MDP
+call _`stateSpaceCreate`_  to stack observation up, aim at learning short-period intermittent channel. 
+```
+states                = stateSpaceCreate(numChans)
+...
+nodes[n].updateTrans(observedStates[n,:],t)
+```
+to 
+```
+states                = stateSpaceCreate(numChans*stackNum)
+...
+observationS               = updateStack(observationS, observedStates[n,:])
+nodes[n].updateTrans(observedStates[n,:],t)
+```
+
 
 
 ## Value Iteration vs Policy Iteration of MDP
@@ -145,23 +159,3 @@ While further in function _`uniDist`_, two typical case, the 4-var and 8-var are
 Conclusion: ❌  _Current design cannot learning these stochastic well._
 
 
-# Noise
-![]()
-call function _`noise()`_ would "mess" the observation, with _`noiseErrorProb`_,  _`noiseFlipNum`_.
-``` python
-messedObservation = noise(observation , noiseErrorProb, noiseFlipNum) 
-```  
-And `Average corrputed bit = noiseErrorProb * noiseFlipNum `
-
-
-# Hidden & Expore Node
-TODO
-
-# Partial Observation
-## partial 
-
-
-## padding
-
-
-## stacked observation
