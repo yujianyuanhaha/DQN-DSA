@@ -53,6 +53,12 @@ PSR(Packet Success   Rate) = (N_occupy    + N_dodge)  / (N_collision + N_dodge +
 2. Notice PCR is the only __local__ metric, while others are global.  
 3. when met multi-agent, only PCR(Packet __Collision Rate__) stands. 
 
+# Reward Structure
+| case    | reward
+|----------|----------
+| Tranmission | -100
+| Transmission and Collision  | -200
+| Wait  | +100
 
 
 # Online MDP
@@ -178,7 +184,7 @@ observation <- state
 state[m:n] <- Nan
 observation <- [state, action]
 ```
-default observation function by __DRQN__---.
+the function _`partialObservtion()`_  is expired, generally we adapt  _`partialObservationAction()`_. Also this parital observation is the default observation function by __DRQN__---.
 ![](/README_fig/pad-act.png)
 
 

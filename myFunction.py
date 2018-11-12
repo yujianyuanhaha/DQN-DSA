@@ -53,7 +53,8 @@ def update(nodes, numChans, actions, collisions, collisionTally, absent):
         else:            
             priUser  += actions[n,:]
     if len(learnNodeIndex) > 1:
-        print "multi-agent ! Absent metric fail"
+        pass
+#        print "multi-agent ! Absent metric fail"
     learnNodeIndex = learnNodeIndex[0]
     
     openSlot  = ( np.sum(priUser) < numChans )  
@@ -113,24 +114,25 @@ def partialObserve(observation, t, poStepNum, poSeeNum):
     partialObservation = temp
     
     return partialObservation
+
+
 "with action, other unseen pad as value TWO"
 def partialObserveAction(observation, t, poStepNum, poSeeNum, action):
     import numpy as np
     padValue = 2   #
     numChans = len(observation)
     temp = observation
-#    rollInd = t * (poStepNum+1) % numChans 
-#    for i in range(numChans-poSeeNum):
-#        temp[(rollInd+i)%numChans] = padValue
-#
-#    if np.sum(action):
-#        indexAction = int(np.where(action==1)[0])   # ugly
-#        temp[indexAction] = 1
+    rollInd = t * (poStepNum+1) % numChans 
+    for i in range(numChans-poSeeNum):
+        temp[(rollInd+i)%numChans] = padValue
+
+    if np.sum(action):
+        indexAction = int(np.where(action==1)[0])   # ugly
+        temp[indexAction] = 1
             
     partialObservation = temp
     
-    # for list, copy changes, original also change!!
-    
+    # for list, copy changes, original also change!!    
 #    print("full observation %s " % observation)
 #    print("action %s" % action)
 #    print("partial observation %s" % partialObservation)
