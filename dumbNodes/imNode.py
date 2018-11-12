@@ -39,17 +39,29 @@ class imNode(radioNode):
     def getAction(self, stepNum): 
 
 #        mode = "dutyCycle"
-        mode = "onOFF"            
+        mode = "onOFF"
+        onDuration = 5
+        offDuration = 2
+            
                     
         if stepNum > 0:
-            if  stepNum % self.imDutyPeriod in self.switch:
-                # do the 'flip' when meet the switch point
-                if (self.actionHist[stepNum-1,:]).any():   # previous is ON
-                    action = self.OFF
+            if mode == "dutyCycle":
+                if  stepNum % self.imDutyPeriod in self.switch:
+                    # do the 'flip' when meet the switch point
+                    if (self.actionHist[stepNum-1,:]).any():   # previous is ON
+                        action = self.OFF
+                    else:
+                        action = self.ON
                 else:
+                    action = self.actionHist[stepNum-1,:]   
+            elif mode == "onOFF":
+                if stepNum % (onDuration + offDuration) < onDuration:
                     action = self.ON
-            else:
-                action = self.actionHist[stepNum-1,:]        
+                else:
+                    action = self.OFF
+                    
+                
+                    
         else:
             action = self.ON
             

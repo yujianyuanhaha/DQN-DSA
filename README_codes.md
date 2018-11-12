@@ -96,7 +96,9 @@ Quite some functionality does not provide interface, but simple noted in codes.
 An aspect we set _`txProbability`_ in `legacyNode.py` and `dsaNode.py` denote the probablilty it can transmit when it got legacy allocation. By default it is set as _`1.0`_ .   
 Conclusion: ❌  _Current design cannot learning these first_oder random well._
 
-
+## intermittent node - on-off mode and duty-cycle mode
+By default, it apply  _`mode = "dutyCycle"`_ with parameter  _`imPeriod`_, _`imDutyCircle`_ in `imNode.py`.   
+For some tiny case that cannot __exact division__, we can set _`mode = "onOFF"`_ and _`onDuration`_, _`offDuration`_.
 
 
 
@@ -141,3 +143,25 @@ multi-var uniform distribution + "interleave" exponienal + "interleave" possion
 in function _`generateSequences()`_ in `possionNode.py`, assign mode one of _`const`_, _`exp`_, _`pos`_, _`uni`_ to var _`onDist`_ and _`offDist`_.  
 While further in function _`uniDist`_, two typical case, the 4-var and 8-var are provided.   
 Conclusion: ❌  _Current design cannot learning these stochastic well._
+
+
+# Noise
+![]()
+call function _`noise()`_ would "mess" the observation, with _`noiseErrorProb`_,  _`noiseFlipNum`_.
+``` python
+messedObservation = noise(observation , noiseErrorProb, noiseFlipNum) 
+```  
+And `Average corrputed bit = noiseErrorProb * noiseFlipNum `
+
+
+# Hidden & Expore Node
+TODO
+
+# Partial Observation
+## partial 
+
+
+## padding
+
+
+## stacked observation

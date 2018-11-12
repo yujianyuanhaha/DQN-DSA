@@ -118,6 +118,7 @@ padValue          =  json.loads(Config.get('partialObservation', 'padValue'))
 stackNum          =  json.loads(Config.get('partialObservation', 'stackNum')) 
 
 timeLearnStart    = 1000
+
              
 numNodes = len(nodeTypes)
 print "nodeType list: %s"%nodeTypes
@@ -150,7 +151,7 @@ if any(nodeTypes==2) and len(nodeTypes) > numChans:
 
 # Initializing Nodes, Observable States, and Possible Actions
 nodes                 =  [ ]
-states                = stateSpaceCreate(numChans)
+states                = stateSpaceCreate(numChans, mdpMemorySize)
 CountLegacyChanIndex  = 0
 CountHoppingChanIndex = 0
 CountIm               = 0
@@ -390,6 +391,10 @@ for t in range(0,numSteps):
             reward = nodes[n].getReward(collisions[n],t,isWait)
             # additive noise to flip certain bit of observation
             temp = observedStates[n,:]
+            
+            # extra-meory
+            observationS               = updateStack(observationS, temp)
+            temp = observationS
 
             if  noiseErrorProb > 0:
                 observedStates[n,:]  = noise(observedStates[n,:] , noiseErrorProb, noiseFlipNum)            

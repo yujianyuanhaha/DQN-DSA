@@ -103,3 +103,52 @@ Notice DSA do perfect when make action based on current state, while would __fai
 <!-- <img align="left" width="" height="200" src="/README_fig/model.png">  -->
 
 
+# Single Agent to Multiple Agent DQN
+![](/README_fig/sync.png)
+![](/README_fig/async1.png)
+![](/README_fig/async2.png)
+
+
+# Noise
+![](/README_fig/noise.png)
+call function _`noise()`_ would "mess" the observation, with _`noiseErrorProb`_,  _`noiseFlipNum`_.
+``` python
+messedObservation = noise(observation , noiseErrorProb, noiseFlipNum) 
+```  
+And `Average corrputed bit = noiseErrorProb * noiseFlipNum `
+
+
+# Hidden & Expore Node
+TODO
+
+# Partial Observation
+
+## partial
+```
+observation <- state[m:n]
+```
+![](/README_fig/partial.png)
+
+
+## padding
+```
+state[m:n] <- Nan
+observation <- state
+```
+![](/README_fig/pad.png)
+
+## padding with self-action
+```
+state[m:n] <- Nan
+observation <- [state, action]
+```
+default observation function by __DRQN__.
+![](/README_fig/pad-act.png)
+
+
+## stacked observation
+```
+observation2 <- state[m:n]
+stack <- [observation1,observation2]
+```
+![](/README_fig/stack.png)
