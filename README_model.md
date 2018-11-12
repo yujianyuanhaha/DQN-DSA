@@ -79,9 +79,9 @@ for t in 1 to numberStep
 ![](/README_fig/epsilonGreedy.png)
 | type    | scheme    | _`exploreDecayType`_
 |----------|----------|----------
-| __MDP__  | NOT require `Frozen Time` | _`exp`_, _`step`_, _`perf`_ in _`updatePolicy()`_ of `mdpNode.py`
-| __DQN__ |  -  | _`incre`_, _`exp`_ in _`choose_action()`_  of `dqn.py`
-| __DRQN__ |  require longer explore time   |_`exp`_ in  _`choose_action()`_  of `drqn.py`
+| __MDP__  | NOT require `Frozen Time` | _`exp`_, _`step`_, _`perf`_ in _`updatePolicy()`_ of `mdpNode.py`  
+| __DQN__ |  -  | _`incre`_, _`exp`_ in _`choose_action()`_  of `dqn.py`  
+| __DRQN__ |  require longer explore time   | _`exp`_ in  _`choose_action()`_  of `drqn.py`  
 ```
 ```
 
