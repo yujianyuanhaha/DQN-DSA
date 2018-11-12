@@ -56,7 +56,7 @@ from myFunction import myPlotProb,\
      myPlotPER, myPlotPLR, myPlotThroughput, myPlotCost, \
      noise, updateStack, partialPad, partialObserve, \
      update, myCalculatePER, myGetTxPackets, partialObserveAction, \
-     myCalculatePFR, myPlotPFR, myPlotPCR, myPlotPAR
+     myCalculatePFR, myPlotPFR, myPlotPCR, myPlotPAR, myPlotPFCAR
      
 
 
@@ -602,10 +602,11 @@ myPlotOccupiedAll(nodes, numChans)
 #myPlotThroughput(nodes, cumulativeCollisions, txPackets, optimalTP, numSteps)
 #plt.figure(10)
 #myPlotCost(nodes)
+#plt.figure(5)
+#myPlotPFR(nodes,PFR)
+#plt.figure(6)
+#myPlotPCR(nodes,PCR)
+#plt.figure(7)
+#myPlotPAR(nodes,PAR)
 plt.figure(5)
-myPlotPFR(nodes,PFR)
-plt.figure(6)
-myPlotPCR(nodes,PCR)
-plt.figure(7)
-myPlotPAR(nodes,PAR)
-
+myPlotPFCAR(dqnIndex[0],PFR, PCR, PAR)

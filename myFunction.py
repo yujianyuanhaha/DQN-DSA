@@ -438,6 +438,9 @@ def myPlotPCR(nodes, PCR):
     plt.grid(True)      
     plt.savefig('../dqnFig/PCR.png')
     plt.savefig('../dqnFig/PCR.pdf') 
+
+    
+    
     
 def myPlotPAR(nodes, PAR):
     
@@ -453,6 +456,26 @@ def myPlotPAR(nodes, PAR):
     plt.grid(True)      
     plt.savefig('../dqnFig/PAR.png')
     plt.savefig('../dqnFig/PAR.pdf') 
+    
+    
+    
+def myPlotPFCAR(learningNodeIndex, PFR, PCR, PAR):
+    
+    legendInfo = [ ]
+    plt.semilogy( PFR[:,learningNodeIndex] )
+    legendInfo.append("Failure Rate")
+    plt.semilogy( PCR[:,learningNodeIndex] )
+    legendInfo.append("Collision Rate")
+    plt.semilogy( PAR[:,learningNodeIndex] )
+    legendInfo.append("Absent Rate")
+    
+    plt.legend(legendInfo)
+    plt.xlabel('Step Number')
+    plt.ylabel('Cumulative Rate')
+    plt.title( 'Cumulative Rate')   
+    plt.grid(True)      
+    plt.savefig('../dqnFig/PFCAR.png')
+    plt.savefig('../dqnFig/PFCAR.pdf') 
     
     
 def myPlotThroughput(nodes, cumulativeCollisions, txPackets, optimalTP, numSteps):
