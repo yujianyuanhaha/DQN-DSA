@@ -52,6 +52,8 @@ for t in 1 to numberStep
 | __MDP__  | NOT require `Frozen Time` | _`exp`_, _`step`_, _`perf`_ in _`updatePolicy()`_ of `mdpNode.py`
 | __DQN__ |  -  | _`incre`_, _`exp`_ in _`choose_action()`_  of `dqn.py`
 | __DRQN__ |  require longer explore time   |_`exp`_ in  _`choose_action()`_  of `drqn.py`  
+
+
 Besides, the _`timeLearnStart`_ (default value _`1000`_) could be set at `multiNodeLearning.py`, the _`exploreDecay`_(decay rate, default value _`0.01`_),  _`exploreMin`_(default value _`0.01`_) could be set at `mdpNode.py`, `dqn.py`.
 
 
@@ -142,7 +144,7 @@ observation <- state
 state[m:n] <- Nan
 observation <- [state, action]
 ```
-default observation function by __DRQN__.
+default observation function by __DRQN__---.
 ![](/README_fig/pad-act.png)
 
 
