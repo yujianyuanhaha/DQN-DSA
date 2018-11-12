@@ -25,7 +25,37 @@ for t in 1 to numberStep
 ```
 
 
-## Online MDP
+## Metirc
+[terms refer](http://www.cns.nyu.edu/~david/courses/perception/lecturenotes/sdt/sdt.html)
+
+| -    | learning node take one channel to TX   __1__ | learning node WAIT __0__
+|----------|----------|----------
+| none of channel availble  __1__ | _hit_: __collision__, part of fail| _miss_: __dodge__,correct
+| at leat one __0__  |  _false alarm_: __occupy__ correct  | _correct reject_: __absent__, part of fail
+
+
+```
+N_fail    = N_11 + N_00 = N_collision + N_absent
+N_success = N_10 + N_01 = N_dodge     + N_occupy
+```
+Therefore, we only care about __PCR(Packet Collision Rate)__ and __PAR(Packet Absent Rate)__.
+
+```
+PCR(Packet Collision Rate) = N_collision              / (N_collision + N_dodge + N_fill + N_absent)
+PDR(Packet Dodge     Rate) = N_dodge                  / (N_collision + N_dodge + N_fill + N_absent)
+PFR(Packet Fill      Rate) = N_occupy                 / (N_collision + N_dodge + N_fill + N_absent)
+PAR(Packet Absent    Rate) = N_absent                 / (N_collision + N_dodge + N_fill + N_absent)
+PFR(Packet Failure   Rate) = (N_collision + N_absent) / (N_collision + N_dodge + N_fill + N_absent)
+PSR(Packet Success   Rate) = (N_occupy    + N_dodge)  / (N_collision + N_dodge + N_fill + N_absent)
+```
+
+1. By default, we adopt PFR and PCR, and expect __low failure rate with low collision rate__.
+2. Notice PCR is the only __local__ metric, while others are global.  
+3. when met multi-agent, only PCR(Packet __Collision Rate__) stands. 
+
+
+
+# Online MDP
 ``` C
 Init transition matrix P, reward matrix R
 for t in 1 to numberStep

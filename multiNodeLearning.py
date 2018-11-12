@@ -55,7 +55,8 @@ from myFunction import myPlotProb,\
      myPlotOccupiedEnd, myPlotOccupiedAll,\
      myPlotPER, myPlotPLR, myPlotThroughput, myPlotCost, \
      noise, updateStack, partialPad, partialObserve, \
-     update, myCalculatePER, myGetTxPackets, partialObserveAction 
+     update, myCalculatePER, myGetTxPackets, partialObserveAction, \
+     myCalculatePFR, myPlotPFR, myPlotPCR, myPlotPAR
      
 
 
@@ -118,6 +119,7 @@ padValue          =  json.loads(Config.get('partialObservation', 'padValue'))
 stackNum          =  json.loads(Config.get('partialObservation', 'stackNum')) 
 
 timeLearnStart    = 1000
+absent            = 0
 
              
 numNodes = len(nodeTypes)
@@ -141,16 +143,18 @@ exposedSpatialReuse   = np.zeros((numNodes,numNodes))
 #    hiddenNodes = np.concatenate( ( hiddenNodes,\
 #                                   np.zeros(numNodes-len(hiddenNodes)) ), axis=0)
 
-isWait = False  #default no imNode
-if any(nodeTypes==2) and len(nodeTypes) > numChans:
-    isWait = True
-    print("learn to occupy imNode")
+#isWait = False  #default no imNode
+#if any(nodeTypes==2) and len(nodeTypes) > numChans:
+#    isWait = True
+#    print("learn to occupy imNode")
 
 
 
 
 # Initializing Nodes, Observable States, and Possible Actions
 nodes                 =  [ ]
+if stackNum > 1:
+    print "extra-memory MDP"
 states                = stateSpaceCreate(numChans*stackNum)
 #states                = stateSpaceCreate(numChans)
 
@@ -242,6 +246,7 @@ collisions           = np.zeros(numNodes)
 collisionTally       = np.zeros((numNodes,numNodes))  #TODO
 collisionHist        = np.zeros((numSteps,numNodes))
 cumulativeCollisions = np.zeros((numSteps,numNodes)) 
+cumulativeAbsents    = np.zeros((numSteps,numNodes)) 
 
 
 mdpLearnTime = np.zeros(numSteps)
@@ -342,8 +347,8 @@ for t in range(0,numSteps):
          simulationScenario.updateScenario(nodes,legacyNodeIndicies, t)
 
     '''-------- update states and other dqn make action ----------------------'''    
-    collisions, collisionTally, observedStates = \
-                    update(nodes, numChans, actions, collisions, collisionTally)
+    collisions, absent, collisionTally, observedStates = \
+                    update(nodes, numChans, actions, collisions, collisionTally, absent)
 
     for m in range(1,numDqn):
         l = indexPriority[m].astype(int)
@@ -374,9 +379,10 @@ for t in range(0,numSteps):
         else:
             print "error dqn type"
         
-        collisions, collisionTally, observedStates = \
-            update(nodes, numChans, actions, collisions, collisionTally)
+        collisions, absent, collisionTally, observedStates = \
+            update(nodes, numChans, actions, collisions, collisionTally, absent)
 
+    "notice NO FEEDBACK for wait, thus hard to define reward for wait, sometime it is right wait, sometimes NOT"
     
     ''' ===================================================================  '''
     ''' Determining rewards, and policies          '''
@@ -390,7 +396,7 @@ for t in range(0,numSteps):
                     
         if isinstance(nodes[n],mdpNode):
             ticMdpLearn = time.time()
-            reward = nodes[n].getReward(collisions[n],t,isWait)
+            reward = nodes[n].getReward(collisions[n],t)
             # additive noise to flip certain bit of observation
             temp = observedStates[n,:]
             
@@ -411,7 +417,7 @@ for t in range(0,numSteps):
                                 
         if isinstance(nodes[n],dqnNode) or isinstance(nodes[n],acNode) or isinstance(nodes[n],ddpgNode) or isinstance(nodes[n],drqnNode):
             ticDqnLearn = time.time()
-            reward = nodes[n].getReward(collisions[n] ,t, isWait)
+            reward = nodes[n].getReward(collisions[n] ,t)
             temp = observedStates[n,:]  #  observation_
 
             if   nodes[n].type == 'dqnPo':
@@ -471,6 +477,11 @@ for t in range(0,numSteps):
     cumulativeCollisions[t,:] = collisions
     if t != 0:
         cumulativeCollisions[t,:] +=  cumulativeCollisions[t-1,:]
+        
+    absents                = np.zeros(numNodes)
+    absents[dqnIndex[0]]   = absent    # todo uniform vs efficiency
+    cumulativeAbsents[t,:] = absents
+    
     
     if ticMdpAction:
         mdpLearnTime[t] = tocMdpAction - ticMdpAction + tocMdpLearn - ticMdpLearn
@@ -547,11 +558,14 @@ for t in range(0,numSteps):
     
 print( " 100% completed--------------------")
 txPackets = myGetTxPackets(nodes,cumulativeCollisions)
-PER, PLR = myCalculatePER(nodes, numSteps, 
-                                  txPackets, 
-                                  cumulativeCollisions)
-print "Packet Error  Rate: %s"%(PER[t-1]*100)   
-print "Packet Loss  Rate: %s"%(PLR[t-1]*100)       
+#PER, PLR = myCalculatePER(nodes, numSteps, 
+#                                  txPackets, 
+#                                  cumulativeCollisions)
+PFR,PCR, PAR = myCalculatePFR(nodes,numSteps, cumulativeCollisions, cumulativeAbsents)
+print "Packet Fail       Rate: %s"%(PFR[t-1]*100)   
+print "Packet Collision  Rate: %s"%(PCR[t-1]*100)  
+print "Packet Absent     Rate: %s"%(PAR[t-1]*100)   
+   
 print( "--- End Main Loop--- ")
 toc =  time.time()
 print( "--- Totally %s seconds ---" %(toc - tic))
@@ -580,12 +594,18 @@ plt.figure(3)
 myPlotOccupiedEnd(nodes, numChans, plotPeriod = 100)
 plt.figure(4)
 myPlotOccupiedAll(nodes, numChans)
-plt.figure(5)
-myPlotPER(nodes, PER) 
-plt.figure(6)   
-myPlotPLR(nodes, PLR)
+#plt.figure(5)
+#myPlotPER(nodes, PER) 
+#plt.figure(6)   
+#myPlotPLR(nodes, PLR)
 #plt.figure(9)   
 #myPlotThroughput(nodes, cumulativeCollisions, txPackets, optimalTP, numSteps)
 #plt.figure(10)
 #myPlotCost(nodes)
+plt.figure(5)
+myPlotPFR(nodes,PFR)
+plt.figure(6)
+myPlotPCR(nodes,PCR)
+plt.figure(7)
+myPlotPAR(nodes,PAR)
 

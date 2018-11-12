@@ -294,8 +294,9 @@ class dqnNode(radioNode):
         return action, temp  
     
     
-    def getReward(self,collision,stepNum, isWait):
+    def getReward(self,collision,stepNum):
         
+        isWait = False   # close interface
         if isWait == True:
              self.rewards  = [-50, 100, -200, 50, -100] 
         action = self.actionHist[stepNum,:]

@@ -112,8 +112,9 @@ class mdpNode(radioNode):
         return action
 
         
-    def getReward(self,collision,stepNum,isWait):
+    def getReward(self,collision,stepNum):
         
+        isWait = False    
         if isWait == True:
              self.rewards  = [0, 100, -100, 50, -400]  
         

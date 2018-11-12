@@ -100,7 +100,8 @@ Conclusion: ❌  _Current design cannot learning these first_oder random well._
 By default, it apply  _`mode = "dutyCycle"`_ with parameter  _`imPeriod`_, _`imDutyCircle`_ in `imNode.py`.   
 For some tiny case that cannot __exact division__, we can set _`mode = "onOFF"`_ and _`onDuration`_, _`offDuration`_.
 
-
+## learning intermittent
+By set _`isWait`_ tag within _`getReward()`_ of `mdpNode.py` and `dqnNode.py`, a new reward is listed to encourage wait. A heuristic way to learn short-period im Node.
 
 ## DSA-aided DRQN
 Try apply DSA to accelerate the convergecast.    

@@ -16,7 +16,7 @@ from stochasticNodes.poissonNode import poissonNode
 
 
 
-def update(nodes, numChans, actions, collisions, collisionTally):
+def update(nodes, numChans, actions, collisions, collisionTally, absent):
     numNodes = len(nodes)
     observedStates = np.zeros((numNodes,numChans))
 
@@ -42,8 +42,26 @@ def update(nodes, numChans, actions, collisions, collisionTally):
                   and not nodes[nn].exposedSpatialReuse[n]:    # if nodes[nn].exposedSpatialReuse[n] == 0
                     collisions[n]         = 1
                     collisionTally[n,nn] += 1
+                    
+                    
+    # calculate absent - environment got slot while learning node choose to wait                
+    priUser = 0
+    learnNodeIndex = [ ]                
+    for n in range(0,numNodes):
+        if nodes[n].hyperType == "learning":  #
+            learnNodeIndex.append(n)
+        else:            
+            priUser  += actions[n,:]
+    if len(learnNodeIndex) > 1:
+        print "multi-agent ! Absent metric fail"
+    learnNodeIndex = learnNodeIndex[0]
+    
+    openSlot  = ( np.sum(priUser) < numChans )  
+    learnWait = ( np.sum(actions[learnNodeIndex])  == 0 )   #
+    if openSlot and learnWait:   # a bit redundency but 
+        absent += 1
  
-    return collisions, collisionTally, observedStates
+    return collisions, absent, collisionTally, observedStates
     
 
 
@@ -345,7 +363,17 @@ def myCalculatePER(nodes, numSteps, txPackets, cumulativeCollisions):
     PER =  cumulativeCollisions / txPackets
     PLR = (cumulativeCollisions + timeSlots - txPackets) /timeSlots # NOT ABSOLUTE FAIR, prefer throughput
     return PER, PLR
-    
+
+
+def myCalculatePFR(nodes, numSteps, cumulativeCollisions, cumulativeAbsents):
+
+    timeSlots = np.matlib.repmat( np.arange(1,numSteps+1)[np.newaxis].T  ,
+                                 1,len(nodes) )  
+#    txPackets = np.array(txPackets).T
+    PCR =  cumulativeCollisions / timeSlots
+    PAR =  cumulativeAbsents    /timeSlots # NOT ABSOLUTE FAIR, prefer throughput
+    PFR = PCR + PAR
+    return PFR, PCR, PAR    
     
 def myPlotPER(nodes, PER):
     
@@ -379,6 +407,52 @@ def myPlotPLR(nodes, PLR):
         plt.show() 
     plt.savefig('../dqnFig/PLR.png')
     plt.savefig('../dqnFig/PLR.pdf')  
+    
+    
+def myPlotPFR(nodes, PFR):
+    
+    legendInfo = [ ]
+    for i in range(len(nodes)):
+        plt.semilogy( PFR[:,i] )
+        legendInfo.append( '%d %s'%(i,nodes[i].type) )
+    
+    plt.legend(legendInfo)
+    plt.xlabel('Step Number')
+    plt.ylabel('Cumulative Packet Failure Rate')
+    plt.title( 'Cumulative Packet Failure Rate')   
+    plt.grid(True)      
+    plt.savefig('../dqnFig/PFR.png')
+    plt.savefig('../dqnFig/PFR.pdf') 
+    
+def myPlotPCR(nodes, PCR):
+    
+    legendInfo = [ ]
+    for i in range(len(nodes)):
+        plt.semilogy( PCR[:,i] )
+        legendInfo.append( '%d %s'%(i,nodes[i].type) )
+    
+    plt.legend(legendInfo)
+    plt.xlabel('Step Number')
+    plt.ylabel('Cumulative Packet Collision Rate')
+    plt.title( 'Cumulative Packet Collision Rate')   
+    plt.grid(True)      
+    plt.savefig('../dqnFig/PCR.png')
+    plt.savefig('../dqnFig/PCR.pdf') 
+    
+def myPlotPAR(nodes, PAR):
+    
+    legendInfo = [ ]
+    for i in range(len(nodes)):
+        plt.semilogy( PAR[:,i] )
+        legendInfo.append( '%d %s'%(i,nodes[i].type) )
+    
+    plt.legend(legendInfo)
+    plt.xlabel('Step Number')
+    plt.ylabel('Cumulative Packet Absent Rate')
+    plt.title( 'Cumulative Packet Absent Rate')   
+    plt.grid(True)      
+    plt.savefig('../dqnFig/PAR.png')
+    plt.savefig('../dqnFig/PAR.pdf') 
     
     
 def myPlotThroughput(nodes, cumulativeCollisions, txPackets, optimalTP, numSteps):
