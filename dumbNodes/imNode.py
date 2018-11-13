@@ -29,8 +29,8 @@ class imNode(radioNode):
         self.imDutyCircle             = imDutyCircle
         self.type                     = "im"
         self.hyperType                = "dumb" 
-        self.mode                     = "dutyCycle"
-#        self.mode                     = "onOFF"
+#        self.mode                     = "dutyCycle"
+        self.mode                     = "onOFF"
         print "im mode: " + self.mode
         "-- swith means when (the percentage of period) to make a flip"
         self.switch                   = np.zeros(len(self.imDutyCircle)+1)
@@ -42,8 +42,8 @@ class imNode(radioNode):
     def getAction(self, stepNum): 
 
 
-        onDuration = 2
-        offDuration = 1
+        onDuration = 5
+        offDuration = 5
             
                     
         if stepNum > 0:

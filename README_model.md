@@ -56,10 +56,29 @@ PSR(Packet Success   Rate) = (N_occupy    + N_dodge)  / (N_collision + N_dodge +
 # Reward Structure
 | case    | reward
 |----------|----------
-| Tranmission | -100
+| Wait  | -100
+| Tranmission | +100
 | Transmission and Collision  | -200
-| Wait  | +100
 
+
+Since there is no feedback for wait(you got no idea it is "good" not "bad" wait), the set of Wait is tricky.  
+
+Once learning node have to share one  channel with another legacy, like intermittent, __there should be less penalty for wait(at cost of lower through put, quick but not a recommend way)__, the table becomes
+| case    | reward
+|----------|----------
+| Wait  | -100
+| Tranmission | +100
+| Transmission and Collision  | -200 -> __-50__
+
+
+Once channel quality is introduced, the table could be extend to
+| case    | reward
+|----------|----------
+| Wait  | -100
+| Tranmission on Good channel | +100
+| Transmission Good channel and Collision  | -200
+| Tranmission on bad channel | +50
+| Transmission on bad channel and Collision  | -100
 
 # Online MDP
 ``` C
