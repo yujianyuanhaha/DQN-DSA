@@ -39,7 +39,8 @@ class dqnNode(radioNode):
     policyHist       = [ ]        
     # [Not transmitting, Good Channel no Interference, Good Channel Interference, 
     # Bad Channel no Interference, Bad Channel Interference]
-    rewards          = [0, 100, -200, 50, -100]   
+    rewards          = [+1, 100, -50, 50, -100]   
+    print ">>>>>> reward %s"%rewards
     # different duty cycle need different rewards   
     rewardHist       = [ ]
     rewardTally      = [ ]        

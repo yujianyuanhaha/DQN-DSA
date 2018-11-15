@@ -25,6 +25,7 @@ def update(nodes, numChans, actions, collisions, collisionTally, absent):
         
         for nn in range(0,numNodes):
             if nn != n:
+             if True:
                 # case 1, duplex collision
                 if nodes[nn].hiddenDuplexCollision[n]:
                     if  np.sum( actions[n,:] + actions[nn,:])> 1:

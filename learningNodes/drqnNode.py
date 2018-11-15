@@ -39,7 +39,9 @@ class drqnNode(radioNode):
     policyHist       = [ ]        
     # [Not transmitting, Good Channel no Interference, Good Channel Interference, 
     # Bad Channel no Interference, Bad Channel Interference]
-    rewards          = [-200, 100, -200, 50, -100]   
+    rewards          = [-1, 100, -50, 50, -100]   
+    print ">>>>>> reward %s"%rewards
+
     # different duty cycle need different rewards   
     rewardHist       = [ ]
     rewardTally      = [ ]        
@@ -296,9 +298,9 @@ class drqnNode(radioNode):
     
     def getReward(self,collision,stepNum):
         
-        isWait = False
-        if isWait == True:
-             self.rewards  = [-50, 100, -200, 50, -100] 
+#        isWait = False
+#        if isWait == True:
+#             self.rewards  = [-50, 100, -200, 50, -100] 
         action = self.actionHist[stepNum,:]
         if not np.sum(action):
             reward = self.rewards[0]

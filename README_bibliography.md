@@ -32,9 +32,20 @@ Bibliography sum up of the Deep Reinforcement Learning on Dynamic Channel Access
 # Classic Method
 ## myopic
 * [Zhao, Qing, Bhaskar Krishnamachari, and Keqin Liu. "On myopic sensing for multi-channel opportunistic access: structure, optimality, and performance." IEEE Transactions on Wireless Communications 7.12 (2008).](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=4723352)  
-        * (+) achieve 66.7% rate when coexist with __stochastic channel__, the Gilber-Elliot/ 2-state Makov Chain Model.  
-        * (-) limited, work for small scale channel case.  
-        * [zhao2008myopic]  
+    * (+) achieve 66.7% rate when coexist with __stochastic channel__, the Gilber-Elliot/ 2-state Makov Chain Model.  
+    * round-robin
+    * (+) require p_i,j preknown; p11 >= p01 all channel; p11 < p01 channel 2 or 3.
+    * (-) limited, work channel case.  
+    * [zhao2008myopic]  
+
+* [Ahmad, Sahand Haji Ali, et al. "Optimality of myopic sensing in multichannel opportunistic access." IEEE Transactions on Information Theory 55.9 (2009): 4040-4050](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=5208571)       
+    * [ahmad2009optimality]
+
+## Whittle
+* [Liu, Keqin, and Qing Zhao. "Indexability of restless bandit problems and optimality of whittle index for dynamic multichannel access." IEEE Transactions on Information Theory 56.11 (2010): 5547-5567.](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=5605371)
+    * [liu2010indexability]
+    * [45-page version](https://arxiv.org/pdf/0810.4658.pdf)
+
 ## MDP
 * [Zhang, Yalin, et al. "Model free dynamic sensing order selection for imperfect sensing multichannel cognitive radio networks: A Q-learning approach." Communication Systems (ICCS), 2014 IEEE International Conference on. IEEE, 2014.](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7024826)
     * (+) imprefect sensing analyze
@@ -46,12 +57,20 @@ Bibliography sum up of the Deep Reinforcement Learning on Dynamic Channel Access
 
 * [Wang, Shangxing, et al. "Deep reinforcement learning for dynamic multichannel access in wireless networks." IEEE Transactions on Cognitive Communications and Networking (2018).](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8303773)
     * __first journal__, IEEE TRANSACTIONS ON COGNITIVE COMMUNICATIONS AND NETWORKING, VOL. 4, NO. 2, JUNE 2018, First paper __apply DQN on channel access__
+        * stochastic over channel -> stochastic-hopping
+        * dynamic environment -> auto detect and re-learn
+        * stack Memory DQN
+        * sync bettween pair of DQN -> emmergency channel
+        * (-) sense first
     * USC
+
     * [wang2018deep]
+    * [30 page version](https://arxiv.org/pdf/1802.06958.pdf)
 
 * [Chang, Hao-Hsuan, et al. "Distributive Dynamic Spectrum Access through Deep Reinforcement Learning: A Reservoir Computing Based Approach." IEEE Internet of Things Journal (2018).](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8474348)  
-    * Lingjia Liu's work, apply __Echo State Machine__  
-    * DQN + RC > DQN + MLP  
+    * Lingjia Liu's work, apply __Echo State Machine__ , one type of RNN
+    * DQN + RC > DQN + MLP, same performance, better convergecast
+    * (-) sense first  
     * [chang2018distributive]  
 
 * [Yu, Yiding, Taotao Wang, and Soung Chang Liew. "Deep-reinforcement learning multiple access for heterogeneous wireless networks." 2018 IEEE International Conference on Communications (ICC). IEEE, 2018.](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8422168)
@@ -63,7 +82,8 @@ Bibliography sum up of the Deep Reinforcement Learning on Dynamic Channel Access
     * (+)reduce state space in a math way, rather than neural network
     * [tsiligkaridis2017accelerated]
 * [Naparstek, Oshri, and Kobi Cohen. "Deep multi-user reinforcement learning for dynamic spectrum access in multichannel wireless networks." arXiv preprint arXiv 1704 (2017).](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8254101)
-    * (+) first handle __multi-agent learning__, first implement __DRQN in LSTM__, where author treat _distribute observation as the partial observation_. 
+    * (+) first handle __multi-agent learning__, first implement __DRQN + DoubleDQN in LSTM__, where author treat ~~_distribute observation as the partial observation_~~. 
+    * (-) poor verification
     * [30 page version](https://arxiv.org/pdf/1704.02613.pdf)
     * [naparstek2017deep]
 

@@ -27,6 +27,9 @@ class dqn:
     exploreProb      = [ ]              # Current exploration probability
     exploreInit      = 1.0              # Initial exploration probability
     exploreDecay     = 0.01              # Percentage reduction in exploration chance per policy calculation
+    # 460 step reach 1%
+    # ln(0.01) = -4.6
+    print "--------> dqn exploreDecay%s "%exploreDecay  #
 #    exploreDecay     = 0.00023   
     
     exploreProbMin   = 0.01  # avoid the risk to stuck
